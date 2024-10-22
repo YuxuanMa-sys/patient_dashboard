@@ -1,0 +1,52 @@
+<div class="flex flex-col flex-auto md:w-100 md:min-w-100 -m-6 pb-6 px-3">
+
+    <div class="w-full">
+        <div class=" overflow-hidden pb-4">
+
+            <div class="absolute top-5 right-0 h-16 w-16 cursor-pointer" (click)="close()">
+                <mat-icon svgIcon="mat_solid:close" class="icon-size-7"></mat-icon>
+            </div>
+
+            <!-- Heading -->
+            <div class="px-5">
+                <h2 class="text-xl font-normal tracking-normal leading-8 text-dark pt-3">
+                    Verify your phone no
+                </h2>
+                <p class="text-light font-light">We'll send a PIN to this number right away</p>
+            </div>
+
+
+            <fuse-alert class="m-5" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type">
+                {{alert.message}}
+            </fuse-alert>
+
+            <form [formGroup]="form">
+                <div class="px-5 mt-6">
+
+                    <div class="mt-5">
+                        <mat-form-field class="w-full">
+                            <!-- <mat-label>Enter your phone  </mat-label> -->
+                            <input matInput [formControlName]="'phone_no'" [placeholder]="'Phone no '" required>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button class="fuse-mat-button-large rounded font-normal w-full bg-[#7C6DDC] text-white mt-2"
+                            mat-flat-button type="button" [color]="!form.disabled ? 'warn': 'primary'"
+                            [disabled]="form.disabled" (click)="submitForm()">
+                            <span *ngIf="!form.disabled">
+                                Text me with PIN
+                            </span>
+                            <mat-progress-spinner *ngIf="form.disabled" [diameter]="24" [mode]="'indeterminate'">
+                            </mat-progress-spinner>
+
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+
+</div>

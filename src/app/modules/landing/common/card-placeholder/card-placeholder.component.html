@@ -1,0 +1,141 @@
+<!-- Skeleton Loader Component -->
+<div class="flex flex-col max-w-100 md:w-full filter-listing bg-[#EBF9FF] border-2 border-[#dcdcdc] rounded-lg animate-pulse" *ngIf="type === 'home'">
+    <div class="flex items-end -mt-10">
+        <div class="w-20 h-20 ml-5 rounded-full border-2 border-[#dcdcdc] bg-gray-300"></div>
+        <div class="flex flex-col ml-6">
+            <span class="inline-flex items-center font-normal text-xs px-2 py-1 rounded tracking-wide uppercase bg-[#D2F2FF]">
+                <p class="text-[#7C6DDC] text-sm font-medium leading-relaxed bg-gray-300 w-32 h-6"></p>
+            </span>
+        </div>
+    </div>
+
+    <div class="m-6 mb-4">
+        <div class="flex justify-between">
+            <div class="flex flex-col w-full">
+                <div class="flex flex-row mt-2 items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="text-[#293854] text-base font-medium cursor-pointer flex flex-col bg-gray-300 w-48 h-6"></div>
+                        <div class="w-8 h-8 bg-gray-300 rounded-full ml-2"></div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                        <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                    </div>
+                </div>
+
+                <span class="inline-flex items-center font-normal text-xs mr-2 tracking-wide -mt-1 bg-gray-300 w-32 h-6"></span>
+
+                <div class="flex items-center leading-none -ml-1 mt-2">
+                    <div class="w-5 h-5 bg-gray-300 rounded-full"></div>
+                    <div class="text-orange-500 ml-2 bg-gray-300 w-10 h-6"></div>
+                    <div class="text-gray-400 ml-1 bg-gray-300 w-20 h-6"></div>
+                </div>
+                <div class="flex items-center leading-none mt-1 -ml-1">
+                    <div class="w-5 h-5 bg-gray-300 rounded-full"></div>
+                    <div class="border-r ml-2">
+                        <div class="px-1 pr-2 mr-1 text-gray-400 capitalize bg-gray-300 w-24 h-6"></div>
+                    </div>
+                </div>
+
+
+                <div class="flex items-center leading-none mt-2 -ml-1">
+                    <div class="w-5 h-5 bg-gray-300 rounded-full"></div>
+                    <div class="ml-2 bg-gray-300 w-48 h-6"></div>
+                </div>
+                <button class="btn custom-btn mt-4 font-semibold bg-gray-300 w-full h-10"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="grid grid-cols-12 gap-x-6 mb-5 pb-8 mt-8 border-b" *ngIf="type === 'doctor'">
+    <div class="md:col-span-6 col-span-12">
+        <div class="flex">
+            <div class="relative flex flex-0 items-center justify-center w-12 h-12 mr-2 rounded-full overflow-hidden border bg-gray-300 animate-pulse"></div>
+            <div class="ml-2">
+                <div class="h-6 bg-gray-300 rounded w-32 mb-2 animate-pulse"></div>
+                <div class="flex items-center">
+                    <p class="h-4 bg-gray-300 rounded w-20 mr-3 animate-pulse"></p>
+                    <span class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-gray-300 rounded-full animate-pulse"></div>
+                        <div class="w-4 h-4 bg-gray-300 rounded-full animate-pulse"></div>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center mt-1">
+            <div class="w-14 text-center flex items-center justify-center">
+                <div class="h-8 bg-gray-300 rounded animate-pulse"></div>
+            </div>
+            <div class="ml-2">
+                <span class="inline-flex items-center font-normal text-xs px-2 py-[2px] mr-1 bg-gray-300 rounded animate-pulse"></span>
+                <span class="inline-flex items-center font-normal text-xs px-2 py-[2px] mr-1 bg-gray-300 rounded animate-pulse"></span>
+            </div>
+        </div>
+        <div class="flex items-start mt-2">
+            <div class="w-14 text-center flex items-center justify-center">
+                <div class="h-12 bg-gray-300 rounded animate-pulse"></div>
+            </div>
+            <div class="flex flex-col leading-none mt-2 ml-2">
+                <div class="flex items-center mb-2">
+                    <div class="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    <div class="h-4 bg-gray-300 rounded w-20 ml-2 animate-pulse"></div>
+                </div>
+                <div class="flex items-center divide-x divide-black">
+                    <div class="pr-1 mr-1">
+                        <div class="flex items-center leading-none">
+                            <div class="h-4 bg-gray-300 rounded w-8 animate-pulse"></div>
+                            <div class="text-[#F35427] ml-1 text-md h-4 bg-gray-300 rounded w-8 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="px-1 pl-2 flex items-center text-gray-800 text-md h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </div>
+                <div class="flex items-center leading-none divide-x divide-black mt-2 -ml-1">
+                    <div class="flex items-center">
+                        <div class="h-4 bg-gray-300 rounded w-8 animate-pulse"></div>
+                        <div class="px-1 pr-2 mr-1 text-dark leading-tight text-md h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    </div>
+                    <div class="px-1 pl-3 text-[#2E3AA6] font-medium h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 -ml-1 h-4 bg-gray-300 rounded w-40 animate-pulse"></div>
+    </div>
+
+    <div class="md:col-span-6 col-span-12">
+        <div class="flex items-center mt-2">
+            <div class="inline-flex items-center font-normal text-xs px-2 py-.5 mr-2 bg-gray-300 rounded animate-pulse"></div>
+        </div>
+        <div class="flex flex-col w-full">
+            <div class="flex items-center bg-gray-300 p-4 animate-pulse"></div>
+
+        </div>
+        <div class="flex md:flex-wrap flex-nowrap overflow-x-auto mt-3 gap-3">
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+            <div class="col-span-1 basis-1/4 cursor-pointer lg:min-w-[120px] md:min-w-[105px] min-w-[115px] h-15 bg-gray-300 rounded-lg animate-pulse"></div>
+        </div>
+      
+    </div>
+
+    <div class="md:col-span-8 col-span-12">
+        <div class="flex flex-col w-full bg-gray-300 p-4 pb-4 mb-3 mt-3 animate-pulse"></div>
+    </div>
+
+    <div class="col-span-4">
+        <div class="flex justify-between mt-3">
+            <div class="flex justify-start">
+                <div class="h-4 bg-gray-300 rounded w-40 animate-pulse"></div>
+            </div>
+            <div class="flex justify-end">
+                <div class="h-4 bg-gray-300 rounded w-40 animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,41 @@
+
+    <div class="flex flex-col align-center max-w-80_ w-full filter-listing bg-[#E3F7FF]
+     hover:shadow-sm  transition duration-150 hover:-translate-y-1 cursor-pointer">
+        <div class="flex items-center justify-center -mt-10">
+        <img class="w-20 h-20 rounded-full border-2 border-[#CBF0FF]" *ngIf="data.image" [src]="data.image">
+        <div class="w-20 h-20 flex items-center justify-center text-xs font-normal rounded-full border-2 border-[#CBF0FF] leading-none text-center uppercase"
+            *ngIf="!data.image">
+            NO THUMB
+        </div>
+        </div>
+
+        <div class="m-6 mb-4">
+            <div class="flex justify-between">
+                <div class="flex flex-col">
+                    <div class="text-center">
+                        <div class="text-[#4735A3] text-base text-center font-semibold cursor-pointer" >
+                            {{data.name}} </div>
+                        <span
+                            class="inline-flex justify-center items-center font-normal text-center mx-auto text-xs px-2 py-1 mt-3 rounded tracking-wide uppercase bg-[#D2F2FF]">
+                            <p class="text-[#7C6DDC] text-sm font-medium leading-relaxed">
+                               {{data.sup}}</p>
+                        </span>
+                        <div class="text-gray-400 text-center mt-6 min-h-10">{{data.about | slice:0:150}} ...</div>
+                        <div class="flex justify-center items-center mt-2 -ml-1">
+                            <div class="flex items-center">
+                                <mat-icon class="text-[#FFB800] icon-size-5"
+                                    [svgIcon]="'mat_outline:star'"></mat-icon>
+                            </div>
+                            <div class="text-[#FFB800] ml-1">5</div>
+                            <!-- <div class="text-gray-400 ml-1 ">({{data.review_count}})</div> -->
+                        </div>
+                        <h3
+                            class="text-lg_ font-medium text-center text-[#12175E] mt-6 mb-5">
+                            I'm getting 4x more patients per week through 4Smile than
+                            what I had expected.
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

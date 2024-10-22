@@ -1,0 +1,37 @@
+<div class="flex flex-col flex-auto w-full">
+    <div class="flex flex-wrap w-full max-w-screen-xl mx-auto ">
+        <div class="flex items-center justify-between w-full py-3 px-2">
+            <div>
+                <h2 class="text-2xl font-medium tracking-normal leading-8 text-dark">
+                    Patient Detail
+                </h2>
+            </div>
+        </div>
+        <div class="w-full max-w-screen-xl mx-auto bg-card rounded-xl pb-10">
+            <header class="w-full mb-5 rounded-t-xl bg-[#EBEDFF] px-2">
+                <nav class="mx-auto flex items-center justify-between  border-b-2 sub-tab-menu" aria-label="Global">
+                    <div class="flex lg:gap-x-10 gap-y-6 md:flex-row flex-col w-full">
+                        <a routerLink="./" routerLinkActive="active border-b-2"
+                            class="text-lg font-normal leading-6 "
+                             [routerLinkActiveOptions]="{exact: true}">Patient Info
+                        </a>
+                        <a routerLink="records" routerLinkActive="active border-b-2"
+                            class="text-lg font-normal leading-6 ">Appointment Record
+                        </a>
+                        <a routerLink="history" routerLinkActive="active border-b-2"
+                            class="text-lg font-normal leading-6 ">Request History
+                        </a>
+                        <!-- <a routerLink="documents" routerLinkActive="active border-b-2"
+                            class="text-lg font-normal leading-6 ">Documents
+                        </a>
+                        <a routerLink="notes" routerLinkActive="active border-b-2"
+                            class="text-lg font-normal leading-6 ">Additional Notes
+                        </a> -->
+                    </div>
+                </nav>
+            </header>
+
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

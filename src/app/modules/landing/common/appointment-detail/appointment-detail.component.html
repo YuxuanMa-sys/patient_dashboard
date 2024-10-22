@@ -1,0 +1,149 @@
+<div class="flex flex-col flex-auto md:w-120 md:min-w-120 -m-6 pb-6 px-3">
+
+    <div class="w-full">
+        <div class=" overflow-hidden pb-4">
+
+            <!-- Heading -->
+            <div>
+                <h2 class="text-xl font-normal tracking-normal leading-8 text-dark pt-3">
+                    Past Appointment Details
+                </h2>
+            </div>
+            <hr>
+
+            <!-- Two Equal Columns Below -->
+            <div>
+                <div class=" mt-4 px-5 pb-2">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-1">
+                            <div class="flex flex-col">
+                                <div class="text-lg font-medium text-[#293854] mb-3">
+                                    Dentist:
+                                </div>
+                                <div class="flex items-center">
+
+                                        <img class="w-14 h-14 mr-4 rounded-full" *ngIf="single.doctor_data.user.avatar"
+                                        [alt]="'transaction thumbnail image'" [src]="avatar + single.doctor_data.user.avatar">
+                                    <div class="w-14 h-14 mr-4 px-1 flex items-center justify-center text-xs font-normal rounded-full border leading-none text-center uppercase"
+                                        *ngIf="!single.doctor_data.user.avatar">
+                                        NO THUMB
+                                    </div>
+                                    <div class="flex flex-col min-w-0">
+                                        <div class="font-medium text-lg text-[#293854] leading-none underline underline-offset-2
+                                            ">{{single.doctor_data.user.first_name}}
+                                            {{single.doctor_data.user.last_name}}</div>
+                                        <div class="text-md leading-none text-secondary mt-3">
+                                            {{single.doctor_data.practice_name}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
+
+                <div>
+                    <div class="grid grid-cols-3 px-5">
+                        <div class="col-span-1">
+                            <div>
+                                <div class="font-medium text-[#293854] text-lg mb-3">
+                                    Appt Details
+                                </div>
+                                <div class="font-medium text-sm text-gray-500">
+                                    Date:
+                                </div>
+                                <div class="font-medium text-md text-dark">
+                                    {{single.dated}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-1 mt-9">
+                            <div>
+                                <div class="font-medium text-sm text-gray-500">
+                                    Time:
+                                </div>
+                                <div class="font-medium text-md text-dark">
+                                    {{single.availability_slot.start_time}} - {{single.availability_slot.end_time}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-1 mt-9">
+                            <div>
+                                <div class="font-medium text-sm text-gray-500">
+                                    Appointment For:
+                                </div>
+                                <div class="font-medium text-md text-dark">
+                                    {{single.booking_for}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <div class="mt-5">
+                                <div class="font-medium text-sm text-gray-500">
+                                    Appointment Type:
+                                </div>
+                                <div class="font-medium text-md text-dark">
+                                    {{single.type}}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-span-1">
+                            <div class="mt-5" *ngIf="single.insurance_plan">
+                                <div class="font-medium text-sm text-gray-500">
+                                    insurance:
+                                </div>
+                                <div class="">
+                                    <div class="flex mt-1">
+                                        <img class="w-14"
+                                        *ngIf="single.insurance_plan?.image"
+                                           [src]="url + single.insurance_plan.image">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-span-1" *ngIf="single.attachment">
+                            <div class="mt-5">
+                                <div class="font-medium text-sm text-gray-500">
+                                    Attachement:
+                                </div>
+                                <div>
+                                    <a class="flex items-center mt-4" [href]="attachment + single.attachment" target="_blank">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                                        <span class="leading-none">{{single.attachment}}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="px-5 mt-6">
+                        <div>
+                            <div class="font-medium leading-none text-[#293854] text-lg">Description:</div>
+                            <div class="mt-2 pr-5 ">
+                                {{single.notes}}
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <button
+                                class="fuse-mat-button-small rounded-[6px] font-normal w-40 bg-[#7C6DDC] text-white mt-8"
+                                mat-flat-button type="button" (click)="close()">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>

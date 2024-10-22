@@ -1,0 +1,10 @@
+
+.mat-mdc-progress-bar.mat-warn {
+    --mdc-linear-progress-active-indicator-color: #F35427 !important;
+    --mdc-linear-progress-track-color: #d9d9d9 !important;
+}
+
+.mat-mdc-progress-bar {
+    --mdc-linear-progress-active-indicator-height: 15px !important;
+    --mdc-linear-progress-track-height: 14px !important;
+}

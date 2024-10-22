@@ -1,0 +1,80 @@
+<form [formGroup]="searchForm" (ngSubmit)="search()" class="search-form py-2 rounded  ">
+    <div class="flex md:flex-row flex-col justify-between md:items-center border
+         border-[#969696] rounded mx-5 ">
+        <!-- Search Services -->
+        <div class="flex items-center border-b border-gray-300 md:border-r md:border-b-0 flex-auto">
+            <mat-form-field class="w-full  pl-0 md:min-w-64">
+                <input matInput placeholder="Condition, procedure, dentist..." [formControl]="serviceCtrl"
+                    [matAutocomplete]="auto" #inputField />
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let service of filteredServices | async" [value]="service.name"
+                        (mouseover)="onOptionHover(service.name, inputField)"
+                        (onSelectionChange)="onOptionSelected(service.id)">
+                        {{ service.name }}
+                    </mat-option>
+                </mat-autocomplete>
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'feather:search'"></mat-icon>
+            </mat-form-field>
+        </div>
+
+        <div class="flex items-center border-b border-gray-300  md:border-r md:border-b-0 flex-auto">
+            <!-- <mat-form-field class="w-full md:min-w-64">
+                <input matInput placeholder="City, State, or Zip code" [formControl]="locationSearchCtrl"
+                    [matAutocomplete]="locationSearchAuto" (input)="modelChangeAddressFn($event)" />
+                <mat-autocomplete #locationSearchAuto="matAutocomplete">
+                    <mat-option *ngFor="let item of filteredLocationSearch | async"
+                        [value]="item.city || item.state || item.country">
+                        {{item.address}}
+                    </mat-option>
+                </mat-autocomplete>
+                <mat-icon svgIcon="heroicons_outline:map-pin" matPrefix class="icon-size-5"></mat-icon>
+            </mat-form-field> -->
+
+            <mat-form-field class="w-full md:min-w-64">
+                <input matInput #autocompleteInput placeholder="Type to search"
+                    [formControl]="locationSearchCtrl" [matAutocomplete]="locationSearchAuto"
+                    (input)="modelChangeAddressFn($event)" />
+                <mat-autocomplete #locationSearchAuto="matAutocomplete">
+             
+                    <!-- <mat-option *ngFor="let item of filteredLocationSearch | async" 
+                    (click)="onLocationSelect(item)">
+                        <span [innerHTML]="item.highlightedAddress"></span>
+                      </mat-option> -->
+
+                      <mat-option *ngIf="showCurrentLocation" (click)="useCurrentLocationFn()">
+                        <mat-icon svgIcon="heroicons_outline:map-pin" class="mr-2"></mat-icon>
+                        Use Current Location
+                    </mat-option>
+                    
+                </mat-autocomplete>
+                <mat-icon svgIcon="heroicons_outline:map-pin" matPrefix class="icon-size-5"></mat-icon>
+            </mat-form-field>
+
+        </div>
+
+        <!-- Insurance -->
+        <div class="flex items-center border-b border-gray-300  md:border-r md:border-b-0 flex-auto">
+            <mat-form-field class="w-full  md:min-w-64">
+                <mat-select [placeholder]="'Insurance'" formControlName="insurance">
+                    <mat-option *ngFor="let item of insurances" [value]="item.id">
+                        {{item.name}}
+                    </mat-option>
+                </mat-select>
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'mat_outline:verified_user'"></mat-icon>
+            </mat-form-field>
+        </div>
+        <!-- <div class="flex items-center border-b border-gray-300 md:border-r md:border-b-0 py-3 min-w-44 flex-auto pl-3">
+            <input class="form-switch " type="checkbox" role="switch" id="flexSwitchCheckChecked"
+                (change)="onToggleChange($event)">
+            <label class="ms-1.5 text-gray-400 " for="flexSwitchCheckChecked">
+                Verified Dentists
+            </label>
+        </div> -->
+        <!-- Search Button -->
+        <div class="mt-4 md:mt-0">
+            <button type="submit" class="btn bg-[#543EDF] px-3 pt-3 pb-1 rounded border-transparent w-full">
+                <mat-icon class=" text-white icon-size-6" svgIcon="feather:search"></mat-icon>
+            </button>
+        </div>
+    </div>
+</form>

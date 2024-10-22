@@ -1,0 +1,12 @@
+/* app.component.css */
+
+.sub-tab-menu {
+    a {
+        padding: 12px 15px;
+        color: #293854;
+        &.active {
+            color: #763CEF !important;
+            border-color: #7C6DD7;
+        }
+    }
+}

@@ -1,0 +1,204 @@
+<div class="flex flex-col flex-auto md:w-140 md:max-w-140 w-full  relative -mt-[24px]">
+    <div class="grid gap-x-8">
+        <div class="font-normal md:text-2xl text-lg md:mb-5 mb-2 flex items-center justify-between  sticky top-[-24px] z-10 bg-white md:pt-8 pt-3">
+            <h3 [routerLink]="'/doctors/' + single.id + '/profile'">
+                Continue booking with Dr.
+                <span class="capitalize">
+                    {{single.user.first_name}} {{single.user.last_name}},
+                </span>
+
+                <span class="" *ngFor="let title of single.titles; let isLast=last">
+                    {{title.name}}{{isLast ? '' : ', '}}
+                </span>
+            </h3>
+
+            <div class=" h-16 w-16 cursor-pointer flex justify-end mt-3 md:mt-0" (click)="close()">
+                <mat-icon svgIcon="mat_solid:close" class="icon-size-7"></mat-icon>
+            </div>
+            <!-- <img class="w-6 ml-3 object-cover " *ngIf="single.verified" src="assets/images/all-img/Guarantee-icon.png"> -->
+        </div>
+
+        <div class="flex flex-col md:flex-row">
+            <div class="">
+                <div
+                    class="relative flex flex-0 items-center justify-center md:w-24 m:h-24 w-18 h-18 md:mr-2 m-auto rounded-full overflow-hidden border">
+                    <img class="md:w-24 m:h-24 w-18 h-18 m-auto" *ngIf="single.user.avatar" [src]="avatar + single.user.avatar">
+                    <div class="flex singles-center items-center justify-center w-full h-full text-xs font-normal rounded-full leading-none text-center uppercase"
+                        *ngIf="!single.user.avatar">
+                        NO THUMB
+                    </div>
+                </div>
+
+                <img class="w-12 m-auto mt-1" *ngIf="single.verified" src="assets/images/all-img/verified-1.png">
+            </div>
+            <div>
+                <div class="md:ml-2">
+                    <div class="flex items-center">
+                        <div class="text-dark text " *ngFor="let specialization of single.specializations">
+                            {{specialization.name}}
+                        </div>
+                    </div>
+
+                    <div class="flex">
+                        <span class="inline-flex items-center font-normal text-xs px-2 py-[2px] mr-1 tracking-wide"
+                            *ngFor="let service of single.services | slice:0:2; let i=index"
+                            [ngClass]="i === 0 ? 'bg-[#AECFFF]' : 'bg-[#FFE092]'">
+                            <p class="text-gray-500 text-sm font-light leading-relaxed">
+                                {{service.name}}
+                            </p>
+                        </span>
+
+                        <span
+                            class="inline-flex items-center font-normal text-xs px-2 py-[2px] mr-1 tracking-wide  bg-[#EDE9E9]"
+                            *ngIf="single.services.length > 1">
+                            <p class="text-gray-600 text-sm font-light leading-relaxed cursor-pointer  ">
+                                + {{single.services.length}}
+                            </p>
+                        </span>
+                    </div>
+
+                    <div class="flex items-center leading-none mt-2 -ml-1">
+                        <div class="flex items-center">
+                            <div class="flex divide-x divide-black items-center">
+                                <div class="px-1 pr-1 mr-1">
+                                    <div class="flex items-center leading-none">
+                                        <mat-icon class="text-[#F35427] icon-size-4"
+                                            [svgIcon]="'mat_outline:star'"></mat-icon>
+                                        <div class="text-[#F35427] ml-1  text-md">
+                                            {{single.average_rating}} ({{single.review_count}})
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="px-1 pl-2 flex items-center text-gray-800 text-md">
+                                    4smile +
+                                    Google
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col  leading-none mt-2">
+                        <div class="flex items-center" *ngIf="single.languages.length">
+                            <div class="grid grid-cols-3 divide-x divide-black divide-gray-400">
+                                <div class="text-gray-400 text-md leading-3 "
+                                    *ngFor="let languages of single.languages; let i=index"
+                                    [ngClass]="i === 0 ? ' ' : 'pl-2'">
+                                    {{languages.name}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center leading-none divide-x divide-black mt-2 -ml-1">
+                        <div class="flex items-center">
+                            <mat-icon class="icon-size-4 text-gray-900" svgIcon="mat_solid:location_on"></mat-icon>
+                            <div class="px-1 pr-2 mr-1 text-dark leading-tight text-md">
+                                {{single.user.city}},
+                                {{single.user.state}} </div>
+                        </div>
+
+                        <div class="px-1 pl-3 text-[#2E3AA6] font-medium">2.3 ml away
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="mt-4 border-b">
+            <div class="grid grid-cols-1 gap-x-6">
+                <mat-form-field class="flex-auto gt-xs:pr-3">
+                    <mat-label>Visit Reason</mat-label>
+                    <mat-select [placeholder]="'Visit Reason'" required [(ngModel)]="issues_seeking">
+                        <mat-option *ngFor="let item of services" [value]="item.name">{{item.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="text-medium text-lg">
+                Appintment type
+            </div>
+            <div class="grid md:grid-cols-2 gap-x-3 pb-4">
+                <div class="flex gt-sm:mt-0 gt-sm:ml-2 mt-2">
+                    <mat-radio-group class="flex" [color]="'primary'" [(ngModel)]="selectedAppointmentType">
+                        <ng-container *ngIf="single.booking_type === 'In-person' || single.booking_type === 'Both'">
+                            <mat-radio-button class="mb-2" value="In-Person">
+                                <span class="flex items-center text-md">
+                                    <img src="assets/icons/person.png" class="w-4 object-contain mr-1 -ml-1">
+                                    In-Person
+                                </span>
+                            </mat-radio-button>
+                        </ng-container>
+
+                        <ng-container *ngIf="single.booking_type === 'Virtual' || single.booking_type === 'Both'">
+                            <mat-radio-button class="mb-2" value="Virtual">
+                                <span class="flex items-center text-md">
+                                    <img src="assets/icons/video.png" class="w-4 object-contain mr-1 -ml-1">
+                                    Virtual
+                                </span>
+                            </mat-radio-button>
+                        </ng-container>
+                    </mat-radio-group>
+                </div>
+
+                <div class="flex flex-col justify-center ">
+                    <div class="flex items-center border justify-center p-2 rounded text-[#1B2C4D] border-[#0000004D]">
+                        <mat-icon svgIcon="heroicons_solid:calendar-days" class="icon-size-5  "></mat-icon>
+                        <div class="leading-snug ml-2  font-normal">
+                            {{ currentWeekRange }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-x-6 mb-5">
+            <div class="col-span-12 mt-3">
+                <h3 class="font-normal text-lg font-medium">Avaiable Appointment Slots:</h3>
+                <p class="text-md text-gray-600 font-light ">Choose your preferred time to book for free</p>
+            </div>
+            <div class="col-span-12">
+                <div class="flex flex-col mt-3" *ngFor="let avail of single.availabilities">
+                    <ng-container *ngIf="selectedAppointmentType === 'Both' || avail.type === selectedAppointmentType">
+                        <h2 class="text-lg font-normal">
+                            <!-- {{isSlotInNextWeek(avail.day )}} <br /> -->
+                            {{avail.date | date:'EEE, MMM dd'}}
+                            <!-- <span class="text-sm">{{avail.type}}</span> -->
+                        </h2>
+
+                        <div class=" grid sm:grid-cols-3 md:grid-cols-6 grid-cols-4  gap-1 mt-1">
+                            <ng-container *ngFor="let item of avail.slots">
+                                <div class="border border-gray-300 rounded-sm py-2 bg-[#AECFFF] transition hover:bg-[#85B5F0] hover:text-white cursor-pointer"
+                                    [ngClass]="avail.slots.length > 0 ? 'riz' : 'bg-gray-200'"
+                                    (click)="getSlot(avail.id, item.id, getFormattedDate(avail.day), item.start_time, item.end_time, avail.type)">
+
+                                    <p class="text-sm  font-normal text-center ">
+                                        {{item.start_time}}
+                                        <!-- - {{item.end_time}} -->
+                                    </p>
+                                </div>
+                            </ng-container>
+
+                            <div class="col-span-2 border border-[#F35427] text-[#F35427] rounded-md py-2 "
+                                *ngIf="avail.slots.length === 0  && avail.type !== selectedAppointmentType ">
+
+                                <p class="text-sm  font-normal text-center ">
+                                    No Availability
+                                </p>
+                            </div>
+                        </div>
+
+                    </ng-container>
+                </div>
+            </div>
+            <!-- <div class="col-span-12  mt-5">
+                <button class=" btn p-3 w-full rounded mt-3" (click)="booknow()"
+                    [ngClass]="buttonStatus ? ' btn-primary' : ' btn-primary-300'" [disabled]="!buttonStatus">
+                    Continue booking</button>
+            </div> -->
+        </div>
+
+    </div>

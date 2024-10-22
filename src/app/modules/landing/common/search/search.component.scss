@@ -1,0 +1,17 @@
+.search-form {
+    .mat-mdc-select-arrow {
+        display: none;
+      }
+}
+
+.search-form .mat-mdc-form-field.mat-form-field-appearance-fill .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.search-form .mat-mdc-form-field.mat-form-field-appearance-fill .mat-mdc-text-field-wrapper {
+    border: none !important;
+    --tw-shadow: shadow-none !important;
+    input {
+        min-height: 42px;
+    }
+}
