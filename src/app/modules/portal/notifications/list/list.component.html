@@ -1,0 +1,85 @@
+<section id="upcoming" class="w-full max-w-screen-xl mx-auto">
+
+    <div class="flex items-center justify-between w-full py-3 px-2">
+        <div>
+            <h2 class="text-2xl font-medium tracking-normal leading-8 text-dark">Notifications
+            </h2>
+        </div>
+
+        <div class="mt-4 sm:mt-0">
+            <!-- Upload button -->
+            <!-- <button mat-flat-button [color]="'primary'">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">Add Announcements </span>
+            </button> -->
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1  gap-6 w-full mt-2">
+
+        <div class="flex flex-col flex-auto sm:mb-10 bg-card shadow rounded-sm overflow-hidden sm:overflow-y-auto p-5">
+            <div class="overflow-x-auto">
+                <ng-container>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                        <div class="filter-article relative flex w-full flex-col bg-white shadow-lg rounded-lg p-6" *ngFor="let item of notifications">
+                            <!-- Delete Icon (Top-Right) -->
+                            <button (click)="deleteNotification(item.id)" class="absolute top-3 right-3 text-red-500 hover:text-red-700">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                            </button>
+
+                            <!-- Title Section -->
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="text-lg font-medium leading-tight text-gray-800">
+                                    {{ item?.title }}
+                                </div>
+                                <!-- Timestamp -->
+                                <div class="text-sm text-gray-500">
+                                    {{ item.createdAt?.toDate() | date: "medium" }}
+                                </div>
+                            </div>
+
+                            <!-- Description Section -->
+                            <div class="text-gray-600 mb-4">
+                                {{ item?.desc }}
+                            </div>
+
+                            <!-- Announcement Description -->
+                            <div class="text-gray-700 font-normal">
+                                {{ item?.announcement_desc }}
+                            </div>
+
+                            <!-- Optional: Action buttons or icons for notifications -->
+                            <div class="mt-4 flex justify-end">
+                                <button class="text-sm text-blue-500 hover:text-blue-700">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </ng-container>
+
+
+                <ng-container *ngIf="!loading && notifications.length > 0; else noData">
+                </ng-container>
+
+                <ng-template #noData>
+                    <div class="flex flex-col flex-auto w-full">
+                        <div class="m-auto px-4"> <img class="w-80" [alt]="'transaction thumbnail image'"
+                                src="icons/magnifying-glass.svg"></div>
+
+                        <div
+                            class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
+                            You don't have any notifications
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+
+    </div>
+
+
+</section>

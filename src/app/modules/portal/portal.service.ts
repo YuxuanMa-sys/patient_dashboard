@@ -314,21 +314,13 @@ export class PortalService {
         const announcementRef = doc(this.firestore, 'announcements/' + id);
         return deleteDoc(announcementRef);
     }
-
-    // Notifications
-    getNotifications(): Observable<DocumentSnapshot<unknown>> {
+    getNotifications(): Observable<any> {
         const notificationsRef = doc(this.firestore, 'notifications/ClinicAll');
-        return new Observable((observer) => {
-            getDoc(notificationsRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    observer.next(snapshot.data() as DocumentSnapshot<unknown>);
-                } else {
-                    observer.error('No such document!');
-                }
-                observer.complete();
-            }).catch(error => observer.error(error));
-        });
-    }
+        return from(getDoc(notificationsRef)).pipe(
+          map((snapshot) => snapshot.exists() ? snapshot.data() : null)
+        );
+      }
+
 
     addNotification(data): Promise<DocumentReference<unknown>> {
         const notificationsRef = collection(this.firestore, 'notifications');

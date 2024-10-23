@@ -3,6 +3,13 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
+        id   : 'dashboard',
+        title: 'Dashboard',
+        type : 'basic',
+        icon : 'heroicons_outline:chart-pie',
+        link : '/portal/dashboard'
+    },
+    {
         id   : 'appointments',
         title: 'Appointments',
         type : 'basic',
@@ -50,6 +57,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type : 'basic',
         icon : 'heroicons_outline:chart-pie',
         link : '/portal/promotion'
+    },
+    {
+        id   : 'notifications',
+        title: 'Notifications',
+        type : 'basic',
+        icon : 'heroicons_outline:chart-pie',
+        link : '/portal/notifications'
     }
 ];
 export const compactNavigation: FuseNavigationItem[] = [

@@ -56,40 +56,11 @@ export const routes: Routes = [
                 loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
             },
 
-            //   {
-            //     path: 'inbox',
-            //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'availability',
-            //     component: AvailabilityComponent,
-            //     // loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'promotions',
-            //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'request-badge',
-            //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'program',
-            //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'reports',
-            //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),
-            //   },
-            //   {
-            //     path: 'appointments-list',
-            //     loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
-            //   },
+            {
+                path: 'notifications',
+                loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
+            },
 
-            //   {
-            //     path: 'translations',
-            //     loadChildren: () => import('./translation/translation.module').then(m => m.TranslationModule),
-            //   },
             //   {
             //     path: 'patient-request',
             //     loadChildren: () => import('./patient-request/patient-request.module').then(m => m.PatientRequestModule),
