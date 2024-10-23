@@ -45,6 +45,11 @@ export const routes: Routes = [
                 loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
             },
 
+            {
+                path: 'staff',
+                loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
+            },
+
             //   {
             //     path: 'inbox',
             //     loadChildren: () => import('../pages/coming-soon/coming-soon.routes'),

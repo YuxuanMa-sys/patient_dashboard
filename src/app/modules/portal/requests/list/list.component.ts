@@ -7,6 +7,9 @@ import { environment } from 'environments/environment';
 import { PortalService } from '../../portal.service';
 import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
+import { AppointmentDetailModalComponent } from 'app/modules/landing/common/appointment-detail/appointment-detail.component';
+import { cloneDeep } from 'lodash';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -17,8 +20,9 @@ import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly avatar: string = environment.cloudFront + 'public/users/profile/';
+  readonly url: string = environment.assets + 'utitlity/';
   recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
-  tableColumn: string[] = ['name', 'phone', 'gender', 'status', 'date added', 'action'];
+  recentTransactionsTableColumns: string[] = ['name', 'date', 'type', 'doctor', 'issue_seeking', 'status', 'action'];
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     patientCount: number = 0;
@@ -28,36 +32,24 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     patients: Array<any> = [];
     sortedData: Array<any>;
     patientsToShow: Array<any> = [];
-    allClinics: Array<any> = [];
-    currentClinicId: string = null;
-    currentUser: string = null;
-    selectedPatient: any;
-    patientToDelete: any;
-    showAddDialog = false;
-    showUpdateDialog = false;
-    showDeleteDialog = false;
-    uploadingImage = false;
-    selectedImage: string | ArrayBuffer = null;
-    imageDownloadURL: any;
-    uploadedImageURL: string = null;
-    phonePattern: RegExp =
-      /^[+]{1}[1]{1}[\s]*((\([0-9]{3}\))|[0-9]{3})[\s\-]?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[0-9]{4}$/;
 
 
       data: any[] = []; // Initialize data as an empty array
       loading: boolean = true;
       error: string | null = null;
+    appointments: any[];
   /**
    * Constructor
    */
   constructor(
+    private _matDialog: MatDialog,
     private _portalService: PortalService,
     private cdr: ChangeDetectorRef
   ) {
   }
 
   ngOnInit(): void {
-this.getPatients();
+this.getAllRequests();
   }
 
   /**
@@ -67,25 +59,59 @@ this.getPatients();
 
   }
 
-  getPatients(): void {
-    this._portalService.getPatients().subscribe({
-        next: (data) => {
-          if (data && data.length > 0) {
-            this.data = data;  // Assign the fetched data to the data array
+  getAllRequests(): void {
+    this._portalService.getAlongWithPendingAppointments().subscribe({
+      next: (res) => {
+        this.appointments = res.map((e: any) => {
+          return {
+            id: e.id,  // Adjusted id mapping
+            ...e
+          };
+        });
 
+        // Filter and sort the appointments
+        this.appointments = this.appointments.filter(a => a.createdAt && a.status === ClinicStatus.PENDING);
+        this.appointments.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+
+        // Attach patient data for each appointment
+        this.appointments.forEach((e, index) => {
+          if (e.patient_id) {
+            e.patient_id.get().then((p) => {
+              if (p.exists) {
+                e['patient'] = p.data();
+              }
+              if (index === this.appointments.length - 1) {
+                this.sortedData = this.appointments.slice(); // Finalize sorted data
+              }
+            });
           }
-          this.loading = false; // Turn off loading after data fetch
-          this.cdr.detectChanges();
-          console.log('Patients:', this.data);
-        },
-        error: (err) => {
-          console.error('Error fetching patients:', err);
-          this.error = 'An error occurred while fetching patients.';
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      });
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching pending appointments:', err);
+      }
+    });
   }
+
+  openApptDetailDialog(data: any): void {
+    const dialogRef = this._matDialog.open(AppointmentDetailModalComponent, {
+        autoFocus: false,
+        data: cloneDeep(data)
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+        console.log(result);
+
+        // Yahan par aap modal se wapas aaya data result mein prapt kar sakte hain.
+        // this.form.get('availability_id').setValue(result.availability_id);
+        // this.form.get('availability_slot_id').setValue(result.availability_slot_id);
+        // this.form.get('dated').setValue(result.dated);
+        // this.form.get('start_time').setValue(result.start_time);
+        // this.form.get('end_time').setValue(result.end_time);
+        // this.form.get('type').setValue(result.type);
+    });
+}
+
 
   getCurrentAge(dob: string): string {
     const birthDate = moment(dob);

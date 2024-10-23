@@ -1,22 +1,26 @@
 import { inject, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { StaffComponent } from './staff.component';
 import { ListComponent } from './list/list.component';
-import { RequestsComponent } from './requests.component';
-
+import { StaffService } from './staff.service';
+import { staffInitialDataResolver } from './staff.resolvers';
 
 
 export const routes: Routes = [
   // { path: '', redirectTo: '/doctor-portal/appointments-list/upcoming', pathMatch: 'full' },
   {
     path: '',
-    component: RequestsComponent,
+    component: StaffComponent,
 
     children: [
       {
         path: '',
         component: ListComponent,
+        // resolve: {
+        //   patient: patientsInitialDataResolver,
+        //   // data: () => inject(PatientsService).getData(),
+        // }
       },
-
     ]
   }
 ]
@@ -27,4 +31,4 @@ export const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class RequestsRouting { }
+export class StaffRouting { }

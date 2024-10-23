@@ -1,0 +1,19 @@
+/* Define specific column widths as needed */
+// .mat-column-name,
+// .mat-column-date {
+//   flex: 1;
+// }
+
+// .mat-column-type,
+// .mat-column-status,
+// .mat-column-action {
+//   flex: 0.8; /* Adjust the width as needed */
+// }
+
+.custom-name-column {
+    flex: 4; /* Adjust the width as needed */
+  }
+
+  .custom-reason-column {
+    flex: 3; /* Adjust the width as needed */
+  }

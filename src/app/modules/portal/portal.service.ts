@@ -110,6 +110,16 @@ export class PortalService {
         });
     }
 
+    getStaffList(): Observable<DocumentSnapshot<unknown>[]> {
+        const patientsRef = collection(this.firestore, 'staff');
+        return new Observable((observer) => {
+            getDocs(patientsRef).then((snapshot) => {
+                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
+                observer.complete();
+            }).catch(error => observer.error(error));
+        });
+    }
+
     // Patients
     addPatient(data): Promise<DocumentReference<unknown>> {
         data.status = ClinicStatus.ACTIVE; // Ensure the patient is active
@@ -216,9 +226,6 @@ export class PortalService {
         );
       }
 
-
-
-
     getAppointmentsByDate(startDate: Date, endDate: Date): Observable<DocumentSnapshot<unknown>[]> {
         const appointmentsRef = collection(this.firestore, 'appointments');
         const q = query(
@@ -231,6 +238,22 @@ export class PortalService {
                 observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
                 observer.complete();
             }).catch(error => observer.error(error));
+        });
+    }
+
+    getAlongWithPendingAppointments(): Observable<DocumentSnapshot<unknown>[]> {
+        const appointmentsRef = collection(this.firestore, 'appointments');
+        const q = query(
+            appointmentsRef,
+            where('status', '==', ClinicStatus.PENDING), // Filter for pending appointments
+            orderBy('createdAt', 'desc') // Sort by createdAt in descending order
+        );
+
+        return new Observable((observer) => {
+            getDocs(q).then((snapshot) => {
+                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
+                observer.complete();
+            }).catch((error) => observer.error(error));
         });
     }
 
