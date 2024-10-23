@@ -57,27 +57,27 @@ export class PortalService {
 
         const clinicsRef = collection(this.firestore, 'appointments');
         return new Observable((observer) => {
-          getDocs(clinicsRef)
-            .then((snapshot) => {
-              if (snapshot.empty) {
-                console.error('No clinics found in Firestore!');
-                observer.next([]);  // Return an empty array if no documents are found
-              } else {
-                const clinicsData = snapshot.docs.map((doc) => ({
-                  id: doc.id,
-                  ...doc.data(),
-                }));
-                console.log('Clinics fetched:', clinicsData); // Log the clinics data
-                observer.next(clinicsData);
-              }
-              observer.complete();
-            })
-            .catch((error) => {
-              console.error('Error fetching clinics:', error); // Log the error
-              observer.error(error);
-            });
+            getDocs(clinicsRef)
+                .then((snapshot) => {
+                    if (snapshot.empty) {
+                        console.error('No clinics found in Firestore!');
+                        observer.next([]);  // Return an empty array if no documents are found
+                    } else {
+                        const clinicsData = snapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        }));
+                        console.log('Clinics fetched:', clinicsData); // Log the clinics data
+                        observer.next(clinicsData);
+                    }
+                    observer.complete();
+                })
+                .catch((error) => {
+                    console.error('Error fetching clinics:', error); // Log the error
+                    observer.error(error);
+                });
         });
-      }
+    }
 
 
 
@@ -195,36 +195,36 @@ export class PortalService {
         const appointmentsRef = collection(this.firestore, 'appointments');
 
         return from(getDocs(appointmentsRef)).pipe(
-          switchMap((snapshot) => {
-            const appointments = snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
+            switchMap((snapshot) => {
+                const appointments = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
 
-            // Create an array of observables for fetching patient and provider data
-            const appointmentObservables = appointments.map((appointment: any) => {
-              const patientRef = appointment.patient_id ? from(getDoc(appointment.patient_id)) : of(null); // Return null observable if patient_id is missing
-              const providerRef = appointment.provider_id ? from(getDoc(appointment.provider_id)) : of(null); // Return null observable if provider_id is missing
+                // Create an array of observables for fetching patient and provider data
+                const appointmentObservables = appointments.map((appointment: any) => {
+                    const patientRef = appointment.patient_id ? from(getDoc(appointment.patient_id)) : of(null); // Return null observable if patient_id is missing
+                    const providerRef = appointment.provider_id ? from(getDoc(appointment.provider_id)) : of(null); // Return null observable if provider_id is missing
 
-              // Resolve both patient and provider and return the enriched appointment
-              return forkJoin({
-                patient: patientRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
-                provider: providerRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
-                appointment: of(appointment), // Wrap appointment in an observable
-              }).pipe(
-                map(({ patient, provider, appointment }) => ({
-                  ...appointment,
-                  patient,
-                  provider,
-                }))
-              );
-            });
+                    // Resolve both patient and provider and return the enriched appointment
+                    return forkJoin({
+                        patient: patientRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
+                        provider: providerRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
+                        appointment: of(appointment), // Wrap appointment in an observable
+                    }).pipe(
+                        map(({ patient, provider, appointment }) => ({
+                            ...appointment,
+                            patient,
+                            provider,
+                        }))
+                    );
+                });
 
-            // Combine all the appointment observables
-            return forkJoin(appointmentObservables);
-          })
+                // Combine all the appointment observables
+                return forkJoin(appointmentObservables);
+            })
         );
-      }
+    }
 
     getAppointmentsByDate(startDate: Date, endDate: Date): Observable<DocumentSnapshot<unknown>[]> {
         const appointmentsRef = collection(this.firestore, 'appointments');
@@ -241,21 +241,25 @@ export class PortalService {
         });
     }
 
-    getAlongWithPendingAppointments(): Observable<DocumentSnapshot<unknown>[]> {
+    getAlongWithPendingAppointments(): Observable<any[]> {
         const appointmentsRef = collection(this.firestore, 'appointments');
         const q = query(
             appointmentsRef,
-            where('status', '==', ClinicStatus.PENDING), // Filter for pending appointments
-            orderBy('createdAt', 'desc') // Sort by createdAt in descending order
+            where('status', '==', ClinicStatus.PENDING),  // Filter for pending appointments
+            orderBy('createdAt', 'desc')                 // Sort by createdAt in descending order
         );
 
         return new Observable((observer) => {
             getDocs(q).then((snapshot) => {
-                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
+                observer.next(snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })));
                 observer.complete();
             }).catch((error) => observer.error(error));
         });
     }
+
 
 
 
@@ -290,15 +294,21 @@ export class PortalService {
         return updateDoc(announcementRef, data);
     }
 
-    getAnnouncements(): Observable<DocumentSnapshot<unknown>[]> {
+    getAnnouncements(): Observable<any[]> {
         const announcementsRef = collection(this.firestore, 'announcements');
+
         return new Observable((observer) => {
             getDocs(announcementsRef).then((snapshot) => {
-                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
+                // Map each document into an array of objects
+                observer.next(snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })));
                 observer.complete();
-            }).catch(error => observer.error(error));
+            }).catch((error) => observer.error(error));
         });
     }
+
 
     deleteAnnouncement(id: string): Promise<void> {
         const announcementRef = doc(this.firestore, 'announcements/' + id);

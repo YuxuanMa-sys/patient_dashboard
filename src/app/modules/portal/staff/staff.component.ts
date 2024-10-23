@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'app-patients',
+  selector: 'app-staff',
   templateUrl: './staff.component.html',
   styleUrls: ['./staff.component.scss'],
   // standalone   : true,

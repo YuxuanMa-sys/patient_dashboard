@@ -10,6 +10,7 @@ import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { AppointmentDetailModalComponent } from 'app/modules/landing/common/appointment-detail/appointment-detail.component';
 import { cloneDeep } from 'lodash';
 import { MatDialog } from '@angular/material/dialog';
+import { DocumentReference, getDoc } from 'firebase/firestore';
 
 
 @Component({
@@ -22,7 +23,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly avatar: string = environment.cloudFront + 'public/users/profile/';
   readonly url: string = environment.assets + 'utitlity/';
   recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
-  recentTransactionsTableColumns: string[] = ['name', 'date', 'type', 'doctor', 'issue_seeking', 'status', 'action'];
+  recentTransactionsTableColumns: string[] = ['name',  'type', 'issue_seeking', 'date', 'status', 'action'];
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     patientCount: number = 0;
@@ -37,7 +38,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
       data: any[] = []; // Initialize data as an empty array
       loading: boolean = true;
       error: string | null = null;
-    appointments: any[];
+    appointments: any[] = [];
   /**
    * Constructor
    */
@@ -62,36 +63,45 @@ this.getAllRequests();
   getAllRequests(): void {
     this._portalService.getAlongWithPendingAppointments().subscribe({
       next: (res) => {
+        this.appointments = [];
+
+        // Step 1: Map over the documents and format the appointment objects
         this.appointments = res.map((e: any) => {
           return {
             id: e.id,  // Adjusted id mapping
-            ...e
+            ...e,
           };
         });
 
-        // Filter and sort the appointments
+        // Step 2: Filter and sort appointments based on status and createdAt
         this.appointments = this.appointments.filter(a => a.createdAt && a.status === ClinicStatus.PENDING);
         this.appointments.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
 
-        // Attach patient data for each appointment
+        // Step 3: Fetch patient data for each appointment
         this.appointments.forEach((e, index) => {
-          if (e.patient_id) {
-            e.patient_id.get().then((p) => {
-              if (p.exists) {
-                e['patient'] = p.data();
+          if (e.patient_id instanceof DocumentReference) {  // Ensure patient_id is a DocumentReference
+            getDoc(e.patient_id).then((p) => {
+              if (p.exists()) {
+                e['patient'] = p.data(); // Attach patient data
               }
               if (index === this.appointments.length - 1) {
-                this.sortedData = this.appointments.slice(); // Finalize sorted data
+                this.sortedData = this.appointments.slice();  // Finalize sorted data
+                this.cdr.detectChanges();  // Trigger change detection
               }
+            }).catch(err => {
+              console.error('Error fetching patient data:', err);
             });
           }
         });
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching pending appointments:', err);
       }
     });
   }
+
 
   openApptDetailDialog(data: any): void {
     const dialogRef = this._matDialog.open(AppointmentDetailModalComponent, {

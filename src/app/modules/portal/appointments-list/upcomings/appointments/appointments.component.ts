@@ -111,7 +111,6 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
             return a.status !== ClinicStatus.PENDING && a.provider_id; // Filter based on conditions
           });
 
-
           // Step 2: Process each appointment to resolve patient and provider data
           this.appointments.forEach((e, index) => {
             if (e.patient_id) {

@@ -7,6 +7,7 @@ import { environment } from 'environments/environment';
 import { PortalService } from '../../portal.service';
 import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
+import { AnnoucementType } from 'app/_enums/annoucementType.enum';
 
 
 @Component({
@@ -44,7 +45,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         /^[+]{1}[1]{1}[\s]*((\([0-9]{3}\))|[0-9]{3})[\s\-]?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[0-9]{4}$/;
 
 
-    data: any[] = []; // Initialize data as an empty array
+    announcements: any[] = []; // Initialize data as an empty array
     loading: boolean = true;
     error: string | null = null;
     /**
@@ -57,7 +58,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.getPatients();
+        this.getAllPromotion();
     }
 
     /**
@@ -67,41 +68,28 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-    getPatients(): void {
-        this._portalService.getStaffList().subscribe({
+    getAllPromotion(): void {
+        this._portalService.getAnnouncements().subscribe({
             next: (res) => {
-                // Step 1: Map and filter patients
-                this.staff = res
+                this.announcements = res.map((e: any) => {
+                    return {
+                        id: e.id,  // Adjusted id mapping for Firestore documents
+                        ...e,
+                    };
+                })
+                    .filter(announcement => announcement.announcement_type === AnnoucementType.PROMO && announcement.createdAt);  // Filter Promo type
 
+                // Sort by createdAt in descending order
+                this.announcements.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+                console.log(this.announcements);
 
-
-                // Save a copy of sorted data for future use
-                this.loading = false; // Stop loading indicator
-                this.cdr.detectChanges(); // Ensure the view is updated with new data
-                console.log('staff:', this.staff);
+                this.loading = false;
+                this.cdr.detectChanges();  // Trigger change detection if necessary
             },
             error: (err) => {
-                console.error('Error fetching staff:', err);
-                this.error = 'An error occurred while fetching staff.';
-                this.loading = false;
-                this.cdr.detectChanges(); // Ensure error message is shown in the UI
+                console.error('Error fetching announcements:', err);
             }
         });
-    }
-
-    getCurrentAge(dob: string): string {
-        const birthDate = moment(dob);
-        const today = moment();
-        const years = today.diff(birthDate, 'years');
-        birthDate.add(years, 'years');
-        const months = today.diff(birthDate, 'months');
-        let ageString = years + ' years';
-
-        if (years < 1) {
-            ageString = months + ' months';
-        }
-
-        return ageString;
     }
 
 

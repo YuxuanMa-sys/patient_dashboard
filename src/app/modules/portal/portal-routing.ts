@@ -26,9 +26,6 @@ export const routes: Routes = [
             {
                 path: 'appointments-list',
                 loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
-                // resolve: {
-                //     upcoming: () => inject(PortalService).getClinics(),
-                // },
             },
 
             {
@@ -43,6 +40,15 @@ export const routes: Routes = [
             {
                 path: 'requests',
                 loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
+            },
+
+            {
+                path: 'announcements',
+                loadChildren: () => import('./announcements/promotion.module').then(m => m.PromotionModule),
+            },
+            {
+                path: 'promotion',
+                loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
             },
 
             {
