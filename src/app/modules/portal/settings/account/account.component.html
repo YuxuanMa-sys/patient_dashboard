@@ -1,0 +1,84 @@
+<div class="w-full max-w-3xl">
+    <div class="p-4 space-y-4">
+        <!-- Weekdays buttons -->
+        <div class="flex space-x-4">
+            <ng-container *ngFor="let week of weekDays">
+                <button type="button" (click)="onWeekClick(week)"
+                    class="px-4 py-2 rounded-md text-white border bg-gray-300"
+                    [ngClass]="{
+                        'bg-blue-500': clinicOperatingHours.operatingWeekDays.includes(week),
+                        'bg-gray-300': !clinicOperatingHours.operatingWeekDays.includes(week)
+                    }">
+                    {{ week }}
+                </button>
+            </ng-container>
+
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="reqForm" class="space-y-4">
+            <div class="flex space-x-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Opening Time</mat-label>
+                    <mat-select formControlName="startTime">
+                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Closing Time</mat-label>
+                    <mat-select formControlName="endTime">
+                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field class="w-full">
+                <mat-label>Number of Slots</mat-label>
+                <input matInput type="number" formControlName="slots" />
+            </mat-form-field>
+
+            <mat-form-field class="w-full">
+                <mat-label>Appointment Duration</mat-label>
+                <mat-select formControlName="appointmentDuration">
+                    <mat-option *ngFor="let duration of duration" [value]="duration.value">{{ duration.name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="flex space-x-4">
+                <mat-form-field class="w-full">
+                    <mat-label>Mid-Break Start</mat-label>
+                    <mat-select formControlName="midBreakStartTime">
+                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Mid-Break End</mat-label>
+                    <mat-select formControlName="midBreakEndTime">
+                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field class="w-full">
+                <mat-label>Timezone</mat-label>
+                <mat-select formControlName="timezoneName">
+                    <mat-option *ngFor="let timeZone of timeZones" [value]="timeZone">
+                        {{ timeZone }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="grid grid-cols-4 text-center rounded mb-5 gap-5 mt-4">
+                <div *ngFor="let slot of slots" class="col-lg-2 col-md-4 col-sm-6 week text-white cursor-pointer p-3 rounded font-normal border bg-blue-400">
+                    <p>{{ slot.display }}</p>
+                </div>
+            </div>
+
+            <button mat-raised-button color="primary" (click)="saveClinicInfo()">
+                Save Details
+            </button>
+        </form>
+    </div>
+</div>

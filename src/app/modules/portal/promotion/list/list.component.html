@@ -17,50 +17,65 @@
 
     <div class="grid grid-cols-1  gap-6 w-full mt-2">
 
-        <div class="flex flex-col flex-auto sm:mb-10 bg-card shadow rounded-sm overflow-hidden sm:overflow-y-auto p-5">
+        <div class="flex flex-col flex-auto sm:mb-10 overflow-hidden p-5">
             <div class="overflow-x-auto">
                 <ng-container>
+                    <!-- Grid layout for announcements -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                        <!-- Announcement card -->
+                        <div class="relative group flex flex-col bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300" *ngFor="let item of announcements">
+                            <!-- Announcement Image -->
+                            <img class="w-full h-56 object-contain transition-transform duration-300 transform group-hover:scale-105"
+                                 [src]="item?.announcement_image ? item?.announcement_image : 'images/cards/01-320x200.jpg'"
+                                 alt="Announcement Image" />
 
-                    <div class="grid grid-cols-3 md:grid-cols-4">
-                        <div class="filter-article flex w-full flex-col shadow" *ngFor="let item of announcements">
-                            <img class="w-full object-cover md:h-full" [src]="
-                  item?.announcement_image
-                    ? item?.announcement_image
-                    : 'images/cards/01-320x200.jpg'" alt="Card cover image" />
-                            <div class="m-8">
-                                <div class="text-2xl font-semibold leading-tight">
-                                    {{item.announcement_title }}
-                                </div>
-                                <div class=" flex flex-col  mt-1">
-                                    <span class="ext-secondary mt-1 text-sm leading-none">{{ item.start_date?.toDate() | date: "medium" }}</span>
-                                    <span class="ext-secondary mt-1 text-sm leading-none">{{ item.end_date?.toDate() | date: "medium" }}</span>
+                            <!-- Content Section -->
+                            <div class="p-6">
+                                <!-- Title -->
+                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+                                    {{ item.announcement_title }}
+                                </h3>
+
+                                <!-- Dates -->
+                                <div class="mt-2 text-gray-500 text-sm space-y-1">
+                                    <span>Start: {{ item.start_date?.toDate() | date: 'medium' }}</span>
+                                    <br />
+                                    <span>End: {{ item.end_date?.toDate() | date: 'medium' }}</span>
                                 </div>
 
-                                <div class="mt-4">
-                                    {{ item.announcement_desc }}
-                                </div>
+                                <!-- Description -->
+                                <p class="mt-4 text-gray-700 text-sm leading-6">
+                                    {{ item.announcement_desc | slice: 0:100 }}... <!-- Limiting the description -->
+                                </p>
                             </div>
+
+                            <!-- Promotion Type Badge -->
+                            <div class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                {{ item.announcement_type }}
+                            </div>
+
+                            <!-- Hover Effect Overlay (Optional) -->
+                            <div class="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
                     </div>
                 </ng-container>
 
-
-                <ng-container *ngIf="!loading && announcements.length > 0; else noData">
-                </ng-container>
+                <!-- No Data Template -->
+                <ng-container *ngIf="!loading && announcements.length > 0; else noData"></ng-container>
 
                 <ng-template #noData>
                     <div class="flex flex-col flex-auto w-full">
-                        <div class="m-auto px-4"> <img class="w-80" [alt]="'transaction thumbnail image'"
-                                src="icons/magnifying-glass.svg"></div>
-
-                        <div
-                            class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
+                        <div class="m-auto px-4">
+                            <img class="w-80" alt="No data image" src="icons/magnifying-glass.svg">
+                        </div>
+                        <div class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
                             You don't have any promotions
                         </div>
                     </div>
                 </ng-template>
             </div>
         </div>
+
 
 
     </div>

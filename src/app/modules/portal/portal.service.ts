@@ -262,6 +262,10 @@ export class PortalService {
 
 
 
+    saveOperatingHours(data): Promise<DocumentReference<unknown>> {
+        const notificationsRef = collection(this.firestore, 'operatingHours');
+        return addDoc(notificationsRef, data);
+    }
 
     getAppointmentsWithId(id: string): Observable<DocumentSnapshot<unknown>> {
         const appointmentRef = doc(this.firestore, 'appointments', id);
@@ -317,9 +321,9 @@ export class PortalService {
     getNotifications(): Observable<any> {
         const notificationsRef = doc(this.firestore, 'notifications/ClinicAll');
         return from(getDoc(notificationsRef)).pipe(
-          map((snapshot) => snapshot.exists() ? snapshot.data() : null)
+            map((snapshot) => snapshot.exists() ? snapshot.data() : null)
         );
-      }
+    }
 
 
     addNotification(data): Promise<DocumentReference<unknown>> {

@@ -61,6 +61,8 @@ export const routes: Routes = [
                 loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
             },
 
+            { path: 'settings', loadChildren: () => import('./settings/settings.routes') },
+
             //   {
             //     path: 'patient-request',
             //     loadChildren: () => import('./patient-request/patient-request.module').then(m => m.PatientRequestModule),
