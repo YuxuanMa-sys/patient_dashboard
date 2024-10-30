@@ -10,17 +10,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 import { debounceTime, map, Observable, of, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
-import { LandingService } from '../../landing.service';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FuseScrollbarDirective } from '@3DexCRM/directives/scrollbar';
+
 import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { environment } from 'environments/environment';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import { DoctorService } from '../../listing/doctor-profile/doctor.service';
-import { HomeService } from '../../home/home.service';
+
 
 @Component({
     selector: 'availability',
@@ -63,7 +62,6 @@ export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewI
         private _scrollStrategyOptions: ScrollStrategyOptions,
         private router: Router,
         private route: ActivatedRoute,
-        private _doctorService: LandingService,
         private datePipe: DatePipe
     ) {
     }
@@ -80,39 +78,39 @@ export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewI
         this.selectedAppointmentType = 'In-Person';
         this.selectedAvailability = 'Week';
 
-        this.single.availabilities.sort((a, b) => {
-            return new Date(a.date).getTime() - new Date(b.date).getTime();
-          });
+        // this.single.availabilities.sort((a, b) => {
+        //     return new Date(a.date).getTime() - new Date(b.date).getTime();
+        //   });
 
-        this._doctorService.services$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((res) => {
-                this.services = res['data'];
-                this.issues_seeking = this.services.length > 0 ? this.services[0].name : '';
-                this._changeDetectorRef.markForCheck();
-            });
+        // this._doctorService.services$
+        //     .pipe(takeUntil(this._unsubscribeAll))
+        //     .subscribe((res) => {
+        //         this.services = res['data'];
+        //         this.issues_seeking = this.services.length > 0 ? this.services[0].name : '';
+        //         this._changeDetectorRef.markForCheck();
+        //     });
 
-            this.currentWeekRange = this.getCurrentWeekRange();
+        //     this.currentWeekRange = this.getCurrentWeekRange();
 
-            
+
     }
 
     getCurrentWeekRange(): string {
         const currentDate = new Date();
         const currentDay = currentDate.getDay();
-    
+
         // Calculate the start date of the current week starting from Tuesday
         const startDate = new Date(currentDate);
         startDate.setDate(currentDate.getDate() - currentDay + (currentDay <= 2 ? 2 : 9));
-    
+
         // Calculate the end date of the current week ending on Monday
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 6);
-    
+
         // Format the date range using the DatePipe
         const formattedStartDate = this.datePipe.transform(startDate, 'EEE, MMM d', 'en-US');
         const formattedEndDate = this.datePipe.transform(endDate, 'EEE, MMM d', 'en-US');
-    
+
         return `${formattedStartDate} – ${formattedEndDate}`;
       }
 
@@ -137,7 +135,7 @@ export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewI
             weekday: 'short',
             month: 'short',
             day: 'numeric',
-        
+
         });
         const nextDateFormatted = formatter.format(nextDate);
 

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from 'app/layout/layout.component';
 import { PortalComponent } from './portal.component';
 import { PortalService } from './portal.service';
+import { InsuranceComponent } from './insurance/insurance.component';
 
 export const routes: Routes = [
 
@@ -18,10 +19,6 @@ export const routes: Routes = [
             {
                 path: 'dashboard',
                 loadChildren: () => import('app/modules/portal/dashboard/dashboard.routes'),
-                resolve: {
-                    // profile: () => inject(PortalService).getProfile(),
-                    // contacts : PatientsResolver,
-                },
             },
             {
                 path: 'appointments-list',
@@ -61,7 +58,11 @@ export const routes: Routes = [
                 loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
             },
 
+            { path: 'insurance', component: InsuranceComponent},
+
             { path: 'settings', loadChildren: () => import('./settings/settings.routes') },
+
+            { path: 'clinic-details', loadChildren: () => import('./account/account.routes') },
 
             //   {
             //     path: 'patient-request',

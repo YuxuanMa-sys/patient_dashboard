@@ -1,5 +1,5 @@
 import { TextFieldModule } from '@angular/cdk/text-field';
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -24,8 +24,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { PortalService } from '../../portal.service';
 
 @Component({
-    selector: 'settings-account',
-    templateUrl: './account.component.html',
+    selector: 'settings-in-person',
+    templateUrl: './in-person.component.html',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
@@ -41,10 +41,11 @@ import { PortalService } from '../../portal.service';
         MatButtonModule,
         MatDatepickerModule,
         NgFor,
-        NgClass
+        NgClass,
+        NgIf
     ],
 })
-export class SettingsAccountComponent implements OnInit {
+export class SettingsInPersonComponent implements OnInit {
     reqForm: UntypedFormGroup;
     public weekDays: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     // weekDays = [
@@ -82,6 +83,8 @@ export class SettingsAccountComponent implements OnInit {
         '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
         '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
     ];
+    loading: boolean;
+    operatingHours: any;
     /**
      * Constructor
      */
@@ -109,7 +112,6 @@ export class SettingsAccountComponent implements OnInit {
             timezoneName: ['']
         });
 
-
         this.reqForm.get('slots')?.valueChanges.subscribe(() => {
             this.generateAvailableSlots();
         });
@@ -125,18 +127,46 @@ export class SettingsAccountComponent implements OnInit {
         this.reqForm.get('appointmentDuration')?.valueChanges.subscribe(() => {
             this.generateAvailableSlots();
         });
+
+        // this.loadOperatingHours();
+        this.getOperatingHours();
     }
 
-    onWeekClick(week: string): void {
+    getOperatingHours() {
+        this._portalService.getOperatingHoursNew().subscribe((data: any) => {
+            if (data) {
+                console.log(data);
+
+                this.operatingHours = data;
+
+                // Patch the form with the fetched data
+                this.reqForm.patchValue({
+                    // operatingWeekDays: this.operatingHours.operatingWeekDays || [],
+                    startTime: this.operatingHours.startTime || '',
+                    endTime: this.operatingHours.endTime || '',
+                    slots: this.operatingHours.slots || '',
+                    appointmentDuration: this.operatingHours.appointmentDuration || '',
+                    midBreakStartTime: this.operatingHours.midBreakStartTime || '',
+                    midBreakEndTime: this.operatingHours.midBreakEndTime || '',
+                    timezoneName: this.operatingHours.timezoneName || ''
+                });
+
+                // Update clinicOperatingHours for the weekday buttons
+                this.clinicOperatingHours = this.operatingHours;
+            }
+        });
+    }
+
+      onWeekClick(week) {
         if (this.clinicOperatingHours.operatingWeekDays.includes(week)) {
-            this.clinicOperatingHours.operatingWeekDays =
-                this.clinicOperatingHours.operatingWeekDays.filter((w) => w !== week);
+          this.clinicOperatingHours.operatingWeekDays =
+            this.clinicOperatingHours.operatingWeekDays.filter(
+              (_week) => _week !== week
+            );
         } else {
-            this.clinicOperatingHours.operatingWeekDays.push(week);
+          this.clinicOperatingHours.operatingWeekDays.push(week);
         }
-    }
-
-
+      }
 
 
     generateAvailableSlots() {

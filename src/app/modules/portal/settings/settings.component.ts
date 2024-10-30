@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+import { NgClass, NgFor } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -13,11 +13,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { Subject, takeUntil } from 'rxjs';
-import { SettingsAccountComponent } from './account/account.component';
-import { SettingsNotificationsComponent } from './notifications/notifications.component';
-import { SettingsPlanBillingComponent } from './plan-billing/plan-billing.component';
+
+
 import { SettingsSecurityComponent } from './security/security.component';
-import { SettingsTeamComponent } from './team/team.component';
+
+import { MatTabsModule } from '@angular/material/tabs';
+import { SettingsVirtualComponent } from './virtual/virtual.component';
+import { SettingsInPersonComponent } from './in-person/in-person.component';
+import { SettingsPlanBillingComponent } from './plan-billing/plan-billing.component';
 
 @Component({
     selector: 'settings',
@@ -30,11 +33,12 @@ import { SettingsTeamComponent } from './team/team.component';
         MatButtonModule,
         MatIconModule,
         NgClass,
-        SettingsAccountComponent,
+        SettingsInPersonComponent,
+        SettingsVirtualComponent,
         SettingsSecurityComponent,
         SettingsPlanBillingComponent,
-        SettingsNotificationsComponent,
-        SettingsTeamComponent,
+        MatTabsModule,
+        NgFor
     ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -42,7 +46,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     drawerMode: 'over' | 'side' = 'side';
     drawerOpened: boolean = true;
     panels: any[] = [];
-    selectedPanel: string = 'account';
+    selectedPanel: string = 'in-person';
+    selectedPanelIndex: number = 0;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
@@ -51,7 +56,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseMediaWatcherService: FuseMediaWatcherService
-    ) {}
+    ) { }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -64,9 +69,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
         // Setup available panels
         this.panels = [
             {
-                id: 'account',
+                id: 'in-person',
                 icon: 'heroicons_outline:user-circle',
                 title: 'Clinic Operating Hours',
+                description:
+                    'Manage your public profile and private information',
+            },
+            {
+                id: 'virtual',
+                icon: 'heroicons_outline:user-circle',
+                title: 'Virtual Operating Hours',
                 description:
                     'Manage your public profile and private information',
             },
@@ -90,13 +102,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
                 title: 'Notifications',
                 description: "Manage when you'll be notified on which channels",
             },
-            {
-                id: 'team',
-                icon: 'heroicons_outline:user-group',
-                title: 'Team',
-                description:
-                    'Manage your existing team and change roles/permissions',
-            },
+            // {
+            //     id: 'team',
+            //     icon: 'heroicons_outline:user-group',
+            //     title: 'Team',
+            //     description:
+            //         'Manage your existing team and change roles/permissions',
+            // },
         ];
 
         // Subscribe to media changes
@@ -135,15 +147,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
      *
      * @param panel
      */
-    goToPanel(panel: string): void {
-        this.selectedPanel = panel;
-
-        // Close the drawer on 'over' mode
-        if (this.drawerMode === 'over') {
-            this.drawer.close();
-        }
+    goToPanel(index: number): void {
+        this.selectedPanelIndex = index;
+        this._changeDetectorRef.markForCheck();
     }
-
     /**
      * Get the details of the panel
      *

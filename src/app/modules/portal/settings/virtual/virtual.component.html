@@ -1,0 +1,86 @@
+<div class="w-full mx-auto mt-8 flex space-x-12">
+    <!-- Left Side: Virtual Operating Hours Information (30% width) -->
+    <div class="w-1/3 p-6 bg-gray-100 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-6 text-blue-600">Virtual Operating Hours</h2>
+
+        <!-- Display the existing virtual operating hours -->
+        <ng-container *ngIf="clinicOperatingHours; else noOperatingHours">
+            <div class="space-y-4 text-gray-700">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">Weekdays:</span>
+                    <p>{{ clinicOperatingHours.operatingWeekDays.join(', ') }}</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">Number of Slots:</span>
+                    <p>{{ clinicOperatingHours.numberOfSlots }}</p>
+                </div>
+                <div *ngFor="let slot of clinicOperatingHours.slots" class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">Slot {{ clinicOperatingHours.slots.indexOf(slot) + 1 }}:</span>
+                    <p>Start Time: {{ slot.startTime }}, Duration: {{ slot.duration }} mins</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-gray-900">Same Schedule for All Days:</span>
+                    <p>{{ clinicOperatingHours.isSameForAllDays ? 'Yes' : 'No' }}</p>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- Display if no virtual operating hours exist -->
+        <ng-template #noOperatingHours>
+            <p class="text-gray-500 italic text-center mt-6">No virtual operating hours have been set up yet.</p>
+        </ng-template>
+    </div>
+
+    <!-- Right Side: Form for Editing Virtual Operating Hours (70% width) -->
+    <div class="w-2/3 p-4 space-y-6">
+        <!-- Weekdays buttons -->
+        <div class="flex space-x-4">
+            <ng-container *ngFor="let week of weekDays">
+                <button type="button" (click)="onWeekClick(week)"
+                    class="px-4 py-2 rounded-full text-white border bg-gray-300"
+                    [ngClass]="{
+                        'bg-blue-500': clinicOperatingHours.operatingWeekDays.includes(week),
+                        'bg-gray-300': !clinicOperatingHours.operatingWeekDays.includes(week)
+                    }">
+                    {{ week }}
+                </button>
+            </ng-container>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="reqForm" class="space-y-4">
+            <!-- Toggle for Same Schedule for All Days -->
+            <mat-checkbox formControlName="isSameForAllDays">
+                Same Schedule for all active days?
+            </mat-checkbox>
+
+            <!-- Number of Slots -->
+            <mat-form-field class="w-full">
+                <mat-label>Number of Slots</mat-label>
+                <input matInput type="number" formControlName="numberOfSlots" />
+            </mat-form-field>
+
+            <!-- Dynamic Slot Rows -->
+            <div formArrayName="slotDetails" *ngFor="let slot of slotDetails.controls; let i = index">
+                <div [formGroupName]="i" class="flex space-x-4 items-center">
+                    <mat-form-field class="w-1/2">
+                        <mat-label>Start Time for Slot {{ i + 1 }}</mat-label>
+                        <input matInput type="time" formControlName="startTime" placeholder="HH:MM" />
+                    </mat-form-field>
+
+                    <mat-form-field class="w-1/2">
+                        <mat-label>Duration (minutes) for Slot {{ i + 1 }}</mat-label>
+                        <input matInput type="number" formControlName="duration" placeholder="Duration in mins" />
+                    </mat-form-field>
+                </div>
+            </div>
+
+
+            <!-- Save Button -->
+            <button mat-raised-button color="primary" (click)="saveClinicInfo()">
+                Save Details
+            </button>
+        </form>
+
+    </div>
+</div>

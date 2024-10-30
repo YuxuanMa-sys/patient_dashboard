@@ -2,3 +2,13 @@
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
+
+.fuse-vertical-navigation-item-active  {
+    img {
+        -webkit-filter: invert(100%); /* Safari/Chrome */
+        filter: invert(100%);
+    }
+}
+.fuse-vertical-navigation-item-img {
+    max-width: 18px;
+}

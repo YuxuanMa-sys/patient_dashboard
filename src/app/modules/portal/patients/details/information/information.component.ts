@@ -5,7 +5,6 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApexOptions, ChartComponent } from 'ng-apexcharts';
 import moment from 'moment';
-import { PatientsService } from '../../patients.service';
 import { environment } from 'environments/environment';
 
 
@@ -24,20 +23,20 @@ export class InformationComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * Constructor
      */
-    constructor(private _patientsService: PatientsService)
+    constructor()
     {
     }
 
   ngOnInit(): void
   {
 
-    this._patientsService.contact$
-    .pipe(takeUntil(this._unsubscribeAll))
-    .subscribe((data) => {
-      // Store the data
-      this.data = data;
-    });
-  
+    // this._patientsService.contact$
+    // .pipe(takeUntil(this._unsubscribeAll))
+    // .subscribe((data) => {
+    //   // Store the data
+    //   this.data = data;
+    // });
+
   }
 
   getCurrentAge(dob: string): string {
@@ -61,7 +60,7 @@ export class InformationComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     ngAfterViewInit(): void
     {
-        
+
     }
 
 

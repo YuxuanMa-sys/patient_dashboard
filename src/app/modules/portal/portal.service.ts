@@ -14,10 +14,13 @@ import {
     DocumentReference,
     DocumentSnapshot,
     getDoc,
+    setDoc,
+    arrayUnion,
 } from '@angular/fire/firestore';
+import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { NotificationService } from './notification.service';
-import { HttpClient } from '@angular/common/http';
-import { forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
+import { catchError, combineLatest, filter, finalize, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
 import moment from 'moment';
 
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
@@ -31,7 +34,8 @@ export class PortalService {
     constructor(
         private firestore: Firestore,
         private _notificationService: NotificationService,
-        private _httpClient: HttpClient
+        private _httpClient: HttpClient,
+        private storage: Storage
     ) { }
 
     // Clinics
@@ -136,8 +140,41 @@ export class PortalService {
         });
     }
 
-    updatePatient(id: string, data: any): Promise<any> {
-        return this.updatePatientInAuth(data, id).toPromise();
+    getPatientById(patientId: string): Observable<any> {
+        const patientDocRef = doc(this.firestore, `patients/${patientId}`);
+        return from(getDoc(patientDocRef)).pipe(
+            map((docSnap) => (docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null))
+        );
+    }
+
+    createPatient(data: any): Promise<any> {
+        const patientsRef = collection(this.firestore, 'patients');
+        return addDoc(patientsRef, data); // Automatically generates a new document ID
+    }
+
+    updatePatient(patientId: string, data: any): Promise<void> {
+        // Create a reference to the specific patient document
+        const patientDocRef = doc(this.firestore, `patients/${patientId}`);
+        // Update the document with the new data
+        return updateDoc(patientDocRef, data);
+    }
+
+
+    // Upload file to Firebase Storage
+    async uploadFile(file: File, folder: string, patientId: string): Promise<string> {
+        const filePath = `${folder}/${patientId}/${file.name}`;
+        const fileRef = ref(this.storage, filePath);
+
+        console.log("Uploading file to:", filePath);
+
+        // Upload file
+        await uploadBytes(fileRef, file);
+
+        // Retrieve the download URL
+        const downloadURL = await getDownloadURL(fileRef);
+        console.log("File uploaded with URL:", downloadURL);
+
+        return downloadURL;
     }
 
     deletePatient(id: string): Promise<void> {
@@ -156,6 +193,86 @@ export class PortalService {
         return this._httpClient.post<any>(
             `${environment.firebase.cloudFunctionUrl}/app/api/patients/patient`,
             payload
+        );
+    }
+
+    getFamilyByPatientRef(patientRefPath: string): Observable<any> {
+        const familiesRef = collection(this.firestore, 'families');
+        const patientRef = doc(this.firestore, patientRefPath);
+
+        // Query to get family data based on patient_id reference
+        const q = query(familiesRef, where('patient_id', '==', patientRef));
+
+        return from(getDocs(q)).pipe(
+            map((snapshot) => {
+                return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            })
+        );
+    }
+
+    async addFamilyMember(patientId: string, memberData: any): Promise<void> {
+        const familiesRef = collection(this.firestore, 'families');
+
+        // Query to check if a family document exists for this patient
+        const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            // No family exists, create a new family document
+            const newFamilyData = {
+                patient_id: doc(this.firestore, `patients/${patientId}`), // Reference to the patient
+                patientsIds: [patientId], // Array of patient IDs (includes the current patient ID)
+                memberDetails: [memberData] // Add the new family member
+            };
+
+            // Use addDoc to create a new document with generated ID
+            await addDoc(familiesRef, newFamilyData);
+        } else {
+            // Family document exists, update it by adding the new member
+            const familyDoc = snapshot.docs[0].ref;
+
+            // Add the new member to the existing family document
+            await updateDoc(familyDoc, {
+                memberDetails: arrayUnion(memberData)
+            });
+        }
+    }
+
+    getFamilyByPatientId(patientId: string): Observable<any> {
+        const familiesRef = collection(this.firestore, 'families');
+        console.log(familiesRef);
+
+        // Query to get family data where patientsIds array contains the patient ID
+        const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
+
+        return from(getDocs(q)).pipe(
+            map((snapshot) => {
+                return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            })
+        );
+    }
+
+    getFamilyMemberById(patientId: string, familyMemberId: string): Observable<any> {
+        const familiesRef = collection(this.firestore, 'families');
+
+        // Query to find the family document where patientId is part of patientsIds array
+        const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
+
+        return from(getDocs(q)).pipe(
+            map((snapshot) => {
+                if (snapshot.empty) return null;
+
+                // Assuming there is only one family document for each patient
+                const familyDoc = snapshot.docs[0].data();
+                const memberDetails = familyDoc.memberDetails || [];
+
+                // Find the specific family member by familyMemberId
+                const familyMember = memberDetails.find(
+                    (member: any) => member.patientId === familyMemberId
+                );
+
+                return familyMember || null; // Return null if the family member is not found
+            })
         );
     }
 
@@ -226,6 +343,42 @@ export class PortalService {
         );
     }
 
+
+    getAppointmentsByPatientId(patientId: string): Observable<any[]> {
+        const patientRef = doc(this.firestore, `patients/${patientId}`);
+        const appointmentsRef = collection(this.firestore, 'appointments');
+        const q = query(appointmentsRef, where('patient_id', '==', patientRef));
+
+        return from(getDocs(q)).pipe(
+            switchMap((snapshot) => {
+                // Filter out appointments without a provider
+                const appointments = snapshot.docs
+                    .map((doc) => ({ id: doc.id, ...doc.data() }))
+                    .filter((appointment: any) => appointment.provider_id);
+
+                const appointmentObservables = appointments.map((appointment: any) => {
+                    const patientRef = from(getDoc(appointment.patient_id));
+                    const providerRef = from(getDoc(appointment.provider_id));
+
+                    return forkJoin({
+                        patient: patientRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
+                        provider: providerRef.pipe(map((snap) => (snap?.exists() ? snap.data() : null))),
+                        appointment: of(appointment),
+                    }).pipe(
+                        map(({ patient, provider, appointment }) => ({
+                            ...appointment,
+                            patient,
+                            provider,
+                        }))
+                    );
+                });
+
+                return forkJoin(appointmentObservables);
+            })
+        );
+    }
+
+
     getAppointmentsByDate(startDate: Date, endDate: Date): Observable<DocumentSnapshot<unknown>[]> {
         const appointmentsRef = collection(this.firestore, 'appointments');
         const q = query(
@@ -261,11 +414,107 @@ export class PortalService {
     }
 
 
-
-    saveOperatingHours(data): Promise<DocumentReference<unknown>> {
-        const notificationsRef = collection(this.firestore, 'operatingHours');
-        return addDoc(notificationsRef, data);
+    getVirtualOperatingHours(): Observable<DocumentSnapshot<unknown>> {
+        const appointmentRef = doc(this.firestore, 'clinic/virtualOperatingHours');
+        return new Observable((observer) => {
+            getDoc(appointmentRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    observer.next(snapshot.data() as DocumentSnapshot<unknown>);
+                } else {
+                    observer.error('No such document!');
+                }
+                observer.complete();
+            }).catch(error => observer.error(error));
+        });
     }
+
+    saveVirtualOperatingHours(data): Promise<void> {
+        // Reference to the specific document in Firestore
+        const docRef = doc(this.firestore, 'clinic/virtualOperatingHours');
+        // Use setDoc to either create or update the document
+        return setDoc(docRef, data, { merge: true });
+    }
+
+
+    getInsuranceList(): Observable<DocumentSnapshot<unknown>[]> {
+        const patientsRef = collection(this.firestore, 'insurance');
+        return new Observable((observer) => {
+            getDocs(patientsRef).then((snapshot) => {
+                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
+                observer.complete();
+            }).catch(error => observer.error(error));
+        });
+    }
+
+
+    getOperatingHoursNew(): Observable<DocumentSnapshot<unknown>> {
+        const appointmentRef = doc(this.firestore, 'clinic/operatingHours');
+        return new Observable((observer) => {
+            getDoc(appointmentRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    observer.next(snapshot.data() as DocumentSnapshot<unknown>);
+                } else {
+                    observer.error('No such document!');
+                }
+                observer.complete();
+            }).catch(error => observer.error(error));
+        });
+    }
+
+    saveOperatingHours(data): Promise<void> {
+        // Reference to the specific document in Firestore
+        const docRef = doc(this.firestore, 'clinic/operatingHours');
+        // Use setDoc to either create or update the document
+        return setDoc(docRef, data, { merge: true });
+    }
+
+
+    getClinic(): Observable<DocumentSnapshot<unknown>> {
+        const appointmentRef = doc(this.firestore, 'clinic/details');
+        return new Observable((observer) => {
+            getDoc(appointmentRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    observer.next(snapshot.data() as DocumentSnapshot<unknown>);
+                } else {
+                    observer.error('No such document!');
+                }
+                observer.complete();
+            }).catch(error => observer.error(error));
+        });
+    }
+
+    saveClinicDetails(data): Promise<void> {
+        // Reference to the specific document in Firestore
+        const docRef = doc(this.firestore, 'clinic/details');
+        // Use setDoc to either create or update the document
+        return setDoc(docRef, data, { merge: true });
+    }
+
+
+    // uploadImage(file: File): Observable<string> {
+    //     const filePath = `clinic/${file.name}_${new Date().getTime()}`;
+    //     const fileRef = this.storage.ref(filePath);
+    //     const uploadTask = this.storage.upload(filePath, file);
+
+    //     return uploadTask.snapshotChanges().pipe(
+    //         finalize(() => console.log(`Uploaded single image: ${file.name}`)),
+    //         switchMap(() => fileRef.getDownloadURL())
+    //     );
+    // }
+
+    //   // Function to upload multiple images to Firebase Storage
+    //   uploadGallery(data: FormData): Observable<string[]> {
+    //     const url = 'your-upload-url';  // Adjust this to your upload endpoint
+
+    //     return this._httpClient.post<string[]>(url, data, {
+    //         reportProgress: true,
+    //         observe: 'events'
+    //     }).pipe(
+    //         filter(event => event.type === HttpEventType.Response),
+    //         map((event: HttpResponse<string[]>) => event.body || [])
+    //     );
+    // }
+
 
     getAppointmentsWithId(id: string): Observable<DocumentSnapshot<unknown>> {
         const appointmentRef = doc(this.firestore, 'appointments', id);

@@ -72,13 +72,9 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
             next: (res) => {
                 // Step 1: Map and filter patients
                 this.staff = res
-
-
-
                 // Save a copy of sorted data for future use
                 this.loading = false; // Stop loading indicator
                 this.cdr.detectChanges(); // Ensure the view is updated with new data
-                console.log('staff:', this.staff);
             },
             error: (err) => {
                 console.error('Error fetching staff:', err);

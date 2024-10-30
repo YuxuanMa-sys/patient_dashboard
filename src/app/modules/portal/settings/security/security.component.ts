@@ -51,9 +51,7 @@ export class SettingsSecurityComponent implements OnInit {
         // Create the form
         this.securityForm = this._formBuilder.group({
             currentPassword: [''],
-            newPassword: [''],
-            twoStep: [true],
-            askPasswordChange: [false],
+            newPassword: ['']
         });
     }
 }

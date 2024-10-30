@@ -14,10 +14,6 @@ export const routes: Routes = [
       {
         path: '',
         component: ListComponent,
-        // resolve: {
-        //   patient: patientsInitialDataResolver,
-        //   // data: () => inject(PatientsService).getData(),
-        // }
       },
     ]
   }

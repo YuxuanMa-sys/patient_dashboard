@@ -1,37 +1,261 @@
-<div class="flex flex-col flex-auto w-full">
-    <div class="flex flex-wrap w-full max-w-screen-xl mx-auto ">
-        <div class="flex items-center justify-between w-full py-3 px-2">
-            <div>
-                <h2 class="text-2xl font-medium tracking-normal leading-8 text-dark">
-                    Patient Detail
-                </h2>
-            </div>
-        </div>
-        <div class="w-full max-w-screen-xl mx-auto bg-card rounded-xl pb-10">
-            <header class="w-full mb-5 rounded-t-xl bg-[#EBEDFF] px-2">
-                <nav class="mx-auto flex items-center justify-between  border-b-2 sub-tab-menu" aria-label="Global">
-                    <div class="flex lg:gap-x-10 gap-y-6 md:flex-row flex-col w-full">
-                        <a routerLink="./" routerLinkActive="active border-b-2"
-                            class="text-lg font-normal leading-6 "
-                             [routerLinkActiveOptions]="{exact: true}">Patient Info
-                        </a>
-                        <a routerLink="records" routerLinkActive="active border-b-2"
-                            class="text-lg font-normal leading-6 ">Appointment Record
-                        </a>
-                        <a routerLink="history" routerLinkActive="active border-b-2"
-                            class="text-lg font-normal leading-6 ">Request History
-                        </a>
-                        <!-- <a routerLink="documents" routerLinkActive="active border-b-2"
-                            class="text-lg font-normal leading-6 ">Documents
-                        </a>
-                        <a routerLink="notes" routerLinkActive="active border-b-2"
-                            class="text-lg font-normal leading-6 ">Additional Notes
-                        </a> -->
-                    </div>
-                </nav>
-            </header>
+<div class="flex w-full space-x-6">
+    <!-- Left Side - Patient Form -->
+    <div class="w-1/2 bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">Patient Details</h2>
 
-            <router-outlet></router-outlet>
-        </div>
+
+
+        <form [formGroup]="form" (ngSubmit)="onSave()">
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Attachment Field -->
+                <div
+                    class="ring-bg-card relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full ring-4">
+                    <!-- Upload / Remove avatar -->
+                    <div class="absolute inset-0 z-10 bg-black bg-opacity-50"></div>
+                    <div class="absolute inset-0 z-20 flex items-center justify-center">
+                        <div>
+                            <input id="avatar-file-input"
+                                class="pointer-events-none invisible absolute h-0 w-0 opacity-0" type="file"
+                                [multiple]="false" [accept]="'image/jpeg, image/png'" (change)="
+                                onProfileImageSelect($event)
+                            " #avatarFileInput />
+                            <label
+                                class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-hover"
+                                for="avatar-file-input" matRipple>
+                                <mat-icon class="text-white" [svgIcon]="
+                                    'heroicons_outline:camera'
+                                "></mat-icon>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Image/Letter -->
+                    @if (contact?.profilePictureUrl) {
+                    <img class="h-full w-full object-cover" [src]="contact?.profilePictureUrl" />
+                    }
+                    @if (!contact?.profilePictureUrl) {
+                    <div
+                        class="flex h-full w-full items-center justify-center overflow-hidden rounded bg-gray-200 text-8xl font-bold uppercase leading-none text-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                        {{ contact?.fname.charAt(0) }}
+                    </div>
+                    }
+                </div>
+
+                <div class="flex flex-col items-center_ space-x-2 justify-center">
+                    <!-- Upload Button for Attachment -->
+                    <div class="flex  items-center space-x-2">
+                        <input id="attachment-file-input" type="file" (change)="onAttachmentSelect($event)" #fileInput
+                            class="hidden" />
+                        <button (click)="fileInput.click()" mat-icon-button color="primary">
+                            <mat-icon>attach_file</mat-icon>
+                        </button>
+                        <span>Upload Attachment</span>
+                    </div>
+
+                    <!-- Preview Attachment -->
+                    <div *ngIf="attachmentUrl" class="">
+                        <!-- Image Preview -->
+                        <div class="pdf-preview flex items-center space-x-2 ml-3">
+                            <a [href]="attachmentUrl" target="_blank" rel="noopener noreferrer" class="pdf-link">
+                                <mat-icon>picture_as_pdf</mat-icon> <!-- PDF icon -->
+                            </a>
+                            <span>View PDF</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- First Name -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>First Name</mat-label>
+                    <input matInput formControlName="fname" placeholder="First Name" />
+                </mat-form-field>
+
+                <!-- Last Name -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Last Name</mat-label>
+                    <input matInput formControlName="lname" placeholder="Last Name" />
+                </mat-form-field>
+
+                <div class="col-span-2">
+                    <!-- Dental Needs -->
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Dental Needs</mat-label>
+                        <input matInput formControlName="dental_needs" placeholder="Dental Needs" />
+                    </mat-form-field>
+                </div>
+
+                <!-- Phone Number -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput formControlName="number" placeholder="Phone Number" />
+                </mat-form-field>
+
+
+
+                <!-- Insurance -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Insurance</mat-label>
+                    <mat-select formControlName="insurance" multiple>
+                        <mat-option *ngFor="let insurance of insuranceList" [value]="insurance.name">
+                            {{ insurance.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Email -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" placeholder="Email" type="email" />
+                </mat-form-field>
+
+                <!-- Date of Birth -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Date of Birth</mat-label>
+                    <input matInput formControlName="dob" [matDatepicker]="dobPicker" placeholder="DOB" />
+                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dobPicker></mat-datepicker>
+                </mat-form-field>
+
+                <!-- Created At -->
+                <!-- <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Created At</mat-label>
+                    <input matInput formControlName="createdAt" placeholder="Created At" disabled readonly />
+                </mat-form-field> -->
+
+                <!-- Address -->
+                <mat-form-field appearance="fill" class="col-span-2 w-full">
+                    <mat-label>Address</mat-label>
+                    <input matInput formControlName="address" placeholder="Address" />
+                </mat-form-field>
+
+                <!-- Notes -->
+                <mat-form-field appearance="fill" class="col-span-2 w-full">
+                    <mat-label>Notes</mat-label>
+                    <textarea matInput formControlName="notes" placeholder="Notes"></textarea>
+                </mat-form-field>
+
+                <!-- Gender -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Gender</mat-label>
+                    <mat-select formControlName="gender">
+                        <mat-option value="male">Male</mat-option>
+                        <mat-option value="female">Female</mat-option>
+                        <mat-option value="other">Other</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Languages -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Languages</mat-label>
+                    <mat-select formControlName="languages" multiple>
+                        <mat-option *ngFor="let language of languagesList" [value]="language">
+                            {{ language }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+            </div>
+
+            <!-- Save Button -->
+            <div class="mt-6 flex justify-end">
+                <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Side - Appointment History Table -->
+    <div class="w-1/2 bg-white p-6 rounded-lg shadow-lg">
+        <ng-container *ngIf="patientId">
+            <h2 class="text-xl font-semibold mb-4">Appointment History</h2>
+
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Type</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Provider</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr *ngFor="let appointment of appointments">
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                            {{ appointment?.appointment_type }}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                            {{ appointment?.createdAt?.toDate() | date: "medium" }}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-700">{{ appointment.provider?.name || 'N/A' }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                            <span
+                                class="inline-flex items-center font-normal text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                [ngClass]="{
+                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': appointment.status === 'Cancelled',
+                'bg-blue-200 text-blue-800 dark:bg-blue-600 dark:text-blue-50': appointment.status === 'Upcoming',
+                'bg-primary-200 text-blue-800 dark:bg-primary-600 dark:text-primary-50': appointment.status === 'Confirmed',
+                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': appointment.status === 'Pending',
+                'bg-orange-200 text-orange-800 dark:bg-orange-600 dark:text-orange-50': appointment.status === 'Rejected',
+                'bg-purple-200 text-purple-800 dark:bg-purple-600 dark:text-purple-50': appointment.status === 'Miss',
+                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': appointment.status === 'Completed'
+            }">
+                                <span class="leading-relaxed whitespace-nowrap">
+                                    {{ appointment.status || 'N/A' }}</span>
+                            </span>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- No appointments message -->
+            <p *ngIf="appointments.length === 0" class="text-sm text-gray-500 mt-4">
+                No appointment history available.
+            </p>
+
+
+            <ng-container *ngIf="!isFamilyMember">
+                <div class="flex items-center justify-between w-full py-3 px-2 mt-10">
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4">Family Members</h2>
+                    </div>
+
+                    <div class="mt-4 sm:mt-0">
+                        <!-- Upload button -->
+                        <button mat-flat-button [color]="'primary'">
+                            <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                            <span class="ml-2 mr-1">Add Family </span>
+                        </button>
+                    </div>
+                </div>
+
+
+                <table class="min-w-full divide-y divide-gray-200 mt-8">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Name</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Dob</th>
+                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Relation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr *ngFor="let family of familyData">
+                            <td class="px-4 py-2 text-sm text-gray-700">
+                                {{ family?.name }}
+                            </td>
+                            <td class="px-4 py-2 text-sm text-gray-700">
+                                <!-- {{ family?.dob?.toDate() | date: "medium" }} -->
+                            </td>
+                            <td class="px-4 py-2 text-sm text-gray-700">{{ family?.relationship || 'N/A' }}</td>
+
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p *ngIf="familyData?.length === 0" class="text-sm text-gray-500 mt-4">
+                    No family member available.
+                </p>
+            </ng-container>
+        </ng-container>
     </div>
 </div>

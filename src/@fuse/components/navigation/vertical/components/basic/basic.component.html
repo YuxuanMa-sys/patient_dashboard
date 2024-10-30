@@ -7,7 +7,7 @@
     <!-- Item with an internal link -->
     @if (item.link && !item.externalLink && !item.function && !item.disabled) {
         <a
-            class="fuse-vertical-navigation-item"
+            class="fuse-vertical-navigation-item  font-semibold rounded-none py-5 px-8"
             [ngClass]="{
                 'fuse-vertical-navigation-item-active-forced': item.active,
             }"
@@ -16,7 +16,7 @@
             [preserveFragment]="item.preserveFragment ?? false"
             [queryParams]="item.queryParams ?? null"
             [queryParamsHandling]="item.queryParamsHandling ?? null"
-            [routerLinkActive]="'fuse-vertical-navigation-item-active'"
+            [routerLinkActive]="'fuse-vertical-navigation-item-active bg-blue-600 text-white'"
             [routerLinkActiveOptions]="isActiveMatchOptions"
             [matTooltip]="item.tooltip || ''"
         >
@@ -62,7 +62,7 @@
             [preserveFragment]="item.preserveFragment ?? false"
             [queryParams]="item.queryParams ?? null"
             [queryParamsHandling]="item.queryParamsHandling ?? null"
-            [routerLinkActive]="'fuse-vertical-navigation-item-active'"
+            [routerLinkActive]="'fuse-vertical-navigation-item-active bg-blue-500'"
             [routerLinkActiveOptions]="isActiveMatchOptions"
             [matTooltip]="item.tooltip || ''"
             (click)="item.function(item)"
@@ -115,8 +115,15 @@
         <mat-icon
             class="fuse-vertical-navigation-item-icon"
             [ngClass]="item.classes?.icon"
-            [svgIcon]="item.icon"
+            [src]="item.image"
         ></mat-icon>
+    }
+
+    @if (item.image) {
+        <img
+        class="size-5 fuse-vertical-navigation-item-icon fuse-vertical-navigation-item-img"
+        [src]="item.image"
+    />
     }
 
     <!-- Title & Subtitle -->
