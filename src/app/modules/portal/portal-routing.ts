@@ -20,43 +20,43 @@ export const routes: Routes = [
                 path: 'dashboard',
                 loadChildren: () => import('app/modules/portal/dashboard/dashboard.routes'),
             },
-            {
-                path: 'appointments-list',
-                loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
-            },
+            // {
+            //     path: 'appointments-list',
+            //     loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
+            // },
 
             {
                 path: 'patients',
                 loadChildren: () => import('./patients/patients.module').then(m => m.PatientsModule),
             },
-            {
-                path: 'new-patients',
-                loadChildren: () => import('./patients-new/patients.module').then(m => m.PatientsModule),
-            },
+            // {
+            //     path: 'new-patients',
+            //     loadChildren: () => import('./patients-new/patients.module').then(m => m.PatientsModule),
+            // },
 
-            {
-                path: 'requests',
-                loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
-            },
+            // {
+            //     path: 'requests',
+            //     loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
+            // },
 
-            {
-                path: 'announcements',
-                loadChildren: () => import('./announcements/promotion.module').then(m => m.PromotionModule),
-            },
-            {
-                path: 'promotion',
-                loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
-            },
+            // {
+            //     path: 'announcements',
+            //     loadChildren: () => import('./announcements/promotion.module').then(m => m.PromotionModule),
+            // },
+            // {
+            //     path: 'promotion',
+            //     loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
+            // },
 
-            {
-                path: 'staff',
-                loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
-            },
+            // {
+            //     path: 'staff',
+            //     loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
+            // },
 
-            {
-                path: 'notifications',
-                loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
-            },
+            // {
+            //     path: 'notifications',
+            //     loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
+            // },
 
             { path: 'insurance', component: InsuranceComponent},
 

@@ -212,30 +212,65 @@ export class PortalService {
 
     async addFamilyMember(patientId: string, memberData: any): Promise<void> {
         const familiesRef = collection(this.firestore, 'families');
+        const familyDocRef = doc(familiesRef, patientId); // Use patient ID as family document ID
 
-        // Query to check if a family document exists for this patient
-        const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
-        const snapshot = await getDocs(q);
+        // Generate a unique ID for the family member by creating a temporary document reference
+        const uniqueId = doc(collection(this.firestore, 'families')).id;
+        memberData.familyMemberId = uniqueId; // Add the unique ID to the member data
 
-        if (snapshot.empty) {
-            // No family exists, create a new family document
-            const newFamilyData = {
-                patient_id: doc(this.firestore, `patients/${patientId}`), // Reference to the patient
-                patientsIds: [patientId], // Array of patient IDs (includes the current patient ID)
-                memberDetails: [memberData] // Add the new family member
-            };
+        const familyDoc = await getDoc(familyDocRef);
 
-            // Use addDoc to create a new document with generated ID
-            await addDoc(familiesRef, newFamilyData);
+        if (!familyDoc.exists()) {
+          // Create a new family document if it doesn’t exist
+          const newFamilyData = {
+            patient_id: doc(this.firestore, `patients/${patientId}`),
+            patientsIds: [patientId],
+            memberDetails: [memberData],
+          };
+          await setDoc(familyDocRef, newFamilyData);
         } else {
-            // Family document exists, update it by adding the new member
-            const familyDoc = snapshot.docs[0].ref;
-
-            // Add the new member to the existing family document
-            await updateDoc(familyDoc, {
-                memberDetails: arrayUnion(memberData)
-            });
+          // If the family document exists, update it by adding the new member
+          await updateDoc(familyDocRef, {
+            memberDetails: arrayUnion(memberData),
+          });
         }
+      }
+
+    getFamilyMembers(patientId: string): Observable<any[]> {
+        return from(getDoc(doc(this.firestore, `families/${patientId}`))).pipe(
+            map(docSnap => docSnap.exists() ? (docSnap.data().memberDetails || []) : [])
+        );
+    }
+
+    updateFamilyMember(patientId: string, familyMemberId: string, updatedData: any): Promise<void> {
+        const familiesRef = collection(this.firestore, 'families');
+
+        // Query to find the family document that includes the given patient ID
+        const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
+
+        return getDocs(q).then(snapshot => {
+            if (snapshot.empty) {
+                throw new Error('Family document not found');
+            }
+
+            // Get the first (and ideally only) matching family document
+            const familyDocRef = snapshot.docs[0].ref;
+            const familyData = snapshot.docs[0].data();
+
+            // Find the family member to update within the family document
+            const familyMember = familyData.memberDetails.find((member: any) => member.patientId === familyMemberId);
+            if (!familyMember) {
+                throw new Error('Family member not found');
+            }
+
+            // Remove the existing family member data and replace with updated data
+            const updatedMemberDetails = familyData.memberDetails
+                .filter((member: any) => member.patientId !== familyMemberId) // Remove the old member
+                .concat({ ...familyMember, ...updatedData }); // Add the updated member data
+
+            // Update the family document in Firestore
+            return updateDoc(familyDocRef, { memberDetails: updatedMemberDetails });
+        });
     }
 
     getFamilyByPatientId(patientId: string): Observable<any> {
@@ -254,27 +289,26 @@ export class PortalService {
 
     getFamilyMemberById(patientId: string, familyMemberId: string): Observable<any> {
         const familiesRef = collection(this.firestore, 'families');
-
-        // Query to find the family document where patientId is part of patientsIds array
         const q = query(familiesRef, where('patientsIds', 'array-contains', patientId));
 
         return from(getDocs(q)).pipe(
             map((snapshot) => {
                 if (snapshot.empty) return null;
 
-                // Assuming there is only one family document for each patient
+                // Assuming only one family document for each patient
                 const familyDoc = snapshot.docs[0].data();
                 const memberDetails = familyDoc.memberDetails || [];
 
-                // Find the specific family member by familyMemberId
+                // Find the specific family member by their unique familyMemberId
                 const familyMember = memberDetails.find(
-                    (member: any) => member.patientId === familyMemberId
+                    (member: any) => member.familyMemberId === familyMemberId
                 );
 
                 return familyMember || null; // Return null if the family member is not found
             })
         );
     }
+
 
     updatePatientInAuth(payload: any, id: string): Observable<any> {
         payload = {
@@ -489,32 +523,6 @@ export class PortalService {
         // Use setDoc to either create or update the document
         return setDoc(docRef, data, { merge: true });
     }
-
-
-    // uploadImage(file: File): Observable<string> {
-    //     const filePath = `clinic/${file.name}_${new Date().getTime()}`;
-    //     const fileRef = this.storage.ref(filePath);
-    //     const uploadTask = this.storage.upload(filePath, file);
-
-    //     return uploadTask.snapshotChanges().pipe(
-    //         finalize(() => console.log(`Uploaded single image: ${file.name}`)),
-    //         switchMap(() => fileRef.getDownloadURL())
-    //     );
-    // }
-
-    //   // Function to upload multiple images to Firebase Storage
-    //   uploadGallery(data: FormData): Observable<string[]> {
-    //     const url = 'your-upload-url';  // Adjust this to your upload endpoint
-
-    //     return this._httpClient.post<string[]>(url, data, {
-    //         reportProgress: true,
-    //         observe: 'events'
-    //     }).pipe(
-    //         filter(event => event.type === HttpEventType.Response),
-    //         map((event: HttpResponse<string[]>) => event.body || [])
-    //     );
-    // }
-
 
     getAppointmentsWithId(id: string): Observable<DocumentSnapshot<unknown>> {
         const appointmentRef = doc(this.firestore, 'appointments', id);

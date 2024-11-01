@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
 import { PortalService } from '../../portal.service';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgIf, NgFor, CommonModule, DatePipe } from '@angular/common';
@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { Timestamp } from 'firebase/firestore';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { PatientService } from '../patients.service';
 
 @Component({
     selector: 'app-details',
@@ -35,14 +36,15 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
         NgIf,
         NgFor,
         DatePipe,
-        CommonModule
+        CommonModule,
+        RouterLink
     ],
 })
 export class DetailsComponent implements OnInit {
     form: FormGroup;
     familyForm: FormGroup;
     appointments: any[] = [];
-    languagesList: string[] = ["German", "Japanese", "Arabic", "Portuguese", "Hindi"]; // Common languages
+    languagesList: string[] = ["English", "German", "Japanese", "Arabic", "Portuguese", "Hindi"]; // Common languages
     relationshipOptions = ["Father", "Mother", "Son", "Daughter", "Spouse"];
 
     appointmentHistory: any[] = [];
@@ -59,13 +61,17 @@ export class DetailsComponent implements OnInit {
     selectedProfileImage: File | null = null;
     attachmentType: 'image' | 'video' | 'pdf' | 'other' | null = null;
     @ViewChild('avatarFileInput') private _avatarFileInput: ElementRef;
+    familyDataMain: any;
+    selectedAttachments: File[] = [];
 
     constructor(
         private fb: FormBuilder,
         private _portalService: PortalService,
+        private _patientService: PatientService,
         private route: ActivatedRoute,
         private cdr: ChangeDetectorRef,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private _router: Router
     ) { }
 
     ngOnInit(): void {
@@ -96,6 +102,7 @@ export class DetailsComponent implements OnInit {
                 }
             } else {
                 // Load main patient details
+                this.loadPatientFamily();
                 this.loadPatientDetails();
             }
         });
@@ -138,7 +145,7 @@ export class DetailsComponent implements OnInit {
             gender: [null],
             languages: [null],
             profilePictureUrl: [null],
-            relationship: ['', Validators.required],
+            relationship: [''],
             patientId: [this.patientId]
         });
     }
@@ -192,13 +199,39 @@ export class DetailsComponent implements OnInit {
 
 
     loadFamilyMemberDetails(): void {
-        // Logic to load family member details by familyMemberId
-        this._portalService.getFamilyMemberById(this.patientId, this.familyMemberId).subscribe((familyMember) => {
-            if (familyMember) {
-                this.familyForm.patchValue(familyMember);
-            }
-        });
+        if (this.familyMemberId) {
+          this._portalService.getFamilyMemberById(this.patientId, this.familyMemberId)
+            .subscribe((familyMember) => {
+                this.contact = familyMember;
+              if (familyMember) {
+                // this.familyForm.patchValue(familyMember);
+
+                this.familyForm.patchValue({
+                    profileImageUrl: familyMember.profileImageUrl ?? null,
+                    attachmentUrl: familyMember.attachmentUrl ?? null,
+                    fname: familyMember.fname,
+                    lname: familyMember.lname,
+                    number: familyMember.number,
+                    dental_needs: familyMember.dental_needs,
+                    insurance: familyMember.insurance,
+                    email: familyMember.email,
+                    dob: familyMember.dob ? familyMember.dob.toDate() : null, // Convert timestamp to Date
+                    address: familyMember.address,
+                    notes: familyMember.notes,
+                    gender: familyMember.gender,
+                    languages: familyMember.languages,
+                    profilePictureUrl: familyMember.profilePictureUrl,
+                    relationship: familyMember.relationship,
+                });
+                this.cdr.detectChanges();
+                console.log('Family member details loaded:', familyMember);
+              } else {
+                console.error('Family member not found');
+              }
+            });
+        }
     }
+
 
     // Load appointments by patient ID
     loadAppointments(): void {
@@ -212,23 +245,16 @@ export class DetailsComponent implements OnInit {
         });
     }
 
-    loadPatientFamily() {
-        this._portalService.getFamilyByPatientRef(`patients/${this.patientId}`).subscribe({
-            next: (familyData) => {
-                console.log(familyData);
-
-                if (familyData.length) {
-                    this.familyData = familyData[0].memberDetails;
-                }
-                this.cdr.detectChanges();
-                console.log('Family data:', familyData);
-            },
-            error: (error) => {
-                console.error('Error fetching family data:', error);
-            },
+    loadPatientFamily(): void {
+        this._portalService.getFamilyMembers(this.patientId).subscribe({
+          next: (familyData) => {
+            this.familyData = familyData; // Store retrieved family members in component
+            this.cdr.detectChanges();
+            console.log('Family data:', familyData);
+          },
+          error: (error) => console.error('Error fetching family data:', error),
         });
-    }
-
+      }
 
     onAttachmentSelect(event: Event): void {
         const fileInput = event.target as HTMLInputElement;
@@ -236,28 +262,14 @@ export class DetailsComponent implements OnInit {
 
         if (this.selectedAttachment) {
             const fileType = this.selectedAttachment.type;
+            this.attachmentType = fileType.startsWith('image') ? 'image' :
+                fileType.startsWith('video') ? 'video' :
+                    fileType === 'application/pdf' ? 'pdf' : 'other';
 
-            // Determine the type of the selected file
-            if (fileType.startsWith('image')) {
-                this.attachmentType = 'image';
-            } else if (fileType.startsWith('video')) {
-                this.attachmentType = 'video';
-            } else if (fileType === 'application/pdf') {
-                this.attachmentType = 'pdf';
-            } else {
-                this.attachmentType = 'other';
-            }
-
-            // Upload the selected attachment
+            // Upload attachment and update the URL
             this._portalService.uploadFile(this.selectedAttachment, 'attachments', this.patientId).then((url) => {
                 this.attachmentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-                console.log('Attachment uploaded with URL:', url);
-                this._portalService.updatePatient(this.patientId, { attachmentUrl: url })
-                    .then(() => {
-                        console.log('Patient updated with new attachment URL!');
-                        this.cdr.detectChanges();
-                    })
-                    .catch((error) => console.error('Error updating patient with attachment URL:', error));
+                this.updateAttachmentUrl(url);
             });
         }
     }
@@ -267,26 +279,37 @@ export class DetailsComponent implements OnInit {
         this.selectedProfileImage = fileInput.files ? fileInput.files[0] : null;
 
         if (this.selectedProfileImage) {
-            console.log("Uploading profile image:", this.selectedProfileImage);
-
-            // Upload the selected image file
             const profilePictureUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
 
-            // Immediately update the patient's profile with the new image URL
             if (profilePictureUrl) {
                 this.form.patchValue({ profilePictureUrl });
-                if (this.patientId) {
-                    this._portalService.updatePatient(this.patientId, { profilePictureUrl })
-                        .then(() => {
-                            this.contact.profilePictureUrl = profilePictureUrl;
-                            console.log('Patient profile updated with new image URL!')
-                            this.cdr.detectChanges(); // Ensure view updates
-                        })
-                        .catch((error) => console.error('Error updating patient with new image URL:', error));
-                }
+                this.familyForm.patchValue({ profilePictureUrl });
+                this.updateAttachmentUrl(profilePictureUrl, 'profilePictureUrl');
             }
         }
     }
+
+    updateAttachmentUrl(url: string, field: 'attachmentUrl' | 'profilePictureUrl' = 'attachmentUrl'): void {
+        const data = { [field]: url };
+
+        // Call the appropriate update method based on context (patient or family member)
+        if (this.isFamilyMember && this.familyMemberId) {
+            this._portalService.updateFamilyMember(this.patientId, this.familyMemberId, data)
+                .then(() => {
+                    console.log(`${field} updated successfully for family member!`);
+                    this.cdr.detectChanges();
+                })
+                .catch((error) => console.error(`Error updating ${field} for family member:`, error));
+        } else {
+            this._portalService.updatePatient(this.patientId, data)
+                .then(() => {
+                    console.log(`${field} updated successfully for patient!`);
+                    this.cdr.detectChanges();
+                })
+                .catch((error) => console.error(`Error updating ${field} for patient:`, error));
+        }
+    }
+
 
 
     async uploadProfileImage(): Promise<void> {
@@ -301,49 +324,59 @@ export class DetailsComponent implements OnInit {
 
     onAddFamilyMember(): void {
         if (this.familyForm.valid) {
-            const familyMemberData = this.familyForm.value;
+          const familyMemberData = this.familyForm.value;
 
-            // Call service to add family member
-            this._portalService.addFamilyMember(this.patientId, familyMemberData)
-                .then(() => {
-                    console.log('Family member added successfully!');
-                    this.loadPatientFamily(); // Refresh the family members list
-                })
-                .catch((error) => {
-                    console.error('Error adding family member:', error);
-                });
+          this._portalService.addFamilyMember(this.patientId, familyMemberData)
+            .then(() => {
+              console.log('Family member added successfully!');
+              this._router.navigate(['/portal/patients/' + this.patientId + '/details']);
+            //   this.loadPatientFamily(); // Refresh the family members list
+            })
+            .catch((error) => console.error('Error adding family member:', error));
         } else {
-            console.error('Family form is invalid');
+          console.error('Family form is invalid');
         }
-    }
+      }
+
 
     async onSave(): Promise<void> {
-        if (this.form.valid) {
-            const patientData = this.form.value;
-            if (patientData.dob) {
-                patientData.dob = Timestamp.fromDate(new Date(patientData.dob));
+        const formToUse = this.isFamilyMember ? this.familyForm : this.form;
+        if (formToUse.valid) {
+            const data = formToUse.value;
+            if (data.dob) {
+                data.dob = Timestamp.fromDate(new Date(data.dob));
             }
 
-            // Check and upload selected attachment if any
             if (this.selectedAttachment) {
-                patientData.attachmentUrl = await this._portalService.uploadFile(this.selectedAttachment, 'attachments', this.patientId);
+                data.attachmentUrl = await this._portalService.uploadFile(this.selectedAttachment, 'attachments', this.patientId);
             }
 
-            if (this.patientId) {
-                delete patientData.createdAt;
-                // Update patient data in Firestore
-                this._portalService.updatePatient(this.patientId, patientData)
-                    .then(() => console.log('Patient updated successfully!'))
-                    .catch((error) => console.error('Error updating patient:', error));
+            if (this.isFamilyMember) {
+                if (this.familyMemberId) {
+                    this._portalService.updateFamilyMember(this.patientId, this.familyMemberId, data)
+                        .then(() => console.log('Family member updated successfully!'))
+                        .catch((error) => console.error('Error updating family member:', error));
+                } else {
+                    this._portalService.addFamilyMember(this.patientId, data)
+                        .then(() => {
+                            this._router.navigate(['/portal/patients/' + this.patientId + '/details']);
+                            console.log('Family member created successfully!')
+                        })
+                        .catch((error) => console.error('Error creating family member:', error));
+                }
             } else {
-                patientData.createdAt = Timestamp.fromDate(new Date());
-                // Create a new patient
-                this._portalService.createPatient(patientData)
-                    .then((docRef) => {
-                        console.log('Patient created successfully with ID:', docRef.id);
-                        this.patientId = docRef.id; // Optionally set the new ID if needed in component
-                    })
-                    .catch((error) => console.error('Error creating patient:', error));
+                if (this.patientId) {
+                    this._portalService.updatePatient(this.patientId, data)
+                        .then(() => console.log('Patient updated successfully!'))
+                        .catch((error) => console.error('Error updating patient:', error));
+                } else {
+                    this._portalService.createPatient(data)
+                        .then((docRef) => {
+                            console.log('Patient created successfully with ID:', docRef.id);
+                            this.patientId = docRef.id;
+                        })
+                        .catch((error) => console.error('Error creating patient:', error));
+                }
             }
         } else {
             console.error('Form is invalid');
