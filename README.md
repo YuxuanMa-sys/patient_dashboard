@@ -1,4 +1,4 @@
-# Fuse - Admin template and Starter project for Angular
+# 4smile -Starter project 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli)
 
