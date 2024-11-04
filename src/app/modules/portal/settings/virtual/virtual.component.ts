@@ -53,7 +53,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 })
 export class SettingsVirtualComponent implements OnInit {
     reqForm: FormGroup;
-    public weekDays: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    public weekDays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     timeZones: string[] = ['UTC', 'GMT', 'CST', 'EST']; // Add your time zones
     clinicOperatingHours = {
         operatingWeekDays: [],
@@ -137,6 +137,8 @@ export class SettingsVirtualComponent implements OnInit {
     getOperatingHours() {
         this._portalService.getVirtualOperatingHours().subscribe((data: any) => {
             if (data) {
+                console.log(data);
+
                 this.clinicOperatingHours = data;
                 this.reqForm.patchValue({
                     numberOfSlots: this.clinicOperatingHours.numberOfSlots || '',

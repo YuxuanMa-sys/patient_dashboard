@@ -20,10 +20,10 @@ export const routes: Routes = [
                 path: 'dashboard',
                 loadChildren: () => import('app/modules/portal/dashboard/dashboard.routes'),
             },
-            // {
-            //     path: 'appointments-list',
-            //     loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
-            // },
+            {
+                path: 'appointments-list',
+                loadChildren: () => import('./appointments-list/appointments-list.module').then(m => m.AppointmentsListModule),
+            },
 
             {
                 path: 'patients',
@@ -48,10 +48,10 @@ export const routes: Routes = [
             //     loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
             // },
 
-            // {
-            //     path: 'staff',
-            //     loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
-            // },
+            {
+                path: 'staff',
+                loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
+            },
 
             // {
             //     path: 'notifications',

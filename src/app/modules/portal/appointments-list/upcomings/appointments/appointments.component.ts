@@ -15,6 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PortalService } from 'app/modules/portal/portal.service';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { DocumentReference, getDoc } from 'firebase/firestore';
+import { AvailabilityModalComponent } from 'app/modules/landing/common/availability/availability.component';
 
 
 
@@ -34,7 +35,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly avatar: string = environment.cloudFront + 'public/users/profile/';
     readonly url: string = environment.assets + 'utitlity/';
     recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
-    recentTransactionsTableColumns: string[] = ['name', 'date', 'type', 'doctor', 'issue_seeking', 'status', 'action'];
+    recentTransactionsTableColumns: string[] = ['name', 'date', 'type', 'for', 'doctor', 'issue_seeking', 'status', 'action'];
     data: any[] = [];
     today: any;
     upcoming: any;
@@ -81,66 +82,24 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
                 // Prepare the chart data
             });
 
-
         this.getAppointments();
-        // this._portalService.getClinics().subscribe((res) => {
-        //     this.allClinics = res.map((e: any) => {
-        //         return {
-        //             id: e.payload.doc.id,
-        //             ...e.payload.doc.data(),
-        //         };
-        //     });
-        //     console.log(this.allClinics);
-
-        // });
-
-
 
     }
 
-
     getAppointments(): void {
-        this._portalService.getAppointments().subscribe((res) => {
-
-          this.appointments = res.map((e: any) => {
-            return {
-              $key: e.id, ...e // Adjusted: Using 'e.id' from the new structure
-            };
-          }).filter(a => {
-            // console.log('Appointment before filter:', a); // Log each appointment before filtering
-            return a.status !== ClinicStatus.PENDING && a.provider_id; // Filter based on conditions
-          });
-
-          // Step 2: Process each appointment to resolve patient and provider data
-          this.appointments.forEach((e, index) => {
-            if (e.patient_id) {
-            //   console.log('Patient ID for appointment:', e.patient_id, 'Type:', typeof e.patient_id);
-            //   console.log('Patient ID Structure:', JSON.stringify(e.patient_id, null, 2));
-
-              // Check if patient_id is a DocumentReference
-              if (e.patient_id instanceof DocumentReference) {
-                // console.log('Fetching patient data...');
-                getDoc(e.patient_id).then((p) => { // Use getDoc instead of e.patient_id.get()
-                  if (p.exists()) {
-                    e['patient'] = p.data(); // Attach patient data
-                    // console.log('Patient data:', e['patient']);
-                  }
-                }).catch((err) => console.error('Error fetching patient data:', err));
-              } else {
-                console.error('Invalid patient_id:', e.patient_id); // Log invalid patient_id
-              }
-            } else {
-              console.error('Missing patient_id:', e.patient_id); // Log missing patient_id
+        this._portalService.getAppointments().subscribe({
+            next: (res) => {
+                this.appointments = res; // Contains enriched appointments with patient and doctor data
+                this.loading = false;
+                this.cdr.detectChanges();
+                console.log('Enriched Appointments:', this.appointments);
+            },
+            error: (err) => {
+                console.error('Error fetching appointments:', err);
             }
-          });
-
-          this.loading = false;
-          this.cdr.detectChanges();
-
-        }, (err) => {
-          console.error('Error fetching appointments:', err); // Log error if fetching appointments fails
         });
-      }
+    }
+
 
 
     sortData(sort: Sort) {
@@ -190,6 +149,18 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
             // this.form.get('start_time').setValue(result.start_time);
             // this.form.get('end_time').setValue(result.end_time);
             // this.form.get('type').setValue(result.type);
+        });
+    }
+
+    createAppointment(data: any) {
+
+        const dialogRef = this._matDialog.open(AvailabilityModalComponent, {
+            autoFocus: false,
+            data: cloneDeep(data)
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(result);
         });
     }
 

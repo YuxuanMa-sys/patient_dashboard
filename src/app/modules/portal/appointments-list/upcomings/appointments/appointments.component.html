@@ -36,9 +36,9 @@
 
                 <div class="mt-4 sm:mt-0">
                     <!-- Upload button -->
-                    <button mat-flat-button [color]="'primary'">
+                    <button mat-flat-button [color]="'primary'" (click)="createAppointment('new')">
                         <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                        <span class="ml-2 mr-1">Add Patient </span>
+                        <span class="ml-2 mr-1">Add Appointment </span>
                     </button>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                                             <div class="flex flex-col min-w-0">
                                                 <div class="font-normal leading-none">
                                                     {{transaction?.patient?.fname}}
-                                                    {{transaction?.user?.lname}}
+                                                    {{transaction?.patient?.lname}}
                                                 </div>
                                                 <!-- <div class="text-md leading-none text-secondary mt-1">
                                                     Booking for:  {{transaction.booking_for}}
@@ -100,13 +100,13 @@
 
                                         <div class="flex flex-col min-w-28">
                                             <div class="font-normal leading-none">
-                                                {{ transaction?.confirmed_date ? (transaction.confirmed_date.toDate() | momentDate) : 'N/A' }}
+                                                {{ transaction?.date  | date: "mediumDate" }}
 
                                             </div>
-                                            <!-- <div class="text-md leading-none text-secondary  font-light">
-                                                {{transaction.availability_slot.start_time}}
-                                                {{transaction.availability_slot.end_time}}
-                                            </div> -->
+                                            <div class="text-md leading-none text-secondary  font-light">
+                                                {{transaction.selectedSlot}}
+                                                <!-- {{transaction.availability_slot.end_time}} -->
+                                            </div>
                                         </div>
 
                                     </td>
@@ -115,10 +115,19 @@
                                 <!-- Ty -->
                                 <ng-container matColumnDef="type">
                                     <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Appt type</span>
+                                        <span class="font-normal">Appt Type</span>
                                     </th>
                                     <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="min-w-24">{{transaction.appointment_type}}</div>
+                                        <div class="min-w-24">{{transaction.appointmentType}}</div>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="for">
+                                    <th mat-header-cell *matHeaderCellDef class="text-center">
+                                        <span class="font-normal">Appt For</span>
+                                    </th>
+                                    <td mat-cell *matCellDef="let transaction" class="text-center">
+                                        <div class="min-w-24">{{transaction.appointmentFor}}</div>
                                     </td>
                                 </ng-container>
 
@@ -126,10 +135,10 @@
                                 <!-- insurance -->
                                 <ng-container matColumnDef="doctor">
                                     <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Doctor Name</span>
+                                        <span class="font-normal">Doctor </span>
                                     </th>
                                     <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        {{ transaction?.provider?.name}}
+                                        {{ transaction?.doctor?.name}}
                                     </td>
                                 </ng-container>
 
@@ -139,7 +148,7 @@
                                         <span class="font-normal">Reason to visit</span>
                                     </th>
                                     <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="min-w-32">{{transaction.appointment_reason}}</div>
+                                        <div class="min-w-32">{{transaction.appointmentReason}}</div>
 
                                     </td>
                                 </ng-container>

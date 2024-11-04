@@ -47,7 +47,8 @@ import { PortalService } from '../../portal.service';
 })
 export class SettingsInPersonComponent implements OnInit {
     reqForm: UntypedFormGroup;
-    public weekDays: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    public weekDays: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     // weekDays = [
     //     { name: 'Monday', active: false },
     //     { name: 'Tuesday', active: false },

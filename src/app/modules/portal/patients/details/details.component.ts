@@ -126,6 +126,8 @@ export class DetailsComponent implements OnInit {
             notes: [null],
             gender: [null],
             languages: [null],
+            status: ['Active'],
+            createdAt: new Date(),
             profilePictureUrl: [null]
         });
 
@@ -169,7 +171,6 @@ export class DetailsComponent implements OnInit {
         });
     }
 
-    // Load patient details by ID
     loadPatientDetails(): void {
         this._portalService.getPatientById(this.patientId).subscribe((patient) => {
             if (patient) {
@@ -177,6 +178,10 @@ export class DetailsComponent implements OnInit {
                 this.attachmentUrl = patient.attachmentUrl ?? null;
                 this.contact = patient;
                 this.selectedProfileImage = patient.profilePictureUrl ?? null;
+
+                // Convert dob only if it exists and is a Firestore timestamp
+                const dob = patient.dob && patient.dob.seconds ? new Date(patient.dob.seconds * 1000) : null;
+
                 this.form.patchValue({
                     profileImageUrl: patient.profileImageUrl ?? null,
                     attachmentUrl: patient.attachmentUrl ?? null,
@@ -186,7 +191,7 @@ export class DetailsComponent implements OnInit {
                     dental_needs: patient.dental_needs,
                     insurance: patient.insurance,
                     email: patient.email,
-                    dob: patient.dob ? patient.dob.toDate() : null, // Convert timestamp to Date
+                    dob: dob, // Set dob if valid, else null
                     address: patient.address,
                     notes: patient.notes,
                     gender: patient.gender,
@@ -197,38 +202,38 @@ export class DetailsComponent implements OnInit {
         });
     }
 
-
     loadFamilyMemberDetails(): void {
         if (this.familyMemberId) {
-          this._portalService.getFamilyMemberById(this.patientId, this.familyMemberId)
-            .subscribe((familyMember) => {
-                this.contact = familyMember;
-              if (familyMember) {
-                // this.familyForm.patchValue(familyMember);
+            this._portalService.getFamilyMemberById(this.patientId, this.familyMemberId)
+                .subscribe((familyMember) => {
+                    this.contact = familyMember;
+                    if (familyMember) {
+                        // Convert dob only if it exists and is a Firestore timestamp
+                        const dob = familyMember.dob && familyMember.dob.seconds ? new Date(familyMember.dob.seconds * 1000) : null;
 
-                this.familyForm.patchValue({
-                    profileImageUrl: familyMember.profileImageUrl ?? null,
-                    attachmentUrl: familyMember.attachmentUrl ?? null,
-                    fname: familyMember.fname,
-                    lname: familyMember.lname,
-                    number: familyMember.number,
-                    dental_needs: familyMember.dental_needs,
-                    insurance: familyMember.insurance,
-                    email: familyMember.email,
-                    dob: familyMember.dob ? familyMember.dob.toDate() : null, // Convert timestamp to Date
-                    address: familyMember.address,
-                    notes: familyMember.notes,
-                    gender: familyMember.gender,
-                    languages: familyMember.languages,
-                    profilePictureUrl: familyMember.profilePictureUrl,
-                    relationship: familyMember.relationship,
+                        this.familyForm.patchValue({
+                            profileImageUrl: familyMember.profileImageUrl ?? null,
+                            attachmentUrl: familyMember.attachmentUrl ?? null,
+                            fname: familyMember.fname,
+                            lname: familyMember.lname,
+                            number: familyMember.number,
+                            dental_needs: familyMember.dental_needs,
+                            insurance: familyMember.insurance,
+                            email: familyMember.email,
+                            dob: dob, // Set dob if valid, else null
+                            address: familyMember.address,
+                            notes: familyMember.notes,
+                            gender: familyMember.gender,
+                            languages: familyMember.languages,
+                            profilePictureUrl: familyMember.profilePictureUrl,
+                            relationship: familyMember.relationship,
+                        });
+                        this.cdr.detectChanges();
+                        console.log('Family member details loaded:', familyMember);
+                    } else {
+                        console.error('Family member not found');
+                    }
                 });
-                this.cdr.detectChanges();
-                console.log('Family member details loaded:', familyMember);
-              } else {
-                console.error('Family member not found');
-              }
-            });
         }
     }
 
@@ -247,32 +252,59 @@ export class DetailsComponent implements OnInit {
 
     loadPatientFamily(): void {
         this._portalService.getFamilyMembers(this.patientId).subscribe({
-          next: (familyData) => {
-            this.familyData = familyData; // Store retrieved family members in component
-            this.cdr.detectChanges();
-            console.log('Family data:', familyData);
-          },
-          error: (error) => console.error('Error fetching family data:', error),
+            next: (familyData) => {
+                this.familyData = familyData; // Store retrieved family members in component
+                this.cdr.detectChanges();
+                console.log('Family data:', familyData);
+            },
+            error: (error) => console.error('Error fetching family data:', error),
         });
-      }
+    }
 
     onAttachmentSelect(event: Event): void {
         const fileInput = event.target as HTMLInputElement;
-        this.selectedAttachment = fileInput.files ? fileInput.files[0] : null;
+        this.selectedAttachments = fileInput.files ? Array.from(fileInput.files) : [];
+        this.uploadAttachments();
+        // Optionally, you can handle file type determination here if needed.
+    }
 
-        if (this.selectedAttachment) {
-            const fileType = this.selectedAttachment.type;
-            this.attachmentType = fileType.startsWith('image') ? 'image' :
-                fileType.startsWith('video') ? 'video' :
-                    fileType === 'application/pdf' ? 'pdf' : 'other';
+    async uploadAttachments(): Promise<void> {
+        if (this.selectedAttachments.length) {
+            try {
+                // Upload files and get an array of objects with URL, type, and name
+                const uploadedFiles = await this._portalService.uploadFiles(this.selectedAttachments, 'attachments', this.patientId);
 
-            // Upload attachment and update the URL
-            this._portalService.uploadFile(this.selectedAttachment, 'attachments', this.patientId).then((url) => {
-                this.attachmentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-                this.updateAttachmentUrl(url);
-            });
+                // Update the local attachment array immediately for real-time display
+                this.contact.attachmentUrls = [
+                    ...(this.contact.attachmentUrls || []), // Include existing attachments
+                    ...uploadedFiles // Append new uploaded files
+                ];
+
+                // Prepare data with updated array of attachments to save in Firestore
+                const data = { attachmentUrls: this.contact.attachmentUrls };
+
+                // Update Firestore for patient or family member
+                if (this.isFamilyMember && this.familyMemberId) {
+                    await this._portalService.updateFamilyMember(this.patientId, this.familyMemberId, data);
+                    console.log('Attachments uploaded for family member!');
+                } else {
+                    await this._portalService.updatePatient(this.patientId, data);
+                    console.log('Attachments uploaded for patient!');
+                }
+
+                // Clear selected files after upload
+                this.selectedAttachments = [];
+
+                // Trigger change detection to update the view immediately
+                this.cdr.detectChanges();
+            } catch (error) {
+                console.error('Error uploading attachments:', error);
+            }
         }
     }
+
+
+
 
     async onProfileImageSelect(event: Event): Promise<void> {
         const fileInput = event.target as HTMLInputElement;
@@ -314,35 +346,66 @@ export class DetailsComponent implements OnInit {
 
     async uploadProfileImage(): Promise<void> {
         if (this.selectedProfileImage) {
-            const profileImageUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
-            this.contact.profilePictureUrl = profileImageUrl; // Update to show instantly
-            this.form.get('profilePictureUrl')?.setValue(profileImageUrl); // Patch form
-            this.cdr.detectChanges(); // Ensure view updates
+            try {
+                // Upload the image and get the download URL
+                const profileImageUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
+
+                if (profileImageUrl) {
+                    // Update the form and contact with the new profile picture URL
+                    this.form.patchValue({ profilePictureUrl: profileImageUrl });
+                    this.familyForm.patchValue({ profilePictureUrl: profileImageUrl });
+                    this.contact.profilePictureUrl = profileImageUrl; // Update local `contact` data for immediate display
+
+                    // Trigger change detection to update the view immediately
+                    this.cdr.detectChanges();
+
+                    // Optional: Update the Firestore database
+                    this.updateAttachmentUrl(profileImageUrl, 'profilePictureUrl');
+                }
+            } catch (error) {
+                console.error('Error uploading profile image:', error);
+            }
         }
     }
 
 
+
     onAddFamilyMember(): void {
         if (this.familyForm.valid) {
-          const familyMemberData = this.familyForm.value;
+            const familyMemberData = this.familyForm.value;
 
-          this._portalService.addFamilyMember(this.patientId, familyMemberData)
-            .then(() => {
-              console.log('Family member added successfully!');
-              this._router.navigate(['/portal/patients/' + this.patientId + '/details']);
-            //   this.loadPatientFamily(); // Refresh the family members list
-            })
-            .catch((error) => console.error('Error adding family member:', error));
+            this._portalService.addFamilyMember(this.patientId, familyMemberData)
+                .then(() => {
+                    console.log('Family member added successfully!');
+                    this._router.navigate(['/portal/patients/' + this.patientId + '/details']);
+                    //   this.loadPatientFamily(); // Refresh the family members list
+                })
+                .catch((error) => console.error('Error adding family member:', error));
         } else {
-          console.error('Family form is invalid');
+            console.error('Family form is invalid');
         }
-      }
+    }
+
+    deleteFamilyMember(familyMemberId: string): void {
+        if (confirm('Are you sure you want to delete this family member?')) {
+            this._portalService.deleteFamilyMember(this.patientId, familyMemberId)
+                .then(() => {
+                    console.log('Family member deleted successfully!');
+                    // Refresh the family data to remove the deleted member
+                    this.loadPatientFamily();
+                })
+                .catch((error) => console.error('Error deleting family member:', error));
+        }
+    }
+
 
 
     async onSave(): Promise<void> {
         const formToUse = this.isFamilyMember ? this.familyForm : this.form;
         if (formToUse.valid) {
             const data = formToUse.value;
+
+            // Only set dob if it has a valid value
             if (data.dob) {
                 data.dob = Timestamp.fromDate(new Date(data.dob));
             }
@@ -353,10 +416,12 @@ export class DetailsComponent implements OnInit {
 
             if (this.isFamilyMember) {
                 if (this.familyMemberId) {
+                    // Updating a family member
                     this._portalService.updateFamilyMember(this.patientId, this.familyMemberId, data)
                         .then(() => console.log('Family member updated successfully!'))
                         .catch((error) => console.error('Error updating family member:', error));
                 } else {
+                    // Creating a new family member
                     this._portalService.addFamilyMember(this.patientId, data)
                         .then(() => {
                             this._router.navigate(['/portal/patients/' + this.patientId + '/details']);
@@ -366,14 +431,19 @@ export class DetailsComponent implements OnInit {
                 }
             } else {
                 if (this.patientId) {
+                    // Updating an existing patient
                     this._portalService.updatePatient(this.patientId, data)
                         .then(() => console.log('Patient updated successfully!'))
                         .catch((error) => console.error('Error updating patient:', error));
                 } else {
+                    // Creating a new patient
                     this._portalService.createPatient(data)
-                        .then((docRef) => {
-                            console.log('Patient created successfully with ID:', docRef.id);
-                            this.patientId = docRef.id;
+                        .then((createdPatient) => {
+                            console.log('Patient created successfully with ID:', createdPatient.id);
+                            this.patientId = createdPatient.id; // Set patientId here for further updates
+
+                            // Optionally, navigate or reload data if needed
+                            this.loadPatientDetails(); // Refresh patient details if required
                         })
                         .catch((error) => console.error('Error creating patient:', error));
                 }
@@ -384,26 +454,59 @@ export class DetailsComponent implements OnInit {
     }
 
 
-    uploadAvatar(fileList: FileList): void {
-        // Return if canceled
-        if (!fileList.length) {
-            return;
+
+
+    getFileType(url: string): string {
+        const extension = url.split('.').pop()?.toLowerCase();
+        if (!extension) return 'other';
+
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+            return 'image';
+        } else if (['pdf'].includes(extension)) {
+            return 'pdf';
+        } else if (['mp4', 'mov', 'avi'].includes(extension)) {
+            return 'video';
+        } else {
+            return 'other';
         }
-
-        const allowedTypes = ['image/jpeg', 'image/png'];
-        const file = fileList[0];
-
-        // Return if the file is not allowed
-        if (!allowedTypes.includes(file.type)) {
-            return;
-        }
-
-        this._portalService.uploadFile(file, 'patient', this.patientId).then(() => {
-            console.log('Patient updated successfully!');
-        }).catch((error) => {
-            console.error('Error updating patient:', error);
-        });
-
     }
+
+
+    getFileIcon(type: string | undefined): string {
+        if (!type) return 'text-gray-500'; // Default icon color if type is undefined
+        switch (type.toUpperCase()) {
+            case 'PDF': return 'text-red-600';
+            case 'DOC': return 'text-blue-600';
+            case 'XLS': return 'text-green-600';
+            case 'TXT': return 'text-gray-600';
+            case 'JPG': return 'text-amber-600';
+            default: return 'text-gray-500';
+        }
+    }
+
+    getFileIconName(type: string | undefined): string {
+        if (!type) return 'insert_drive_file'; // Default icon if type is undefined
+        switch (type.toUpperCase()) {
+            case 'PDF': return 'picture_as_pdf';
+            case 'DOC': return 'description';
+            case 'XLS': return 'table_chart';
+            case 'TXT': return 'text_snippet';
+            case 'JPG': return 'image';
+            default: return 'insert_drive_file';
+        }
+    }
+
+    getFileTypeColor(type: string | undefined): string {
+        if (!type) return 'bg-gray-500'; // Default color if type is undefined
+        switch (type.toUpperCase()) {
+            case 'PDF': return 'bg-red-600';
+            case 'DOC': return 'bg-blue-600';
+            case 'XLS': return 'bg-green-600';
+            case 'TXT': return 'bg-gray-600';
+            case 'JPG': return 'bg-amber-600';
+            default: return 'bg-gray-500';
+        }
+    }
+
 
 }

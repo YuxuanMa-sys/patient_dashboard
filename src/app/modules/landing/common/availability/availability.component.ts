@@ -1,10 +1,10 @@
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { AsyncPipe, CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, QueryList, ViewChildren, ViewEncapsulation } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRippleModule } from '@angular/material/core';
+import { MatOptionModule, MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,6 +19,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { PortalService } from 'app/modules/portal/portal.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 
 @Component({
@@ -28,41 +31,50 @@ import { MatSelectModule } from '@angular/material/select';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [NgIf, MatButtonModule, MatIconModule, FormsModule,
+        ReactiveFormsModule,
         TextFieldModule, NgFor, MatCheckboxModule,
         RouterLink, MatSelectModule,
         NgClass, MatRippleModule, MatMenuModule, MatDialogModule, AsyncPipe,
-        MatDatepickerModule, MatDividerModule, MatRadioModule, DatePipe, CommonModule],
-        providers: [DatePipe]
+        MatFormFieldModule,
+        MatInputModule,
+        MatOptionModule,
+        MatRadioModule,
+        MatDatepickerModule, MatDividerModule, DatePipe, CommonModule],
+    providers: [DatePipe]
 })
-export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewInit {
-    readonly avatar: string = environment.cloudFront + 'public/users/profile/';
-    readonly url: string = environment.assets + 'utitlity/';
-    note$: Observable<any>;
-    single: any;
-    singleAvailibity: any;
-    labels$: Observable<any[]>;
-    buttonStatus: boolean;
+export class AvailabilityModalComponent implements OnInit, OnDestroy {
+    selectedAppointmentType: string = 'In-Person';
+    selectedAvailability: string = 'Week';
     formValue = {};
-    selectedAppointmentType: string = '';
-    issues_seeking: any;
-    selectedAvailability: string = '';
-    services: any[];
-
-    noteChanged: Subject<any> = new Subject<any>();
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
-    currentWeekRange: string;
+    patients: any[] = [];
+    staff: any[] = [];
+    appointmentSlots: any[] = [];
+    currentWeekRange: any;
+    loading: boolean;
+    error: string;
+    operatingHours: any;
+    operatingHoursVirtual: any;
+    operatingHoursInPerson: any;
+    form: FormGroup;
+    availableSlots: any;
+    familyMembers: any[];
+    selectedSlot: any;
+    selectedDay: string = 'Monday';
+    selectedSlots: { [key: string]: any } = {};
 
     /**
      * Constructor
      */
     constructor(
-        private _changeDetectorRef: ChangeDetectorRef,
+        private _portalService: PortalService,
+        private cdr: ChangeDetectorRef,
         @Inject(MAT_DIALOG_DATA) private _data: { data: any },
         private _matDialogRef: MatDialogRef<AvailabilityModalComponent>,
         private _scrollStrategyOptions: ScrollStrategyOptions,
         private router: Router,
         private route: ActivatedRoute,
-        private datePipe: DatePipe
+        private datePipe: DatePipe,
+        private fb: FormBuilder,
     ) {
     }
 
@@ -74,92 +86,227 @@ export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewI
      * On init
      */
     ngOnInit(): void {
-        this.single = this._data;
-        this.selectedAppointmentType = 'In-Person';
-        this.selectedAvailability = 'Week';
-
-        // this.single.availabilities.sort((a, b) => {
-        //     return new Date(a.date).getTime() - new Date(b.date).getTime();
-        //   });
-
-        // this._doctorService.services$
-        //     .pipe(takeUntil(this._unsubscribeAll))
-        //     .subscribe((res) => {
-        //         this.services = res['data'];
-        //         this.issues_seeking = this.services.length > 0 ? this.services[0].name : '';
-        //         this._changeDetectorRef.markForCheck();
-        //     });
-
-        //     this.currentWeekRange = this.getCurrentWeekRange();
-
-
-    }
-
-    getCurrentWeekRange(): string {
-        const currentDate = new Date();
-        const currentDay = currentDate.getDay();
-
-        // Calculate the start date of the current week starting from Tuesday
-        const startDate = new Date(currentDate);
-        startDate.setDate(currentDate.getDate() - currentDay + (currentDay <= 2 ? 2 : 9));
-
-        // Calculate the end date of the current week ending on Monday
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-
-        // Format the date range using the DatePipe
-        const formattedStartDate = this.datePipe.transform(startDate, 'EEE, MMM d', 'en-US');
-        const formattedEndDate = this.datePipe.transform(endDate, 'EEE, MMM d', 'en-US');
-
-        return `${formattedStartDate} – ${formattedEndDate}`;
-      }
-
-    isSlotInNextWeek(day: string): string {
-        const currentDate = new Date();
-
-        // Calculate the date of the next occurrence of the specified day
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const currentDayIndex = days.indexOf(day);
-        const daysUntilNextOccurrence = (currentDayIndex - currentDate.getDay() + 7) % 7;
-
-        const nextDate = new Date(currentDate);
-        nextDate.setDate(currentDate.getDate() + daysUntilNextOccurrence);
-
-        // Manually format the date as "Mon, 23, 2022" using Intl.DateTimeFormat
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            // weekday: 'short',
-            // day: '2-digit',
-            // year: 'numeric',
-            // //   month: '2-digit'
-
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-
+        this.form = this.fb.group({
+            patientId: [null, Validators.required],
+            doctorId: [null, Validators.required],
+            appointmentType: ['In-Person', Validators.required],
+            appointmentReason: [null, Validators.required],
+            appointmentFor: ['self'],
+            familyMemberId: [null],
+            date: [''],
+            selectedSlot: [null, Validators.required]
         });
-        const nextDateFormatted = formatter.format(nextDate);
 
-        return nextDateFormatted;
+        this.loadPatients();
+        this.loadStaff();
+        this.getOperatingHours();
+        this.getOperatingHoursVirtual();
+        this.onAppointmentTypeChange(this.selectedAppointmentType);
+    }
+
+    onAppointmentTypeChange(type: string): void {
+        this.selectedAppointmentType = type;
+        if (type === 'In-Person') {
+            this._portalService.getOperatingHoursNew().subscribe((data: any) => {
+                this.operatingHoursInPerson = data;
+                this.generateSlotsForDays(data.operatingWeekDays, data, 'inPerson');
+            });
+        } else {
+            this._portalService.getVirtualOperatingHours().subscribe((data: any) => {
+                this.operatingHoursVirtual = data;
+                this.generateSlotsForDays(data.operatingWeekDays, data.slots, 'virtual');
+            });
+        }
+    }
+
+    generateSlotsForDays(operatingDays: string[], data: any, type: 'inPerson' | 'virtual'): void {
+        this.availableSlots = [];
+
+        operatingDays.forEach(day => {
+            const nextDate = this.getNextDateForDay(day);
+
+            if (type === 'inPerson') {
+                const daySlots = this.generateInPersonSlots(data, nextDate);
+                this.availableSlots.push({ date: nextDate, slots: daySlots });
+            } else if (type === 'virtual') {
+                const daySlots = this.generateVirtualSlots(data, nextDate);
+                this.availableSlots.push({ date: nextDate, slots: daySlots });
+            }
+        });
+
+        this.cdr.detectChanges();
+    }
+
+    generateInPersonSlots(data: any, date: Date): any[] {
+        const slots = [];
+        const { startTime, endTime, appointmentDuration, midBreakStartTime, midBreakEndTime } = data;
+
+        const startMinutes = this.convertTimeToMinutes(startTime);
+        const endMinutes = this.convertTimeToMinutes(endTime);
+        const midBreakStartMinutes = this.convertTimeToMinutes(midBreakStartTime);
+        const midBreakEndMinutes = this.convertTimeToMinutes(midBreakEndTime);
+        const currentMinutes = date.toDateString() === new Date().toDateString() ? this.convertTimeToMinutes(this.getCurrentTime()) : 0;
+
+        for (let time = startMinutes; time < endMinutes; time += appointmentDuration) {
+            const slotStart = this.convertMinutesToTime(time);
+            const slotEnd = this.convertMinutesToTime(time + appointmentDuration);
+            const isDisabled = (time >= midBreakStartMinutes && time < midBreakEndMinutes) || (date.toDateString() === new Date().toDateString() && time < currentMinutes);
+
+            slots.push({
+                startTime: slotStart,
+                endTime: slotEnd,
+                duration: appointmentDuration,
+                isDisabled,
+                date
+            });
+        }
+
+        return slots;
+    }
+
+    generateVirtualSlots(slotsData: any[], date: Date): any[] {
+        return slotsData.map(slot => ({
+            ...slot,
+            isDisabled: false,
+            date: date,
+        }));
+    }
+
+    getNextDateForDay(day: string): Date {
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const today = new Date();
+        const currentDay = today.getDay();
+        const targetDay = daysOfWeek.indexOf(day);
+
+        // Calculate how many days until the next occurrence of the target day
+        const daysUntilNextOccurrence = (targetDay - currentDay + 7) % 7 || 7;
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + daysUntilNextOccurrence);
+
+        return nextDate;
+    }
+
+    convertTimeToMinutes(time: string): number {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    convertMinutesToTime(minutes: number): string {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+
+    getCurrentTime(): string {
+        const now = new Date();
+        return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    }
+
+    selectSlot(slot: any): void {
+        console.log(slot);
+
+        if (!slot.isDisabled) {
+            // Convert `date` to a string format (e.g., ISO string) before patching to the form
+            this.selectedSlots[slot.date.toDateString()] = slot;
+            this.form.patchValue({
+                selectedSlot: slot.startTime,
+                date: slot.date.toISOString() // Convert to ISO string
+            });
+        }
     }
 
 
-    dayOfWeekToNumber(day: string): number {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        return days.indexOf(day);
+
+    async saveAppointment(): Promise<void> {
+        console.log(this.form.value);
+
+        if (this.form.valid) {
+            const appointmentData = {
+                ...this.form.value,
+                date: this.form.value.date, // This will now be the ISO string of the date
+                status: 'Upcoming'
+            };
+
+            console.log('Appointment saved:', appointmentData);
+            await this._portalService.addAppointment(appointmentData);
+        }
     }
 
-    getFormattedDate(day: string): string {
-        const currentDate = new Date();
-        const daysUntilNextOccurrence = (this.dayOfWeekToNumber(day) - currentDate.getDay() + 7) % 7;
-        const nextDate = new Date(currentDate);
-        nextDate.setDate(currentDate.getDate() + daysUntilNextOccurrence);
 
-        const month = (nextDate.getMonth() + 1).toString().padStart(2, '0');
-        const dayOfMonth = nextDate.getDate().toString().padStart(2, '0');
-        const year = nextDate.getFullYear();
-
-        return `${month}-${dayOfMonth}-${year}`;
+    onPatientChange(patientId: string): void {
+        this._portalService.getFamilyMembers(patientId).subscribe((family) => {
+            this.familyMembers = family;
+        });
     }
+
+    loadPatients() {
+        this._portalService.getPatients().subscribe({
+            next: (data) => {
+                if (data && data.length > 0) {
+                    this.patients = data;  // Assign the fetched data to the data array
+
+                }
+                this.loading = false; // Turn off loading after data fetch
+                this.cdr.detectChanges();
+                console.log('Patients:', this.patients);
+            },
+            error: (err) => {
+                console.error('Error fetching patients:', err);
+                this.error = 'An error occurred while fetching patients.';
+                this.loading = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    loadStaff() {
+        this._portalService.getStaffList().subscribe({
+            next: (res) => {
+                // Step 1: Map and filter patients
+                this.staff = res
+                // Save a copy of sorted data for future use
+                this.loading = false; // Stop loading indicator
+                this.cdr.detectChanges(); // Ensure the view is updated with new data
+            },
+            error: (err) => {
+                console.error('Error fetching staff:', err);
+                this.error = 'An error occurred while fetching staff.';
+                this.loading = false;
+                this.cdr.detectChanges(); // Ensure error message is shown in the UI
+            }
+        });
+    }
+
+    getOperatingHours() {
+        this._portalService.getOperatingHoursNew().subscribe((data: any) => {
+            if (data) {
+                console.log(data);
+
+                this.operatingHoursInPerson = data;
+
+            }
+        });
+    }
+    getOperatingHoursVirtual() {
+        this._portalService.getVirtualOperatingHours().subscribe((data: any) => {
+            if (data) {
+                console.log(data);
+
+                this.operatingHoursVirtual = data;
+
+                // this.clinicOperatingHours.slots.forEach((slot: any, index: number) => {
+                //     if (this.slotDetails.at(index)) {
+                //         this.slotDetails.at(index).patchValue(slot);
+                //     }
+                // });
+            }
+        });
+    }
+
+    getCurrentWeekRange() {
+        // Calculate and format current week range
+    }
+
 
 
     close() {
@@ -169,39 +316,11 @@ export class AvailabilityModalComponent implements OnInit, OnDestroy, AfterViewI
     * On destroy
     */
     ngOnDestroy(): void {
-        // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next(null);
-        this._unsubscribeAll.complete();
+        // // Unsubscribe from all subscriptions
+        // this._unsubscribeAll.next(null);
+        // this._unsubscribeAll.complete();
     }
 
-    ngAfterViewInit(): void {
-
-    }
-
-    getSlot(availability_id, slot_id, date, start_time, end_time, type) {
-        this.buttonStatus = true;
-        this.formValue = {
-            "availability_id": availability_id,
-            "availability_slot_id": slot_id,
-            "dated": date,
-            "start_time": start_time,
-            "end_time": end_time,
-            "type": type,
-            'issues_seeking': this.issues_seeking
-        }
-
-
-        this.booknow();
-    }
-
-    booknow() {
-        this._matDialogRef.close();
-        this.router.navigate(['doctors/' + this.single.id + '/review'], {
-            relativeTo: this.route,
-            queryParams: this.formValue,
-            queryParamsHandling: 'merge',
-        });
-    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
