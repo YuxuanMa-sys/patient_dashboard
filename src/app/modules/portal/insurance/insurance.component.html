@@ -11,7 +11,7 @@
 
                 <div class="mt-4 sm:mt-0">
                     <!-- Upload button -->
-                    <button mat-flat-button [color]="'primary'">
+                    <button mat-flat-button [color]="'primary'" (click)="createOrUpdate('add')">
                         <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                         <span class="ml-2 mr-1">Add Insurance </span>
                     </button>
@@ -71,8 +71,13 @@
                                         <div class="flex items-center justify-center space-x-3 min-w-44">
                                             <button
                                                 class="fuse-mat-button-small rounded-[6px] max-h-6 font-normal  button-secondary"
+                                                (click)="createOrUpdate(transaction)"
                                                 mat-stroked-button type="button">
                                                 Edit Details
+                                            </button>
+
+                                            <button (click)="deleteData(transaction.id)" class="text-red-500">
+                                                <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
                                             </button>
 
                                         </div>

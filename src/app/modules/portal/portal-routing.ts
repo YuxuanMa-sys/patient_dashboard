@@ -39,14 +39,14 @@ export const routes: Routes = [
             //     loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
             // },
 
-            // {
-            //     path: 'announcements',
-            //     loadChildren: () => import('./announcements/promotion.module').then(m => m.PromotionModule),
-            // },
-            // {
-            //     path: 'promotion',
-            //     loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
-            // },
+            {
+                path: 'announcements',
+                loadChildren: () => import('./announcements/promotion.module').then(m => m.PromotionModule),
+            },
+            {
+                path: 'promotion',
+                loadChildren: () => import('./promotion/promotion.module').then(m => m.PromotionModule),
+            },
 
             {
                 path: 'staff',

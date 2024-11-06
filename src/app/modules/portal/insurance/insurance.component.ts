@@ -16,6 +16,9 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { PortalService } from '../portal.service';
+import { MatDialog } from '@angular/material/dialog';
+import { InsuranceModalComponent } from 'app/modules/landing/common/insurance/insurance.component';
+import { cloneDeep } from 'lodash';
 
 @Component({
     selector: 'app-insurance',
@@ -46,7 +49,8 @@ export class InsuranceComponent implements OnInit {
 
     constructor(
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private _matDialog: MatDialog,
     ) {
     }
 
@@ -73,6 +77,33 @@ export class InsuranceComponent implements OnInit {
             }
         });
     }
+
+    createOrUpdate(data: any) {
+
+        const dialogRef = this._matDialog.open(InsuranceModalComponent, {
+            autoFocus: false,
+            data: cloneDeep(data)
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(result);
+            this.getData();
+        });
+    }
+
+
+    deleteData(id: string): void {
+        if (confirm('Are you sure you want to delete this family member?')) {
+            this._portalService.deleteInsurancet(id)
+                .then(() => {
+                    console.log('Family member deleted successfully!');
+                    // Refresh the family data to remove the deleted member
+                    this.getData();
+                })
+                .catch((error) => console.error('Error deleting family member:', error));
+        }
+    }
+
 
     trackByFn(index: number, item: any): any {
         return item.id || index;

@@ -1,11 +1,11 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { environment } from 'environments/environment';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApexOptions, ChartComponent } from 'ng-apexcharts';
-import { AppointmentsListService } from '../../appointments-list.service';
+
 import { MatDialog } from '@angular/material/dialog';
 
 import { cloneDeep } from 'lodash';
@@ -16,13 +16,42 @@ import { PortalService } from 'app/modules/portal/portal.service';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { DocumentReference, getDoc } from 'firebase/firestore';
 import { AvailabilityModalComponent } from 'app/modules/landing/common/availability/availability.component';
-
-
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { NgFor, NgClass, NgIf, DatePipe } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
     selector: 'app-appointments',
     templateUrl: './appointments.component.html',
     styleUrls: ['./appointments.component.scss'],
+    standalone: true,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatTableModule,
+        MatInputModule,
+        TextFieldModule,
+        MatSelectModule,
+        MatOptionModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        MatDatepickerModule,
+        MatSortModule,
+        NgFor,
+        NgClass,
+        NgIf,
+        DatePipe
+    ],
 })
 export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -51,7 +80,6 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     constructor(
         private _matDialog: MatDialog,
-        private _appointmentsListService: AppointmentsListService,
         private route: ActivatedRoute,
         private _portalService: PortalService,
         private cdr: ChangeDetectorRef
@@ -60,34 +88,12 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit(): void {
 
-        this.route.data.subscribe((data) => {
-            console.log('Resolved clinics data:', data['upcoming']);  // Add this log
-            this.clinics = data['upcoming']; // Check if data is available
-        });
-
-        this._appointmentsListService.upcoming$
-
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((data) => {
-                // Store the data
-                this.upcoming = data;
-                // Prepare the chart data
-            });
-
-        this._appointmentsListService.today$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((data) => {
-                // Store the data
-                this.today = data;
-                // Prepare the chart data
-            });
-
         this.getAppointments();
 
     }
 
     getAppointments(): void {
-        this._portalService.getAppointments().subscribe({
+        this._portalService.getCancelledAppointments().subscribe({
             next: (res) => {
                 this.appointments = res; // Contains enriched appointments with patient and doctor data
                 this.loading = false;
@@ -112,20 +118,20 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
             const isAsc = sort.direction === 'asc';
             switch (sort.active) {
                 case 'patient_name': return this.compare(a.patient.fname, b.patient.fname, isAsc);
-                case 'appointment_type': return this.compare(a.appointment_type, b.appointment_type, isAsc);
-                case 'appointment_reason': return this.compare(a.appointment_reason, b.appointment_reason, isAsc);
+                case 'appointmentType': return this.compare(a.appointmentType, b.appointmentType, isAsc);
+                case 'appointmentReason': return this.compare(a.appointmentReason, b.appointmentReason, isAsc);
                 case 'status': return this.compare(a.status, b.status, isAsc);
                 case 'doctor_name': return this.compare(a.provider.name, b.provider.name, isAsc);
-                case 'confirmed_date': return this.compareDate(a, b, isAsc);
+                case 'date': return this.compareDate(a, b, isAsc);
                 default: return 0;
             }
         });
     }
 
     compareDate(a: any, b: any, isAsc: boolean) {
-        if (b.confirmed_date) return 1;
-        if (a.confirmed_date) return -1;
-        if (b.confirmed_date && a.confirmed_date) return isAsc ? a.confirmed_date.toDate().getTime() - b.confirmed_date.toDate().getTime() : b.confirmed_date.toDate().getTime() - a.confirmed_date.toDate().getTime();
+        if (b.date) return 1;
+        if (a.date) return -1;
+        if (b.date && a.date) return isAsc ? a.date.toDate().getTime() - b.date.toDate().getTime() : b.date.toDate().getTime() - a.date.toDate().getTime();
     }
 
     compare(a: number | string, b: number | string, isAsc: boolean) {

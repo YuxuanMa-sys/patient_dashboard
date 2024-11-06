@@ -1,0 +1,116 @@
+<div class="flex flex-col flex-auto md:w-120 md:min-w-120 -m-6 pb-6 px-3">
+    <div class="w-full">
+        <div class="overflow-hidden pb-4">
+            <div>
+                <h2 class="text-xl font-normal tracking-normal leading-8 text-dark pt-3">
+                    Announcements
+                </h2>
+            </div>
+            <hr class="my-1">
+
+            <div class="col-span-2">
+                <div class="ring-bg-card relative flex h-32 w-full items-center justify-center overflow-hidden ring-4">
+                    <!-- Overlay for the upload icon -->
+                    <div class="absolute inset-0 z-10 bg-black bg-opacity-50"></div>
+
+                    <!-- Icon for uploading the image -->
+                    <div class="absolute inset-0 z-20 flex items-center justify-center">
+                        <div>
+                            <input id="announcement-image-input"
+                                class="pointer-events-none invisible absolute h-0 w-0 opacity-0" type="file"
+                                [multiple]="false" [accept]="'image/jpeg, image/png'" (change)="onImageSelect($event)"
+                                #imageInput />
+
+                            <label
+                                class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-hover"
+                                for="announcement-image-input" matRipple>
+                                <mat-icon class="text-white" [svgIcon]="'heroicons_outline:camera'"></mat-icon>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview or Default Placeholder -->
+                    <ng-container *ngIf="imagePreviewUrl; else defaultImageTemplate">
+                        <img class="h-full w-full object-cover " [src]="imagePreviewUrl"
+                            alt="Image Preview" />
+                    </ng-container>
+                    <ng-template #defaultImageTemplate>
+                        <div
+                            class="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-8xl font-bold uppercase text-gray-600">
+                            <span class="text-sm">No Image</span>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+
+            <form [formGroup]="form" class="grid mt-5">
+                <!-- Title -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Title</mat-label>
+                    <input matInput formControlName="title" placeholder="Title" />
+                    <mat-error *ngIf="form.get('title')?.hasError('required')">
+                        Title is required
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Description -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput formControlName="description" placeholder="Description"></textarea>
+                    <mat-error *ngIf="form.get('description')?.hasError('required')">
+                        Description is required
+                    </mat-error>
+                </mat-form-field>
+
+
+                <!-- Status -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status">
+                        <mat-option [value]="true">Active</mat-option>
+                        <mat-option [value]="false">Inactive</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- For Dropdown -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>For</mat-label>
+                    <mat-select formControlName="for">
+                        <mat-option *ngFor="let option of forOptions" [value]="option">
+                            {{ option }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="form.get('for')?.hasError('required')">
+                        Selection is required
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Type Dropdown -->
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Type</mat-label>
+                    <mat-select formControlName="type">
+                        <mat-option *ngFor="let type of typeOptions" [value]="type">
+                            {{ type }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="form.get('type')?.hasError('required')">
+                        Selection is required
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Save Button -->
+                <button mat-flat-button color="primary" class="mt-3" type="submit"  (click)="save()">
+                    Save
+                </button>
+
+                <!-- Loading Indicator and Error Message -->
+                <div *ngIf="loading" class="mt-2">
+                    <mat-spinner diameter="30"></mat-spinner>
+                </div>
+                <div *ngIf="error" class="mt-2 text-red-500">
+                    {{ error }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

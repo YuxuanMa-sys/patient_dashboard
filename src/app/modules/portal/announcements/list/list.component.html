@@ -8,13 +8,13 @@
 
         <div class="mt-4 sm:mt-0">
             <!-- Upload button -->
-            <button mat-flat-button [color]="'primary'">
+            <button mat-flat-button [color]="'primary'" (click)="createOrUpdate('add')">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add Announcements </span>
             </button>
         </div>
     </div>
-
+    <!-- (click)="createOrUpdate(transaction)" -->
     <div class="grid grid-cols-1  gap-6 w-full mt-2">
 
         <div class="flex flex-col flex-auto sm:mb-10  rounded-sm overflow-hidden sm:overflow-y-auto p-5">
@@ -27,38 +27,39 @@
                             *ngFor="let item of announcements">
                             <!-- Announcement Image -->
                             <img class="w-full h-56 object-contain transition-transform duration-300 transform group-hover:scale-105"
-                                [src]="item?.announcement_image ? item?.announcement_image : 'images/cards/01-320x200.jpg'"
-                                alt="Announcement Image" />
+                                [src]="item?.image ? item?.image : 'images/cards/01-320x200.jpg'"
+                                alt="Announcement Image" (click)="createOrUpdate(item)" />
 
                             <!-- Content Section -->
                             <div class="p-6">
                                 <!-- Title -->
                                 <h3
-                                    class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
-                                    {{ item.announcement_title }}
+                                    class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300"
+                                    (click)="createOrUpdate(item)">
+                                    {{ item.title }}
                                 </h3>
 
                                 <!-- Dates -->
                                 <div class="mt-2 text-gray-500 text-sm space-y-1">
-                                    <span>Start: {{ item.start_date?.toDate() | date: 'medium' }}</span>
-                                    <br />
-                                    <span>End: {{ item.end_date?.toDate() | date: 'medium' }}</span>
+                                    <span>date: {{ item.createdAt?.toDate() | date: 'medium' }}</span>
+                                    <!-- <br />
+                                    <span>End: {{ item.end_date?.toDate() | date: 'medium' }}</span> -->
                                 </div>
 
                                 <!-- Description -->
                                 <p class="mt-4 text-gray-700 text-sm leading-6">
-                                    {{ item.announcement_desc | slice: 0:100 }}... <!-- Limiting the description -->
+                                    {{ item.description | slice: 0:100 }}... <!-- Limiting the description -->
                                 </p>
                             </div>
 
                             <!-- Promotion Type Badge -->
                             <div
                                 class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                                {{ item.announcement_type }}
+                                {{ item.type }}
                             </div>
 
                             <!-- Delete Button -->
-                            <button (click)="deleteAnnouncement(item.id)"
+                            <button (click)="deleteData(item.id)"
                                 class="absolute top-3 right-3 text-red-500 hover:text-red-700">
                                 <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
                             </button>
@@ -72,7 +73,7 @@
                 </ng-container>
 
                 <ng-template #noData>
-                    <div class="flex flex-col flex-auto w-full">
+                    <div class="flex flex-col flex-auto w-full bg-card">
                         <div class="m-auto px-4"> <img class="w-80" [alt]="'transaction thumbnail image'"
                                 src="icons/magnifying-glass.svg"></div>
 

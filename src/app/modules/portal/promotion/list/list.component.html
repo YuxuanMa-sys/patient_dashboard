@@ -8,7 +8,7 @@
 
         <div class="mt-4 sm:mt-0">
             <!-- Upload button -->
-            <button mat-flat-button [color]="'primary'">
+            <button mat-flat-button [color]="'primary'" (click)="createOrUpdate('add')">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add Promotion </span>
             </button>
@@ -23,39 +23,47 @@
                     <!-- Grid layout for announcements -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                         <!-- Announcement card -->
-                        <div class="relative group flex flex-col bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300" *ngFor="let item of announcements">
+                        <div class="relative group flex flex-col bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                            *ngFor="let item of announcements" >
                             <!-- Announcement Image -->
                             <img class="w-full h-56 object-contain transition-transform duration-300 transform group-hover:scale-105"
-                                 [src]="item?.announcement_image ? item?.announcement_image : 'images/cards/01-320x200.jpg'"
-                                 alt="Announcement Image" />
+                                [src]="item?.image ? item?.image : 'images/cards/01-320x200.jpg'"
+                                alt="Announcement Image" (click)="createOrUpdate(item)" />
 
                             <!-- Content Section -->
                             <div class="p-6">
                                 <!-- Title -->
-                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
-                                    {{ item.announcement_title }}
+                                <h3
+                                    class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+                                    {{ item.title }}
                                 </h3>
 
                                 <!-- Dates -->
                                 <div class="mt-2 text-gray-500 text-sm space-y-1">
-                                    <span>Start: {{ item.start_date?.toDate() | date: 'medium' }}</span>
-                                    <br />
-                                    <span>End: {{ item.end_date?.toDate() | date: 'medium' }}</span>
+                                    <span>date: {{ item.createdAt?.toDate() | date: 'medium' }}</span>
+                                    <!-- <br />
+                                    <span>End: {{ item.end_date?.toDate() | date: 'medium' }}</span> -->
                                 </div>
 
                                 <!-- Description -->
                                 <p class="mt-4 text-gray-700 text-sm leading-6">
-                                    {{ item.announcement_desc | slice: 0:100 }}... <!-- Limiting the description -->
+                                    {{ item.description | slice: 0:100 }}... <!-- Limiting the description -->
                                 </p>
                             </div>
 
+
                             <!-- Promotion Type Badge -->
-                            <div class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                                {{ item.announcement_type }}
+                            <div
+                                class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                {{ item.type }}
                             </div>
 
+                            <button (click)="deleteData(item.id)"
+                                class="absolute top-3 right-3 text-red-500 hover:text-red-700">
+                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                            </button>
                             <!-- Hover Effect Overlay (Optional) -->
-                            <div class="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                         </div>
                     </div>
                 </ng-container>
@@ -64,11 +72,12 @@
                 <ng-container *ngIf="!loading && announcements.length > 0; else noData"></ng-container>
 
                 <ng-template #noData>
-                    <div class="flex flex-col flex-auto w-full">
+                    <div class="flex flex-col flex-auto w-full bg-card">
                         <div class="m-auto px-4">
                             <img class="w-80" alt="No data image" src="icons/magnifying-glass.svg">
                         </div>
-                        <div class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
+                        <div
+                            class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
                             You don't have any promotions
                         </div>
                     </div>

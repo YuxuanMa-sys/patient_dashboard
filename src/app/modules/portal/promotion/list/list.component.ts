@@ -8,6 +8,9 @@ import { PortalService } from '../../portal.service';
 import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { AnnoucementType } from 'app/_enums/annoucementType.enum';
+import { MatDialog } from '@angular/material/dialog';
+import { PromotionModalComponent } from 'app/modules/landing/common/promotion/promotion.component';
+import { cloneDeep } from 'lodash';
 
 
 @Component({
@@ -53,7 +56,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     constructor(
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private _matDialog: MatDialog,
     ) {
     }
 
@@ -69,7 +73,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getAllPromotion(): void {
-        this._portalService.getAnnouncements().subscribe({
+        this._portalService.getPromotion().subscribe({
             next: (res) => {
                 this.announcements = res.map((e: any) => {
                     return {
@@ -77,7 +81,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
                         ...e,
                     };
                 })
-                    .filter(announcement => announcement.announcement_type === AnnoucementType.PROMO && announcement.createdAt);  // Filter Promo type
+                    // .filter(announcement => announcement.announcement_type === AnnoucementType.PROMO && announcement.createdAt);  // Filter Promo type
 
                 // Sort by createdAt in descending order
                 this.announcements.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
@@ -94,6 +98,33 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
+    createOrUpdate(data: any) {
+
+        const dialogRef = this._matDialog.open(PromotionModalComponent, {
+            autoFocus: false,
+            data: cloneDeep(data)
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(result);
+            this.getAllPromotion();
+        });
+    }
+
+
+    deleteData(id: string): void {
+        if (confirm('Are you sure you want to delete this family member?')) {
+            this._portalService.deletePromotion(id)
+                .then(() => {
+                    console.log('Family member deleted successfully!');
+                    // Refresh the family data to remove the deleted member
+                    this.getAllPromotion();
+                })
+                .catch((error) => console.error('Error deleting family member:', error));
+        }
+    }
+
+
 
     trackByFn(index: number, item: any): any {
         return item.id || index;
@@ -108,3 +139,4 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         this._unsubscribeAll.complete();
     }
 }
+

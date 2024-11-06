@@ -12,7 +12,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'upcoming',
-        loadChildren: () => import('./upcomings/upcomings.module').then(m => m.UpcomingsModule),
+        loadChildren: () => import('./appointments/appointments.routes'),
       },
       // {
       //   path: 'upcoming',
@@ -20,12 +20,19 @@ export const routes: Routes = [
       // },
       {
         path: 'past',
-        loadChildren: () => import('./past/past.module').then(m => m.PastAppointmentsModule),
+        loadChildren: () => import('./past/appointments.routes'),
       },
+
       {
         path: 'cancelled',
-        loadChildren: () => import('./cancelled/past.module').then(m => m.CancelledAppointmentsModule),
+        loadChildren: () => import('./cancelled/appointments.routes'),
       },
+
+      {
+        path: 'completed',
+        loadChildren: () => import('./completed/appointments.routes'),
+      },
+
 
     ]
   },
