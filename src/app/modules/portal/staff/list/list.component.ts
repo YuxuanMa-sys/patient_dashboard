@@ -7,6 +7,9 @@ import { environment } from 'environments/environment';
 import { PortalService } from '../../portal.service';
 import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
+import { MatDialog } from '@angular/material/dialog';
+import { StaffModalComponent } from 'app/modules/landing/common/staff/staff.component';
+import { cloneDeep } from 'lodash';
 
 
 @Component({
@@ -52,7 +55,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     constructor(
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private _matDialog: MatDialog,
     ) {
     }
 
@@ -71,6 +75,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         this._portalService.getStaffList().subscribe({
             next: (res) => {
                 // Step 1: Map and filter patients
+                console.log(res);
+
                 this.staff = res
                 // Save a copy of sorted data for future use
                 this.loading = false; // Stop loading indicator
@@ -84,6 +90,35 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         });
     }
+
+
+
+    createOrUpdate(data: any) {
+
+        const dialogRef = this._matDialog.open(StaffModalComponent, {
+            autoFocus: false,
+            data: cloneDeep(data)
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(result);
+            this.getPatients();
+        });
+    }
+
+
+    deleteData(id: string): void {
+        if (confirm('Are you sure you want to delete this staff member?')) {
+            this._portalService.deleteStaff(id)
+                .then(() => {
+                    console.log('Staff member deleted successfully!');
+                    // Refresh the family data to remove the deleted member
+                    this.getPatients();
+                })
+                .catch((error) => console.error('Error deleting staff member:', error));
+        }
+    }
+
 
     getCurrentAge(dob: string): string {
         const birthDate = moment(dob);

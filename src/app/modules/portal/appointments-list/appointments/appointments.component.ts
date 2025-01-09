@@ -31,7 +31,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 
 @Component({
-    selector: 'app-appointments',
+    selector: 'app-upcoming-appointments',
     templateUrl: './appointments.component.html',
     styleUrls: ['./appointments.component.scss'],
     standalone: true,

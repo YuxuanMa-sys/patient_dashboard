@@ -8,7 +8,7 @@
 
         <div class="mt-4 sm:mt-0">
             <!-- Upload button -->
-            <button mat-flat-button [color]="'primary'">
+            <button mat-flat-button [color]="'primary'" (click)="createOrUpdate('add')">
                 <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                 <span class="ml-2 mr-1">Add Staff </span>
             </button>
@@ -30,13 +30,12 @@
                             </th>
                             <td mat-cell *matCellDef="let transaction">
                                 <div class="flex items-center min-w-44 cursor-pointer"
-                                    [routerLink]="transaction.id + '/details'">
+                                    (click)="createOrUpdate(transaction)">
                                     <div
                                         class="relative flex flex-0 items-center justify-center w-12 h-12 mr-2 rounded-full overflow-hidden border">
                                         <!-- Check for profile picture URL and fall back to imageData -->
                                         <img class="w-10" *ngIf="transaction?.profileImage; else fallbackImage"
-                                            [alt]="'transaction thumbnail image'"
-                                            [src]="transaction?.profileImage">
+                                            [alt]="'transaction thumbnail image'" [src]="transaction?.profileImage">
                                         <ng-template #fallbackImage>
                                             <img class="w-10" *ngIf="imageData" [alt]="'Fallback thumbnail image'"
                                                 [src]="imageData?.path">
@@ -106,13 +105,17 @@
                                 <span class="font-normal">Action</span>
                             </th>
                             <td mat-cell *matCellDef="let transaction" class="text-center">
+
                                 <div class="flex items-center justify-center space-x-3 min-w-44">
-
-
                                     <button
                                         class="fuse-mat-button-small rounded-[6px] max-h-6 font-normal  button-secondary"
+                                        (click)="createOrUpdate(transaction)"
                                         mat-stroked-button type="button">
                                         Edit Details
+                                    </button>
+
+                                    <button (click)="deleteData(transaction.id)" class="text-red-500">
+                                        <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
                                     </button>
 
                                 </div>

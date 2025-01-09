@@ -19,14 +19,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/portal/patients'
     },
 
-    {
-        id   : 'newpatients',
-        title: 'New Patient Requests',
-        type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu3.svg',
-        link : '/portal/new-patients'
-    },
+    // {
+    //     id   : 'newpatients',
+    //     title: 'New Patient Requests',
+    //     type : 'basic',
+    //     // icon : 'heroicons_outline:chart-pie',
+    //     image : 'menu/menu3.svg',
+    //     link : '/portal/new-patients'
+    // },
     {
         id   : 'appointments',
         title: 'Appointments',
@@ -67,7 +67,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type : 'basic',
         // icon : 'heroicons_outline:chart-pie',
         image : 'menu/menu8.svg',
-        link : '/portal/staff'
+        link : '#'
     },
     {
         id   : 'notifications',

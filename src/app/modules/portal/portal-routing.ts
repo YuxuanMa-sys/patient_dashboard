@@ -34,10 +34,10 @@ export const routes: Routes = [
             //     loadChildren: () => import('./patients-new/patients.module').then(m => m.PatientsModule),
             // },
 
-            // {
-            //     path: 'requests',
-            //     loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
-            // },
+            {
+                path: 'requests',
+                loadChildren: () => import('./requests/requests.module').then(m => m.RequestsModule),
+            },
 
             {
                 path: 'announcements',
@@ -53,10 +53,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
             },
 
-            // {
-            //     path: 'notifications',
-            //     loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
-            // },
+            {
+                path: 'notifications',
+                loadChildren: () => import('./notifications/contact.module').then(m => m.ContactModule),
+            },
 
             { path: 'insurance', component: InsuranceComponent},
 

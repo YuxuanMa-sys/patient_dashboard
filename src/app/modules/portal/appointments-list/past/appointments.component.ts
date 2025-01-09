@@ -29,7 +29,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
-    selector: 'app-appointments',
+    selector: 'app-past-appointments',
     templateUrl: './appointments.component.html',
     styleUrls: ['./appointments.component.scss'],
     standalone: true,
@@ -47,7 +47,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
         MatSlideToggleModule,
         MatDatepickerModule,
         MatSortModule,
-        NgFor,
         NgClass,
         NgIf,
         DatePipe

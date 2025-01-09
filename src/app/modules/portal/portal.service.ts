@@ -27,16 +27,22 @@ import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { NotificationType } from 'app/_enums/notificationType.enum';
 import { environment } from 'environments/environment';
 
+import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
+
 @Injectable({
     providedIn: 'root',
 })
 export class PortalService {
+    private auth: Auth;
     constructor(
         private firestore: Firestore,
         private _notificationService: NotificationService,
         private _httpClient: HttpClient,
-        private storage: Storage
-    ) { }
+        private storage: Storage,
+
+    ) {
+        this.auth = getAuth();
+     }
 
     // Clinics
     addClinic(data): Promise<DocumentReference<unknown>> {
@@ -85,34 +91,27 @@ export class PortalService {
 
 
 
+    createAuthUser(email: string, password: string): Promise<UserCredential> {
+        return createUserWithEmailAndPassword(this.auth, email, password);
+    }
+
 
     // Staffs
     addStaff(data): Promise<DocumentReference<unknown>> {
-        const staffsRef = collection(this.firestore, 'staffs');
+        const staffsRef = collection(this.firestore, 'staff');
         return addDoc(staffsRef, data);
     }
 
     updateStaff(id: string, data: any): Promise<void> {
-        const staffRef = doc(this.firestore, 'staffs/' + id);
+        const staffRef = doc(this.firestore, 'staff/' + id);
         return updateDoc(staffRef, data);
     }
 
     deleteStaff(id: string): Promise<void> {
-        const staffRef = doc(this.firestore, 'staffs/' + id);
+        const staffRef = doc(this.firestore, 'staff/' + id);
         return deleteDoc(staffRef);
     }
 
-    getStaffs(clinic_id: string): Observable<DocumentSnapshot<unknown>[]> {
-        const staffsRef = collection(this.firestore, 'staffs');
-        const q = query(staffsRef, where('clinic_id', '==', clinic_id));
-        return new Observable((observer) => {
-            getDocs(q).then((snapshot) => {
-                console.log(snapshot.docs);
-                observer.next(snapshot.docs.map(doc => doc.data() as DocumentSnapshot<unknown>));
-                observer.complete();
-            }).catch(error => observer.error(error));
-        });
-    }
 
     getStaffList(): Observable<any[]> {
         const patientsRef = collection(this.firestore, 'staff');
