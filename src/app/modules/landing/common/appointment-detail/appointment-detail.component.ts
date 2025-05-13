@@ -46,6 +46,7 @@ export class AppointmentDetailModalComponent implements OnInit, OnDestroy, After
     buttonStatus: boolean;
     formValue = {};
     form: FormGroup;
+    formConvert: FormGroup;
     alert: { type: FuseAlertType; message: string } = {
         type: 'success',
         message: '',
@@ -83,6 +84,10 @@ export class AppointmentDetailModalComponent implements OnInit, OnDestroy, After
         this.form = this._formBuilder.group({
             notes: [''],
             status: ['Completed'],
+        });
+
+        this.formConvert = this._formBuilder.group({
+            status: ['Upcoming'],
         });
 
     }
@@ -126,6 +131,28 @@ export class AppointmentDetailModalComponent implements OnInit, OnDestroy, After
 
         if (this.form.valid) {
             const updatedData = this.form.value;
+            const appointmentId = this.single.id;
+
+            this._portalService.updateAppointment(appointmentId, updatedData)
+              .then(() => {
+                this.alert = {
+                    type: 'success',
+                    message: 'Appointment updated successfully',
+                };
+                this.dialogRef.close();
+                console.log('Appointment updated successfully');
+              })
+              .catch((error) => {
+                console.error('Error updating appointment:', error);
+              });
+          }
+    }
+
+
+    convertAppointmnet(): void {
+
+        if (this.form.valid) {
+            const updatedData = this.formConvert.value;
             const appointmentId = this.single.id;
 
             this._portalService.updateAppointment(appointmentId, updatedData)

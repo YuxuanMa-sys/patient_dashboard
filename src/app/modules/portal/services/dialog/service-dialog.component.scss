@@ -1,0 +1,8 @@
+/* Add specific styles for the service dialog if needed */
+:host {
+    /* Ensure the dialog doesn't get too wide */
+    mat-dialog-container {
+        max-width: 90vw;
+        width: 600px; /* Adjust as needed */
+    }
+}

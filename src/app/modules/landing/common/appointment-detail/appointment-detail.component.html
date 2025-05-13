@@ -29,9 +29,9 @@
                                 </div>
                                 <div class="flex flex-col min-w-0">
                                     <div class="font-medium text-lg text-[#293854] leading-none underline underline-offset-2
-                                            ">{{single.doctor.name}}</div>
+                                            ">{{single?.doctor.name}}</div>
                                     <div class="text-md leading-none text-secondary mt-3">
-                                        {{single.doctor.specialization}}
+                                        {{single?.doctor.specialization}}
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +92,7 @@
                             Time:
                         </div>
                         <div class="font-medium text-md text-dark">
-                            {{single.selectedSlot}}
+                            {{single?.selectedSlot}}createdAt
                         </div>
                     </div>
                 </div>
@@ -103,7 +103,7 @@
                             Appointment For:
                         </div>
                         <div class="font-medium text-md text-dark">
-                            {{single.appointmentFor}}
+                            {{single?.appointmentFor}}
                         </div>
                     </div>
                 </div>
@@ -145,7 +145,7 @@
                 <div>
                     <div class="font-medium leading-none text-[#293854] text-lg">Description:</div>
                     <div class="mt-2 pr-5 ">
-                        {{single.appointmentReason}}
+                        {{single.appointmentReason ?? ''}}
                     </div>
                 </div>
 
@@ -161,6 +161,24 @@
             <fuse-alert class="my-5" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type">
                 {{alert.message}}
             </fuse-alert>
+            <form [formGroup]="formConvert" *ngIf="single.status === 'Pending'">
+                <div class="px-5 mt-6">
+
+                    <div class="flex flex-col gap-5 justify-center items-center">
+                        <button
+                            class="fuse-mat-button-large rounded-[6px] font-normal w-full bg-[#0056FB] text-white mt-5"
+                            mat-flat-button type="button" (click)="convertAppointmnet()">
+                            Approved Appointment
+                        </button>
+
+                        <button class="fuse-mat-button-large rounded-[6px] font-normal w-full bg-red-500 text-white"
+                            mat-flat-button type="button" (click)="close()">
+                            Cancelled
+                        </button>
+                    </div>
+                </div>
+            </form>
+
             <form [formGroup]="form" *ngIf="single.status === 'Upcoming'">
                 <div class="px-5 mt-6">
 

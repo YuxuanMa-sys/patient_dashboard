@@ -27,7 +27,9 @@ import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { NotificationType } from 'app/_enums/notificationType.enum';
 import { environment } from 'environments/environment';
 
-import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
+import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, RecaptchaVerifier } from 'firebase/auth';
+import { signInWithPhoneNumber } from '@angular/fire/auth';
+import { Service } from './services/services.types';
 
 @Injectable({
     providedIn: 'root',
@@ -42,25 +44,42 @@ export class PortalService {
 
     ) {
         this.auth = getAuth();
-     }
+    }
 
     // Clinics
-    addClinic(data): Promise<DocumentReference<unknown>> {
-        const clinicsRef = collection(this.firestore, 'clinics');
-        return addDoc(clinicsRef, data);
+    // Deprecated or needs adjustment if clinics are stored differently
+    // addClinic(data): Promise<DocumentReference<unknown>> {
+    //     const clinicsRef = collection(this.firestore, 'clinics');
+    //     return addDoc(clinicsRef, data);
+    // }
+
+    // updateClinic(id: string, data: any): Promise<void> {
+    //     const clinicRef = doc(this.firestore, 'clinics/' + id);
+    //     return updateDoc(clinicRef, data);
+    // }
+
+    // Method to get data specifically from clinic/details
+    getClinicDetails(): Observable<any> {
+        const detailsDocRef = doc(this.firestore, 'clinic/details');
+        return from(getDoc(detailsDocRef)).pipe(
+            map(snapshot => snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null)
+        );
     }
 
-    updateClinic(id: string, data: any): Promise<void> {
-        const clinicRef = doc(this.firestore, 'clinics/' + id);
-        return updateDoc(clinicRef, data);
+    // Method to update data specifically in clinic/details
+    updateClinicDetails(data: any): Promise<void> {
+        const detailsDocRef = doc(this.firestore, 'clinic/details');
+        // Use setDoc with merge: true to create or update the document
+        return setDoc(detailsDocRef, data, { merge: true });
     }
 
-    deleteClinic(id: string): Promise<void> {
-        const clinicRef = doc(this.firestore, 'clinics/' + id);
-        return deleteDoc(clinicRef);
+    getClinic(){
+       return this.getClinicDetails();
     }
-
-
+    // deleteClinic(id: string): Promise<void> {
+    //     const clinicRef = doc(this.firestore, 'clinics/' + id);
+    //     return deleteDoc(clinicRef);
+    // }
 
     getClinics(): Observable<any[]> {
         console.log('Resolver called: Fetching clinics...');
@@ -88,6 +107,34 @@ export class PortalService {
                 });
         });
     }
+
+    createPatientWithAuth(patientData: any, password: string): Promise<any> {
+        // 1. Create the user in Firebase Authentication
+        return this.createAuthUser(patientData.email, password)
+          .then((userCredential: UserCredential) => {
+            // 2. Once the user is created, capture the uid
+            const uid = userCredential.user.uid;
+
+            // 3. Add that uid to your patient data
+            const fullPatientData = {
+              ...patientData,
+              uid,
+              createdAt: new Date()
+            };
+
+            // 4. Create the patient document in Firestore with the uid
+            const patientsRef = collection(this.firestore, 'patients');
+            return addDoc(patientsRef, fullPatientData)
+              .then((docRef: DocumentReference) => {
+                // 5. Return the newly created document ID along with the data
+                return { id: docRef.id, ...fullPatientData };
+              });
+          })
+          .catch(error => {
+            console.error('Error creating patient with Auth:', error);
+            throw error; // re-throw for further handling
+          });
+      }
 
 
 
@@ -129,8 +176,58 @@ export class PortalService {
         });
     }
 
+    addPatientInAuth(payload: any): Observable<any> {
+        payload = {
+            ...payload,
+            languages: payload.languages.split(','),
+            dental_needs: payload.dental_needs.split(','),
+            fromClinic: true,
+            dob: moment(payload.dob).valueOf(),
+        };
+        return this._httpClient.post<any>(
+            `${environment.firebase.cloudFunctionUrl}/app/api/patients/patient`,
+            payload
+        );
+    }
+
+    createPatient(data: any): Promise<any> {
+        const patientsRef = collection(this.firestore, 'patients');
+        return addDoc(patientsRef, data).then((docRef: DocumentReference) => {
+            // Patient object with the ID added
+            return { id: docRef.id, ...data }; // ID is added to the patient object
+        });
+    }
+
+
+    createPatientWithPhone(data: any, smsCode: string): Promise<any> {
+        // ReCAPTCHA container ke liye ensure karein ke aapke HTML me <div id="recaptcha-container"></div> ho.
+        const appVerifier = new RecaptchaVerifier(
+            this.auth,             // pehla argument: Auth instance
+            'recaptcha-container', // doosra argument: container id ya HTMLElement
+            { size: 'invisible' }  // teesra argument: configuration object
+        );
+
+        // SMS bhejte hain
+        return signInWithPhoneNumber(this.auth, data.number, appVerifier)
+            .then((confirmationResult) => {
+                // SMS code ko confirm karte hain.
+                return confirmationResult.confirm(smsCode);
+            })
+            .then((userCredential: UserCredential) => {
+                // Ab user create ho chuka hai. Auth user ka UID Firestore ke patient data me add kar dete hain.
+                data.uid = userCredential.user.uid;
+                const patientsRef = collection(this.firestore, 'patients');
+                return addDoc(patientsRef, data);
+            })
+            .then((docRef: DocumentReference) => {
+                return { id: docRef.id, ...data };
+            });
+    }
+
+
+
     // Patients
-    addPatient(data): Promise<DocumentReference<unknown>> {
+    addPatient(data: any): Promise<any> {
         data.status = ClinicStatus.ACTIVE; // Ensure the patient is active
         return this.addPatientInAuth(data).toPromise();
     }
@@ -158,13 +255,7 @@ export class PortalService {
             map((docSnap) => (docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null))
         );
     }
-    createPatient(data: any): Promise<any> {
-        const patientsRef = collection(this.firestore, 'patients');
-        return addDoc(patientsRef, data).then((docRef: DocumentReference) => {
-            // Patient object with the ID added
-            return { id: docRef.id, ...data }; // ID is added to the patient object
-        });
-    }
+
 
 
     updatePatient(patientId: string, data: any): Promise<void> {
@@ -258,19 +349,7 @@ export class PortalService {
         return deleteDoc(patientRef);
     }
 
-    addPatientInAuth(payload: any): Observable<any> {
-        payload = {
-            ...payload,
-            languages: payload.languages.split(','),
-            dental_needs: payload.dental_needs.split(','),
-            fromClinic: true,
-            dob: moment(payload.dob).valueOf(),
-        };
-        return this._httpClient.post<any>(
-            `${environment.firebase.cloudFunctionUrl}/app/api/patients/patient`,
-            payload
-        );
-    }
+
 
     getFamilyByPatientRef(patientRefPath: string): Observable<any> {
         const familiesRef = collection(this.firestore, 'families');
@@ -299,7 +378,7 @@ export class PortalService {
         const familyDoc = await getDoc(familyDocRef);
 
         if (!familyDoc.exists()) {
-            // Create a new family document if it doesn’t exist
+            // Create a new family document if it doesn't exist
             const newFamilyData = {
                 patient_id: doc(this.firestore, `patients/${patientId}`),
                 patientsIds: [patientId],
@@ -644,21 +723,35 @@ export class PortalService {
 
     getAlongWithPendingAppointments(): Observable<any[]> {
         const appointmentsRef = collection(this.firestore, 'appointments');
-        const q = query(
-            appointmentsRef,
-            where('status', '==', ClinicStatus.PENDING),  // Filter for pending appointments
-            orderBy('createdAt', 'desc')                 // Sort by createdAt in descending order
+        return from(getDocs(appointmentsRef)).pipe(
+            switchMap((snapshot) => {
+                const appointments = snapshot.docs
+                    .map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }))
+                    .filter((appointment: any) => appointment.status === ClinicStatus.PENDING);
+
+                return this.getEnrichedAppointments(appointments);
+            })
         );
 
-        return new Observable((observer) => {
-            getDocs(q).then((snapshot) => {
-                observer.next(snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })));
-                observer.complete();
-            }).catch((error) => observer.error(error));
-        });
+        // const appointmentsRef = collection(this.firestore, 'appointments');
+        // const q = query(
+        //     appointmentsRef,
+        //     where('status', '==', ClinicStatus.PENDING),  // Filter for pending appointments
+        //     // orderBy('createdAt', 'desc')                 // Sort by createdAt in descending order
+        // );
+
+        // return new Observable((observer) => {
+        //     getDocs(q).then((snapshot) => {
+        //         observer.next(snapshot.docs.map(doc => ({
+        //             id: doc.id,
+        //             ...doc.data()
+        //         })));
+        //         observer.complete();
+        //     }).catch((error) => observer.error(error));
+        // });
     }
 
 
@@ -741,27 +834,6 @@ export class PortalService {
         return setDoc(docRef, data, { merge: true });
     }
 
-
-    getClinic(): Observable<DocumentSnapshot<unknown>> {
-        const appointmentRef = doc(this.firestore, 'clinic/details');
-        return new Observable((observer) => {
-            getDoc(appointmentRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    observer.next(snapshot.data() as DocumentSnapshot<unknown>);
-                } else {
-                    observer.error('No such document!');
-                }
-                observer.complete();
-            }).catch(error => observer.error(error));
-        });
-    }
-
-    saveClinicDetails(data): Promise<void> {
-        // Reference to the specific document in Firestore
-        const docRef = doc(this.firestore, 'clinic/details');
-        // Use setDoc to either create or update the document
-        return setDoc(docRef, data, { merge: true });
-    }
 
     getAppointmentsWithId(id: string): Observable<DocumentSnapshot<unknown>> {
         const appointmentRef = doc(this.firestore, 'appointments', id);
@@ -872,4 +944,41 @@ export class PortalService {
         const notificationRef = doc(this.firestore, 'notifications/' + id);
         return deleteDoc(notificationRef);
     }
+
+    updateClinicOperatingHours(data): Promise<void> {
+        // Reference to the specific document in Firestore
+        const docRef = doc(this.firestore, 'clinic/virtualOperatingHours');
+        // Use setDoc to either create or update the document
+        return setDoc(docRef, data, { merge: true });
+    }
+
+    // Services CRUD
+    addService(data: Service): Promise<DocumentReference<Service>> {
+        const servicesRef = collection(this.firestore, 'services') as CollectionReference<Service>;;
+        // Add default values if needed, e.g., isActive
+        const dataToAdd = { ...data, isActive: data.isActive !== undefined ? data.isActive : true };
+        return addDoc(servicesRef, dataToAdd);
+    }
+
+    updateService(id: string, data: Partial<Service>): Promise<void> {
+        const serviceRef = doc(this.firestore, 'services/' + id);
+        return updateDoc(serviceRef, data);
+    }
+
+    deleteService(id: string): Promise<void> {
+        // Consider soft delete (setting isActive to false) instead of hard delete
+        // return this.updateService(id, { isActive: false });
+        const serviceRef = doc(this.firestore, 'services/' + id);
+        return deleteDoc(serviceRef);
+    }
+
+    getServices(): Observable<Service[]> {
+        const servicesRef = collection(this.firestore, 'services');
+        // Optionally add query, e.g., where('isActive', '==', true)
+        const servicesQuery = query(servicesRef, orderBy('name')); // Order by name for consistency
+        return from(getDocs(servicesQuery)).pipe(
+            map((snapshot) => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Service)))
+        );
+    }
+    // End Services CRUD
 }

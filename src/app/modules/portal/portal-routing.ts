@@ -60,6 +60,11 @@ export const routes: Routes = [
 
             { path: 'insurance', component: InsuranceComponent},
 
+            {
+                path: 'services',
+                loadChildren: () => import('./services/services.routes')
+            },
+
             { path: 'settings', loadChildren: () => import('./settings/settings.routes') },
 
             { path: 'clinic-details', loadChildren: () => import('./account/account.routes') },

@@ -50,7 +50,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-this.getAllRequests();
+this.getAppointments();
   }
 
   /**
@@ -59,6 +59,24 @@ this.getAllRequests();
   ngAfterViewInit(): void {
 
   }
+
+  getAppointments(): void {
+    this._portalService.getAlongWithPendingAppointments().subscribe({
+        next: (res) => {
+            this.appointments = res; // Contains enriched appointments with patient and doctor data
+            this.loading = false;
+            console.log(res);
+
+            this.cdr.detectChanges();
+            console.log('Enriched Appointments:', this.appointments);
+        },
+        error: (err) => {
+            console.error('Error fetching appointments:', err);
+        }
+    });
+}
+
+
 
   getAllRequests(): void {
     this._portalService.getAlongWithPendingAppointments().subscribe({

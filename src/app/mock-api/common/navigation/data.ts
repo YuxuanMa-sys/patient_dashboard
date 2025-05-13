@@ -94,6 +94,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/portal/insurance'
     },
     {
+        id   : 'Service',
+        title: 'Services',
+        type : 'basic',
+        // icon : 'heroicons_outline:chart-pie',
+        image : 'menu/menu10.svg',
+        link : '/portal/services'
+    },
+    {
         id   : 'setting',
         title: 'Clinic Settings',
         type : 'basic',

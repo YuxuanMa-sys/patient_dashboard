@@ -115,7 +115,7 @@ export class DetailsComponent implements OnInit {
         this.form = this.fb.group({
             fname: [null, Validators.required],
             lname: [null, Validators.required],
-            number: [null],
+            phone: [null],
             profileImageUrl: [null],
             attachmentUrl: [null],
             dental_needs: [null],
@@ -436,6 +436,30 @@ export class DetailsComponent implements OnInit {
                         .then(() => console.log('Patient updated successfully!'))
                         .catch((error) => console.error('Error updating patient:', error));
                 } else {
+                    // const smsCode = prompt("Kripya apne phone pe aayi SMS verification code daalein:");
+
+                    // try {
+                    //     const createdPatient = await this._portalService.createPatientWithPhone(data, smsCode);
+                    //     console.log('Patient created successfully with ID:', createdPatient.id);
+                    //     this.patientId = createdPatient.id;
+                    //     this.loadPatientDetails(); // Agar aap refresh ya navigate karna chahte hain
+                    // } catch (error) {
+                    //     console.error('Error creating patient:', error);
+                    // }
+                    const userPassword = '123456'; // Default password for new patients
+
+                    this._portalService.createPatientWithAuth(data, userPassword)
+                        .then((createdPatient) => {
+                            console.log('Patient and Auth user created successfully with ID:', createdPatient.id);
+                            this.patientId = createdPatient.id; // For further updates, if needed
+
+                            // Optionally, reload or navigate
+                            this.loadPatientDetails();
+                        })
+                        .catch((error) => console.error('Error creating patient with Auth:', error));
+
+
+
                     // Creating a new patient
                     this._portalService.createPatient(data)
                         .then((createdPatient) => {

@@ -1,0 +1,68 @@
+<form [formGroup]="serviceForm" class="flex flex-col overflow-hidden">
+
+    <div mat-dialog-title class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">{{ title }}</h2>
+        <button mat-icon-button (click)="onCancel()" [tabIndex]="-1">
+            <mat-icon class="text-secondary" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Name -->
+            <mat-form-field class="sm:col-span-2" [subscriptSizing]="'dynamic'">
+                <mat-label>Service Name</mat-label>
+                <input matInput formControlName="name" required>
+                <mat-error *ngIf="serviceForm.get('name').hasError('required')">
+                    Name is required
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Description -->
+            <mat-form-field class="sm:col-span-2" [subscriptSizing]="'dynamic'">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" required cdkTextareaAutosize [cdkAutosizeMinRows]="3"></textarea>
+                 <mat-error *ngIf="serviceForm.get('description').hasError('required')">
+                    Description is required
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Price -->
+            <mat-form-field [subscriptSizing]="'dynamic'">
+                <mat-label>Price</mat-label>
+                <span matPrefix class="mr-1 text-secondary">$</span>
+                <input matInput formControlName="price" type="number" placeholder="e.g., 199.00">
+                <!-- Add pattern validation if needed: [pattern]="'^\\d+(\\.\\d{1,2})?$'" -->
+            </mat-form-field>
+
+             <!-- Tag -->
+            <mat-form-field [subscriptSizing]="'dynamic'">
+                <mat-label>Tag (Optional)</mat-label>
+                <input matInput formControlName="tag" placeholder="e.g., Popular, Free Consultation">
+            </mat-form-field>
+
+            <!-- Discount -->
+            <mat-form-field [subscriptSizing]="'dynamic'">
+                <mat-label>Discount (Optional)</mat-label>
+                <input matInput formControlName="discount" placeholder="e.g., 20% Off">
+            </mat-form-field>
+
+            <!-- Discounted Price -->
+            <mat-form-field [subscriptSizing]="'dynamic'">
+                <mat-label>Discounted Price (Optional)</mat-label>
+                 <span matPrefix class="mr-1 text-secondary">$</span>
+                <input matInput formControlName="discountedPrice" type="number" placeholder="e.g., 159.00">
+            </mat-form-field>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="p-6 border-t">
+        <button mat-stroked-button (click)="onCancel()">
+            Cancel
+        </button>
+        <button mat-flat-button color="primary" (click)="onSave()" [disabled]="serviceForm.invalid">
+            {{ isEditMode ? 'Save Changes' : 'Add Service' }}
+        </button>
+    </mat-dialog-actions>
+
+</form>
