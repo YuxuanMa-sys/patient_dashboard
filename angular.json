@@ -39,6 +39,11 @@
                                 "glob": "_redirects",
                                 "input": "src",
                                 "output": "/"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@cometchat/chat-uikit-angular/assets/",
+                                "output": "assets/"
                             }
                         ],
                         "stylePreprocessorOptions": {
@@ -103,6 +108,11 @@
                             {
                                 "glob": "**/*",
                                 "input": "public"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@cometchat/chat-uikit-angular/assets/",
+                                "output": "assets/"
                             }
                         ],
                         "styles": ["src/styles/styles.scss"],

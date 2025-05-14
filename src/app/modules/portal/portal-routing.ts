@@ -69,6 +69,12 @@ export const routes: Routes = [
 
             { path: 'clinic-details', loadChildren: () => import('./account/account.routes') },
 
+            {
+                path: 'chat',
+                loadChildren: () => import('./chat/chat.routes')
+            },
+
+
             //   {
             //     path: 'patient-request',
             //     loadChildren: () => import('./patient-request/patient-request.module').then(m => m.PatientRequestModule),

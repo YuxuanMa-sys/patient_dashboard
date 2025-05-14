@@ -30,6 +30,7 @@ import { environment } from 'environments/environment';
 import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential, RecaptchaVerifier } from 'firebase/auth';
 import { signInWithPhoneNumber } from '@angular/fire/auth';
 import { Service } from './services/services.types';
+import { ChatService } from 'app/core/chat/chat.service';
 
 @Injectable({
     providedIn: 'root',
@@ -41,7 +42,7 @@ export class PortalService {
         private _notificationService: NotificationService,
         private _httpClient: HttpClient,
         private storage: Storage,
-
+        private _chatService: ChatService,
     ) {
         this.auth = getAuth();
     }
@@ -144,9 +145,25 @@ export class PortalService {
 
 
     // Staffs
-    addStaff(data): Promise<DocumentReference<unknown>> {
+    async addStaff(data): Promise<DocumentReference<unknown>> {
         const staffsRef = collection(this.firestore, 'staff');
-        return addDoc(staffsRef, data);
+        const docRef = await addDoc(staffsRef, data);
+
+        const chatUid = data.uid || docRef.id;
+        try {
+            await this._chatService.createStaff(chatUid, data.name || 'Staff');
+        } catch (e) {
+            console.error('CometChat staff creation failed', e);
+        } finally {
+            // Ensure chatUid reference is saved regardless of createStaff result
+            try {
+                await updateDoc(docRef, { chatUid });
+            } catch (err) {
+                console.error('Updating staff chatUid failed', err);
+            }
+        }
+
+        return docRef;
     }
 
     updateStaff(id: string, data: any): Promise<void> {

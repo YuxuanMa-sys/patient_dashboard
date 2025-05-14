@@ -4,6 +4,8 @@ import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { catchError, from, map, Observable, of, switchMap, throwError } from 'rxjs';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { ChatService } from 'app/core/chat/chat.service';
+import { Firestore, collection, query, where, getDocs, updateDoc } from '@angular/fire/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -11,6 +13,8 @@ export class AuthService {
     private _httpClient = inject(HttpClient);
     private _userService = inject(UserService);
     private _angularFireAuth = inject(Auth);
+    private _chatService = inject(ChatService);
+    private _firestore = inject(Firestore);
     private isAuthenticatedValue: boolean = false;
 
 
@@ -84,7 +88,7 @@ export class AuthService {
         }
 
         return from(signInWithEmailAndPassword(this._angularFireAuth, credentials.email, credentials.password)).pipe(
-            switchMap((userCredential) => {
+            switchMap(async (userCredential) => {
                 // Extract necessary properties from userCredential
                 const user = {
                     id: userCredential.user.uid, // Assuming 'uid' is the unique identifier
@@ -98,6 +102,32 @@ export class AuthService {
                 this.accessToken = userCredential.user.refreshToken;
                 localStorage.setItem('authenticated', 'true');
 
+                // Determine chatUid from staff record if available
+                let chatUid = user.id;
+                try {
+                    const staffRef = collection(this._firestore, 'staff');
+                    const q = query(staffRef, where('uid', '==', user.id));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        const staffDoc = snap.docs[0];
+                        const data: any = staffDoc.data();
+                        if (data.chatUid) {
+                            chatUid = data.chatUid;
+                        } else {
+                            // Save chatUid into the staff doc for future
+                            await updateDoc(staffDoc.ref, { chatUid });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching staff chatUid', err);
+                }
+
+                // Persist CometChat UID for ChatComponent
+                localStorage.setItem('chatUid', chatUid);
+
+                // Fire-and-forget: ensure CometChat account exists and login
+                this._chatService.ensureUser(chatUid, user.name).catch(console.error);
+
                 // Set the authenticated flag to true
                 this._authenticated = true;
 
@@ -105,8 +135,8 @@ export class AuthService {
                 // localStorage.setItem('user', JSON.stringify(user));
                 this._userService.user = JSON.stringify(user);
 
-                // Return a new observable with the user
-                return of(user);
+                // Return user as observable
+                return user;
             })
         );
     }

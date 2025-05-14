@@ -32,7 +32,11 @@ export const environment = {
         measurementId: "G-2ZXG3CDYNL",
     },
     //ali faizoon
-
+    cometChat: {
+        appId : '2637414635f2647d',
+        region: 'US',  // e.g. 'eu'
+        apiKey: '378077e656bf268841dd282a7f5da5f534bbeb01'
+    },
     APP_ID: '2637414635f2647d',
     REGION: 'US',
     AUTH_KEY: '378077e656bf268841dd282a7f5da5f534bbeb01',
