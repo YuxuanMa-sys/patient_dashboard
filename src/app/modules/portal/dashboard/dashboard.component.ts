@@ -1,14 +1,16 @@
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
     OnDestroy,
     OnInit,
     ViewEncapsulation,
+    ChangeDetectorRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatRippleModule } from '@angular/material/core';
+import { MatRippleModule, MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
@@ -16,12 +18,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { DashboardService } from './dashboard.service';
+import { PortalService } from '../portal.service';
 
 @Component({
     selector: 'dashboard',
     templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
@@ -35,8 +39,11 @@ import { DashboardService } from './dashboard.service';
         MatButtonToggleModule,
         NgApexchartsModule,
         MatTableModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
         NgClass,
         CurrencyPipe,
+        DatePipe,
     ],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -48,15 +55,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
     chartYearlyExpenses: ApexOptions = {};
     data: any;
     selectedProject: string = 'ACME Corp. Backend App';
+    selectedDate: Date = new Date();
+    currentDate: Date = new Date();
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+    // Real healthcare data properties
+    totalPatients: number = 0;
+    appDownloads: number = 567; // Keep as mock data since this is not healthcare-specific
+    todaysRequests: number = 0;
+    todaysAppointments: number = 0;
+    recentAppointments: any[] = [];
+    recentRequests: any[] = [];
+    realDataLoaded: boolean = false;
 
     /**
      * Constructor
      */
     constructor(
         private _projectService: DashboardService,
-        private _router: Router
+        private _router: Router,
+        private _portalService: PortalService,
+        private _cdr: ChangeDetectorRef
     ) {}
+
+    /**
+     * Get CSS class for calendar dates
+     * @param date The date to check
+     * @returns CSS class string
+     */
+    getDateClass = (date: Date): string => {
+        if (date.toDateString() === this.currentDate.toDateString()) {
+            return 'current-day';
+        }
+        return '';
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -66,8 +98,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        // Get the data
-        this._projectService.data$
+        // Get the mock data for charts
+        this._projectService.getData()
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((data) => {
                 // Store the data
@@ -76,6 +108,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // Prepare the chart data
                 this._prepareChartData();
             });
+
+        // Load real healthcare data
+        this._loadRealHealthcareData();
 
         // Attach SVG fill fixer to all ApexCharts
         window['Apex'] = {
@@ -113,6 +148,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
      */
     trackByFn(index: number, item: any): any {
         return item.id || index;
+    }
+
+    /**
+     * Load real healthcare data from Firebase
+     *
+     * @private
+     */
+    private _loadRealHealthcareData(): void {
+        // Get patients count and appointments data
+        forkJoin({
+            patients: this._portalService.getPatients(),
+            appointments: this._portalService.getAppointments(),
+            requests: this._portalService.getAlongWithPendingAppointments()
+        }).pipe(takeUntil(this._unsubscribeAll))
+        .subscribe({
+            next: (data) => {
+                // Set total patients count
+                this.totalPatients = data.patients?.length || 0;
+
+                // Filter today's appointments
+                const today = new Date();
+                const todaysAppointmentsData = data.appointments?.filter(appointment => {
+                    const appointmentDate = new Date(appointment.date);
+                    return appointmentDate.toDateString() === today.toDateString();
+                }) || [];
+
+                this.todaysAppointments = todaysAppointmentsData.length;
+                this.recentAppointments = todaysAppointmentsData.slice(0, 10); // Get first 10 for display
+
+                // Set today's requests count
+                this.todaysRequests = data.requests?.length || 0;
+                this.recentRequests = data.requests?.slice(0, 10) || []; // Get first 10 for display
+
+                this.realDataLoaded = true;
+                this._cdr.detectChanges();
+            },
+            error: (error) => {
+                console.error('Error loading real healthcare data:', error);
+                // Keep mock data if real data fails to load
+                this.realDataLoaded = false;
+                this._cdr.detectChanges();
+            }
+        });
     }
 
     // -----------------------------------------------------------------------------------------------------

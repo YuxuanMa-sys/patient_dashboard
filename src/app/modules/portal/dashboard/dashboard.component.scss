@@ -1,0 +1,188 @@
+/* Dashboard Calendar Styling */
+.dashboard-calendar {
+    .mat-calendar {
+        width: 100%;
+        font-family: inherit;
+    }
+
+    .mat-calendar-table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .mat-calendar-body-cell-container {
+        position: relative;
+        height: 28px;
+        width: 28px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mat-calendar-body tr {
+        height: 28px;
+    }
+
+    .mat-calendar-body td {
+        padding: 0;
+        margin: 0;
+        height: 28px;
+        width: 28px;
+    }
+
+    .mat-calendar-header {
+        padding: 2px 2px 0 2px;
+    }
+
+    .mat-calendar-header-date-year {
+        font-size: 10px;
+        color: #6b7280;
+    }
+
+    .mat-calendar-controls {
+        margin: 1% 1%;
+    }
+
+    .mat-calendar-period-button {
+        font-size: 12px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .mat-calendar-previous-button,
+    .mat-calendar-next-button {
+        color: #6b7280;
+        width: 24px;
+        height: 24px;
+
+        &:hover {
+            color: #374151;
+        }
+    }
+
+    .mat-calendar-table-header th {
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 0;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .mat-calendar-body-cell {
+        position: relative;
+        height: 28px;
+        width: 28px;
+        line-height: 28px;
+        text-align: center;
+        outline: none;
+        cursor: pointer;
+        color: #374151;
+        border: none;
+        padding: 0;
+        margin: 0;
+
+        &:hover {
+            .mat-calendar-body-cell-content {
+                background-color: #f3f4f6;
+                border-radius: 50%;
+            }
+        }
+
+        &.mat-calendar-body-selected {
+            .mat-calendar-body-cell-content {
+                background-color: #3b82f6;
+                color: white;
+                font-weight: 600;
+                border-radius: 50%;
+            }
+        }
+
+        &.mat-calendar-body-today {
+            .mat-calendar-body-cell-content {
+                background-color: #3b82f6;
+                color: white;
+                font-weight: 600;
+                border-radius: 50%;
+            }
+        }
+
+        &.mat-calendar-body-today.mat-calendar-body-selected {
+            .mat-calendar-body-cell-content {
+                background-color: #1d4ed8;
+                border-radius: 50%;
+            }
+        }
+
+        &.mat-calendar-body-disabled {
+            color: #d1d5db;
+            cursor: default;
+
+            &:hover {
+                .mat-calendar-body-cell-content {
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+
+    .mat-calendar-body-cell-content {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        z-index: 1;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    /* Custom class for current day */
+    .current-day .mat-calendar-body-cell-content {
+        background-color: #3b82f6;
+        color: white;
+        border-radius: 50%;
+    }
+
+    /* Remove focus outline */
+    .mat-calendar-body-cell:focus .mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+        background-color: #e5e7eb;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .dashboard-calendar {
+        .mat-calendar-body-cell {
+            height: 26px;
+            width: 26px;
+            line-height: 26px;
+        }
+
+        .mat-calendar-body tr {
+            height: 26px;
+        }
+
+        .mat-calendar-body td {
+            height: 26px;
+            width: 26px;
+        }
+
+        .mat-calendar-body-cell-content {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .mat-calendar-table-header th {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 0;
+            line-height: 1.2;
+        }
+    }
+} 
