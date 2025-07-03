@@ -1,231 +1,277 @@
-
-        <section id="upcoming" class="w-full max-w-screen-xl mx-auto">
-            <div class="flex flex-col w-full max-w-screen-xl mx-auto mb-6 ">
-                <div class="flex flex-col sm:flex-row flex-auto sm:items-center min-w-0 ">
-                    <!-- Avatar and name -->
-
-                    <div class="flex flex-auto items-center min-w-0">
-                        <div class="flex flex-col min-w-0">
-                            <div class="flex items-center space-x-3">
-
+<!-- Appointments Table -->
+        <div class="w-full bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table mat-table [dataSource]="appointments" matSort class="w-full">
+                    <!-- Patient Name Column -->
+                    <ng-container matColumnDef="patientName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Patient Name
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 flex-shrink-0">
+                                    <img class="h-10 w-10 rounded-full object-cover" 
+                                         [src]="appointment.patient?.profilePictureUrl || 'assets/images/avatars/male-01.jpg'" 
+                                         [alt]="appointment.patient?.fname + ' ' + appointment.patient?.lname">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{appointment.patient?.fname}} {{appointment.patient?.lname}}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Appointment Type Column -->
+                    <ng-container matColumnDef="appointmentType">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Appointment Type
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{appointment.appointmentType}}</div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Appointment Status Column -->
+                    <ng-container matColumnDef="appointmentStatus">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Appointment Status
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                  [ngClass]="{
+                                    'bg-green-100 text-green-800': appointment.status === 'Active',
+                                    'bg-red-100 text-red-800': appointment.status === 'Cancelled',
+                                    'bg-blue-100 text-blue-800': appointment.status === 'Completed',
+                                    'bg-yellow-100 text-yellow-800': appointment.status === 'Pending'
+                                  }">
+                                {{appointment.status}}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Category Column -->
+                    <ng-container matColumnDef="category">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{appointment.appointmentFor || 'Teledentistry'}}</div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Doctor Name Column -->
+                    <ng-container matColumnDef="doctorName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Doctor Name
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{appointment.doctor?.name}}</div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Date Column -->
+                    <ng-container matColumnDef="date">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="px-4 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{appointment.date | date:'dd.MM.yy'}}</div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="px-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                        <td mat-cell *matCellDef="let appointment" class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                            <button mat-button color="primary" (click)="openAppointmentDetails(appointment)">
+                                See Details
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <!-- Header Row -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-50"></tr>
+                    
+                    <!-- Data Rows -->
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                        class="hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                        (click)="openAppointmentDetails(row)"></tr>
+                </table>
+
+                <!-- Empty State -->
+                <div *ngIf="!appointments || appointments.length === 0" class="text-center py-12">
+                    <div class="mx-auto h-24 w-24 text-gray-400">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 48 48" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M8 14v20c0 4.418 7.163 8 16 8 8.837 0 16-3.582 16-8V14m-32 0c0 4.418 7.163 8 16 8s16-3.582 16-8m-32 0C8 9.582 15.163 6 24 6s16 3.582 16 8"></path>
+                        </svg>
                     </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center mt-6 sm:mt-0 sm:ml-2 space-x-3 ">
-                        <mat-slide-toggle [color]="'primary'"></mat-slide-toggle>
-
-                        <button class="fuse-mat-button-small rounded-[6px] font-normal  button-secondary "
-                            mat-button type="button">
-                            <mat-icon class="icon-size-5"
-                                [svgIcon]="'heroicons_outline:calendar-days'"></mat-icon>
-                            <span class="ml-2">Calendar View</span>
-                        </button>
-
-                    </div>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No appointments</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by creating a new appointment.</p>
                 </div>
             </div>
+        </div>
 
-
-            <div class="flex items-center justify-between w-full py-3 px-2">
-                <div>
-                    <h2 class="text-2xl font-medium tracking-normal leading-8 text-dark"> Appointments
-                    </h2>
+        <!-- Appointment Details Modal -->
+        <div *ngIf="showDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full m-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Appointment Information</h2>
+                    <button mat-icon-button (click)="closeDetailsModal()">
+                        <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+                    </button>
                 </div>
 
-                <div class="mt-4 sm:mt-0">
-                    <!-- Upload button -->
-                    <button mat-flat-button [color]="'primary'" (click)="createAppointment('new')">
-                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                        <span class="ml-2 mr-1">Add Appointment </span>
+                <div *ngIf="selectedAppointment" class="space-y-4">
+                    <!-- Patient Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.patient?.fname}} {{selectedAppointment.patient?.lname}}</div>
+                    </div>
+
+                    <!-- Doctor -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.doctor?.name}}</div>
+                    </div>
+
+                    <!-- Appointment Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.appointmentType}}</div>
+                    </div>
+
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.date | date:'dd.MM.yy'}}</div>
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.selectedSlot}}</div>
+                    </div>
+
+                    <!-- Reason for Visit -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
+                        <div class="text-sm text-gray-900">{{selectedAppointment.appointmentReason || 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'}}</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-center mt-6">
+                    <button mat-flat-button color="primary" (click)="closeDetailsModal()">
+                        Close
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1  gap-6 w-full mt-2">
-                <!-- Recent transactions table -->
-                <div
-                    class="flex flex-col flex-auto sm:mb-10 bg-card shadow rounded-sm overflow-hidden sm:overflow-y-auto">
-                    <div class="overflow-x-auto">
-                        <ng-container>
-                            <table class="w-full bg-transparent" mat-table matSort
-                                [dataSource]="appointments" [trackBy]="trackByFn"
-                                #recentTransactionsTable1>
-                                <ng-container matColumnDef="name" class="custom-name-column">
-                                    <th mat-header-cell *matHeaderCellDef>
-                                        <span class="font-normal"> Patient Details </span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction">
-                                        <div class="flex items-center min-w-44">
-                                            <div class="relative flex flex-0 items-center justify-center w-12 h-12 mr-2 rounded-full overflow-hidden border">
-                                                <!-- Check for profile picture URL and fall back to imageData -->
-                                                <img
-                                                    class="w-10"
-                                                    *ngIf="transaction?.patient?.profilePictureUrl; else fallbackImage"
-                                                    [alt]="'transaction thumbnail image'"
-                                                    [src]="transaction?.patient?.profilePictureUrl">
-                                                <ng-template #fallbackImage>
-                                                    <img
-                                                        class="w-10"
-                                                        *ngIf="imageData"
-                                                        [alt]="'Fallback thumbnail image'"
-                                                        [src]="imageData?.path">
-                                                    <div class="flex items-center justify-center w-full h-full text-xs font-normal rounded-full leading-none text-center uppercase"
-                                                         *ngIf="!imageData">
-                                                        NO THUMB
-                                                    </div>
-                                                </ng-template>
-                                            </div>
-                                            <div class="flex flex-col min-w-0">
-                                                <div class="font-normal leading-none">
-                                                    {{transaction?.patient?.fname}}
-                                                    {{transaction?.patient?.lname}}
-                                                </div>
-                                                <!-- <div class="text-md leading-none text-secondary mt-1">
-                                                    Booking for:  {{transaction.booking_for}}
-                                                </div> -->
-                                            </div>
-                                        </div>
-                                    </td>
-                                </ng-container>
-
-                                <!-- Date -->
-                                <ng-container matColumnDef="date">
-                                    <th mat-header-cell *matHeaderCellDef>
-                                        <span class="font-normal"> Date & Time </span>
-
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction">
-
-                                        <div class="flex flex-col min-w-28">
-                                            <div class="font-normal leading-none">
-                                                {{ transaction?.date  | date: "mediumDate" }}
-
-                                            </div>
-                                            <div class="text-md leading-none text-secondary  font-light">
-                                                {{transaction.selectedSlot}}
-                                                <!-- {{transaction.availability_slot.end_time}} -->
-                                            </div>
-                                        </div>
-
-                                    </td>
-                                </ng-container>
-
-                                <!-- Ty -->
-                                <ng-container matColumnDef="type">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Appt Type</span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="min-w-24">{{transaction.appointmentType}}</div>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="for">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Appt For</span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="min-w-24">{{transaction.appointmentFor}}</div>
-                                    </td>
-                                </ng-container>
-
-
-                                <!-- insurance -->
-                                <ng-container matColumnDef="doctor">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Doctor </span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        {{ transaction?.doctor?.name}}
-                                    </td>
-                                </ng-container>
-
-                                <!-- issue_seeking -->
-                                <ng-container matColumnDef="issue_seeking" class="custom-reason-column">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Reason to visit</span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="min-w-32">{{transaction.appointmentReason}}</div>
-
-                                    </td>
-                                </ng-container>
-
-
-                                <!-- Status -->
-                                <ng-container matColumnDef="status">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Status</span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction">
-                                        <span
-                                            class="inline-flex items-center font-normal text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                            [ngClass]="{
-                                            'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': transaction.status === 'Cancelled',
-                                            'bg-blue-200 text-blue-800 dark:bg-blue-600 dark:text-blue-50': transaction.status === 'Upcoming',
-                                            'bg-primary-200 text-blue-800 dark:bg-primary-600 dark:text-primary-50': transaction.status === 'Confirmed',
-                                            'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': transaction.status === 'Pending',
-                                            'bg-orange-200 text-orange-800 dark:bg-orange-600 dark:text-orange-50': transaction.status === 'Rejected',
-                                            'bg-purple-200 text-purple-800 dark:bg-purple-600 dark:text-purple-50': transaction.status === 'Miss',
-                                            'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': transaction.status === 'Completed'
-                                        }">
-                                            <span
-                                                class="leading-relaxed whitespace-nowrap">{{transaction.status}}</span>
-                                        </span>
-
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="action">
-                                    <th mat-header-cell *matHeaderCellDef class="text-center">
-                                        <span class="font-normal">Action</span>
-                                    </th>
-                                    <td mat-cell *matCellDef="let transaction" class="text-center">
-                                        <div class="flex items-center justify-center space-x-3 min-w-44">
-                                            <button
-                                                class="fuse-mat-button-small rounded-[6px] max-h-6 font-normal  button-secondary"
-                                                mat-stroked-button type="button" (click)="openApptDetailDialog(transaction)">
-                                                View Details
-                                            </button>
-                                            <!-- <button
-                                                class="fuse-mat-button-small rounded-[6px] font-normal  button-secondary"
-                                                mat-flat-button type="button" [color]="'primary'">
-
-                                                Complete
-                                            </button> -->
-                                        </div>
-                                    </td>
-                                </ng-container>
-
-
-                                <tr class="" mat-header-row
-                                    *matHeaderRowDef="recentTransactionsTableColumns"></tr>
-                                <tr class="order-row h-16" mat-row
-                                    *matRowDef="let row; columns: recentTransactionsTableColumns;"></tr>
-
-                            </table>
-                        </ng-container>
-
-                        <ng-container *ngIf="!loading && appointments.length > 0; else noUpcoming">
-                        </ng-container>
-
-                        <ng-template #noUpcoming>
-                            <div class="flex flex-col flex-auto w-full">
-                                <div class="m-auto px-4"> <img class="w-80"
-                                        [alt]="'transaction thumbnail image'"
-                                        src="icons/upcoming-appointment.svg"></div>
-
-                                <div
-                                    class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
-                                    You don't have any upcoming appointment
-
-                                </div>
-                            </div>
-                        </ng-template>
-                    </div>
+        <!-- Change Appointment Modal -->
+        <div *ngIf="showChangeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 max-w-lg w-full m-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Change Appointment Schedule</h2>
+                    <button mat-icon-button (click)="closeChangeModal()">
+                        <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+                    </button>
                 </div>
+
+                <form [formGroup]="changeAppointmentForm" (ngSubmit)="onChangeAppointment()">
+                    <div class="space-y-4">
+                        <!-- Patient Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                            <div class="text-sm text-gray-900">{{selectedAppointment?.patient?.fname}} {{selectedAppointment?.patient?.lname}}</div>
+                        </div>
+
+                        <!-- Dentist -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dentist</label>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-900">{{selectedAppointment?.doctor?.name}}</span>
+                                <button type="button" mat-button color="primary" class="text-sm">Change</button>
+                            </div>
+                        </div>
+
+                        <!-- Reason for Visit -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Visit</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                    Tooth Pain
+                                    <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                        <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                    Swollen Gums
+                                    <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                        <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                    Bad Breath
+                                    <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                        <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-500">Suggested: Tooth pain, Swollen gums</div>
+                        </div>
+
+                        <!-- Category -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Category</mat-label>
+                            <mat-select formControlName="category">
+                                <mat-option value="Virtual">Virtual</mat-option>
+                                <mat-option value="In-Person">In-Person</mat-option>
+                                <mat-option value="Teledentistry">Teledentistry</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-900">{{selectedAppointment?.date | date:'dd.MM.yy'}}</span>
+                                <button type="button" mat-button color="primary" class="text-sm">Edit</button>
+                            </div>
+                        </div>
+
+                        <!-- Time -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-900">{{selectedAppointment?.selectedSlot}}</span>
+                                <button type="button" mat-button color="primary" class="text-sm">Edit</button>
+                            </div>
+                        </div>
+
+                        <!-- Reschedule Message -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Reschedule Message</mat-label>
+                            <textarea matInput formControlName="rescheduleMessage" rows="3" 
+                                      placeholder="Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta"></textarea>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-between mt-6">
+                        <button type="button" mat-stroked-button (click)="closeChangeModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" mat-flat-button color="primary">
+                            Confirm
+                        </button>
+                    </div>
+                </form>
             </div>
-        </section>
+        </div>
 

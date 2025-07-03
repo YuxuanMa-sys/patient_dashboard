@@ -195,9 +195,9 @@
 
 
                                 <tr class="" mat-header-row
-                                    *matHeaderRowDef="recentTransactionsTableColumns"></tr>
+                                    *matHeaderRowDef="displayedColumns"></tr>
                                 <tr class="order-row h-16" mat-row
-                                    *matRowDef="let row; columns: recentTransactionsTableColumns;"></tr>
+                                    *matRowDef="let row; columns: displayedColumns;"></tr>
 
                             </table>
                         </ng-container>

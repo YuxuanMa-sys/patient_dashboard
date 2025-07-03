@@ -1,19 +1,173 @@
-<div class="flex flex-col flex-auto w-full">
-    <div class="flex flex-wrap w-full max-w-screen-xl mx-auto py-6 px-3 ">
+<div class="w-full px-2 py-4">
+    <!-- Search and Filter Bar -->
+    <div class="flex flex-wrap items-center gap-4 mb-6">
+        <!-- Search Input -->
+        <div class="flex-1 min-w-80">
+            <mat-form-field appearance="outline" class="w-full">
+                <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                <input matInput placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+            </mat-form-field>
+        </div>
 
-        <header class="w-full mb-5">
-            <nav class="mx-auto flex items-center justify-between  border-b-2 tab-menu" aria-label="Global">
-                <div class="flex lg:gap-x-10 gap-y-10">
-                    <a routerLink="upcoming" routerLinkActive="active border-b-2" class="text-lg font-normal leading-6 text-gray-500">Upcoming Appointments  </a>
-                    <a routerLink="past" routerLinkActive="active border-b-2"  class="text-lg font-normal leading-6 text-gray-500">Past Appointments </a>
-                    <a routerLink="cancelled" routerLinkActive="active border-b-2"  class="text-lg font-normal leading-6 text-gray-500">Cancelled Appointments</a>
-                    <a routerLink="completed" routerLinkActive="active border-b-2"  class="text-lg font-normal leading-6 text-gray-500">Completed Appointments</a>
+        <!-- Date Filter -->
+        <mat-form-field appearance="outline" class="min-w-40">
+            <mat-icon matPrefix svgIcon="heroicons_outline:calendar-days"></mat-icon>
+            <input matInput placeholder="Date" [matDatepicker]="datePicker" [(ngModel)]="dateFilter" (ngModelChange)="onFilterChange()" />
+            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePicker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Doctor Filter -->
+        <mat-form-field appearance="outline" class="min-w-40">
+            <mat-icon matPrefix svgIcon="heroicons_outline:user"></mat-icon>
+            <mat-select placeholder="Doctor" [(ngModel)]="doctorFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="">All Doctors</mat-option>
+                <mat-option *ngFor="let doctor of availableDoctors" [value]="doctor.name">
+                    {{ doctor.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Appointment Type Filter -->
+        <mat-form-field appearance="outline" class="min-w-40">
+            <mat-icon matPrefix svgIcon="heroicons_outline:calendar"></mat-icon>
+            <mat-select placeholder="Appointment Type" [(ngModel)]="appointmentTypeFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="">All Types</mat-option>
+                <mat-option value="General Checkup">General Checkup</mat-option>
+                <mat-option value="Cavity Fillings">Cavity Fillings</mat-option>
+                <mat-option value="Consultation">Consultation</mat-option>
+                <mat-option value="Emergency">Emergency</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Add New Button -->
+        <button mat-flat-button color="primary" (click)="openAddAppointmentModal()" class="h-14 px-6">
+            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+            <span class="ml-2">Add New</span>
+        </button>
+
+        <!-- View Toggle -->
+        <button mat-stroked-button [color]="currentView === 'calendar' ? 'primary' : 'basic'" 
+                (click)="toggleView()" class="h-14 px-6">
+            <mat-icon [svgIcon]="currentView === 'calendar' ? 'heroicons_outline:table-cells' : 'heroicons_outline:calendar-days'"></mat-icon>
+            <span class="ml-2">{{ currentView === 'calendar' ? 'Table View' : 'Calendar View' }}</span>
+        </button>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="mb-6">
+        <nav class="flex space-x-8 border-b border-gray-200">
+            <a routerLink="upcoming" 
+               routerLinkActive="text-blue-600 border-blue-600" 
+               class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                Active
+            </a>
+            <a routerLink="cancelled" 
+               routerLinkActive="text-blue-600 border-blue-600" 
+               class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                Cancelled
+            </a>
+            <a routerLink="completed" 
+               routerLinkActive="text-blue-600 border-blue-600" 
+               class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                Completed
+            </a>
+        </nav>
+    </div>
+
+    <!-- Content Area -->
+    <router-outlet></router-outlet>
+
+    <!-- Add Appointment Modal -->
+    <div *ngIf="showAddModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-lg w-full m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Add New Appointment</h2>
+                <button mat-icon-button (click)="closeAddModal()">
+                    <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+                </button>
+            </div>
+
+            <form [formGroup]="addAppointmentForm" (ngSubmit)="onAddAppointment()">
+                <div class="space-y-4">
+                    <!-- Patient Name -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Patient Name</mat-label>
+                        <input matInput formControlName="patientName" placeholder="@" />
+                    </mat-form-field>
+
+                    <!-- Doctor -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Doctor</mat-label>
+                        <input matInput formControlName="doctor" placeholder="@" />
+                    </mat-form-field>
+
+                    <!-- Reason for Visit -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Visit</label>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                Tooth Pain
+                                <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                    <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                Swollen Gums
+                                <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                    <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                Bad Breath
+                                <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                                    <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500">Suggested: Tooth pain, Swollen gums</div>
+                    </div>
+
+                    <!-- Category -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Category</mat-label>
+                        <mat-select formControlName="category">
+                            <mat-option value="Virtual">Virtual</mat-option>
+                            <mat-option value="In-Person">In-Person</mat-option>
+                            <mat-option value="Teledentistry">Teledentistry</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Date -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Date</mat-label>
+                        <input matInput formControlName="date" value="03.07.21" />
+                    </mat-form-field>
+
+                    <!-- Time -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Time</mat-label>
+                        <input matInput formControlName="time" value="06:00 pm" />
+                    </mat-form-field>
+
+                    <!-- Message -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Message</mat-label>
+                        <textarea matInput formControlName="message" rows="3" 
+                                  placeholder="Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta"></textarea>
+                    </mat-form-field>
                 </div>
-            </nav>
 
-        </header>
-
-        <router-outlet></router-outlet>
-
+                <!-- Actions -->
+                <div class="flex justify-between mt-6">
+                    <button type="button" mat-stroked-button (click)="closeAddModal()">
+                        Close
+                    </button>
+                    <button type="submit" mat-flat-button color="primary">
+                        Add Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

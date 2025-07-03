@@ -1,0 +1,218 @@
+// Calendar component styling
+.calendar-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+// Calendar grid styling
+.calendar-grid {
+  min-width: 800px; // Ensure minimum width for proper display
+}
+
+// Time slot styling
+.time-slot {
+  min-height: 120px;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Appointment card styling
+.appointment-card {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  // Different colors for different categories
+  &.virtual {
+    background-color: #fef3c7;
+    border-color: #f59e0b;
+    
+    .category-text {
+      color: #d97706;
+    }
+  }
+  
+  &.in-person {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    
+    .category-text {
+      color: #059669;
+    }
+  }
+  
+  &.teledentistry {
+    background-color: #e0e7ff;
+    border-color: #6366f1;
+    
+    .category-text {
+      color: #4f46e5;
+    }
+  }
+}
+
+// Modal styling
+.modal-overlay {
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+// Doctor dropdown styling
+.doctor-dropdown {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  .doctor-item {
+    transition: background-color 0.15s ease-in-out;
+    
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+}
+
+// View toggle buttons
+.view-toggle {
+  button {
+    transition: all 0.15s ease-in-out;
+    
+    &:not(.active) {
+      &:hover {
+        background-color: #e5e7eb;
+      }
+    }
+  }
+}
+
+// Navigation buttons
+.nav-button {
+  transition: all 0.15s ease-in-out;
+  
+  &:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+}
+
+// Issues mentioned styling
+.issues-list {
+  li {
+    &::before {
+      content: '•';
+      color: #9ca3af;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Action buttons styling
+.action-buttons {
+  button {
+    transition: all 0.15s ease-in-out;
+    
+    &.reschedule {
+      &:hover {
+        background-color: #e5e7eb;
+      }
+    }
+    
+    &.check-in {
+      &:hover {
+        background-color: #1d4ed8;
+      }
+    }
+    
+    &.cancel {
+      &:hover {
+        background-color: #dc2626;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 1024px) {
+  .calendar-grid {
+    min-width: 600px;
+  }
+  
+  .appointment-card {
+    padding: 0.5rem;
+    
+    .patient-avatar {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    
+    .patient-name {
+      font-size: 0.75rem;
+    }
+    
+    .appointment-type {
+      font-size: 0.625rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+    
+    .doctor-selector,
+    .date-navigation,
+    .view-toggle {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .time-slot {
+    min-height: 80px;
+  }
+  
+  .appointment-card {
+    padding: 0.375rem;
+    
+    .patient-info {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+  }
+}
+
+// Form styling
+.form-field {
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+// Tag styling for reason for visit
+.reason-tags {
+  .tag {
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    button {
+      color: #6b7280;
+      
+      &:hover {
+        color: #374151;
+      }
+    }
+  }
+} 

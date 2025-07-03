@@ -36,7 +36,11 @@ export const routes: Routes = [
 
     ]
   },
-
+  // Calendar view route
+  {
+    path: 'calendar',
+    loadComponent: () => import('../appointments-calendar/appointments-calendar.component').then(m => m.AppointmentsCalendarComponent)
+  }
 ];
 
 @NgModule({

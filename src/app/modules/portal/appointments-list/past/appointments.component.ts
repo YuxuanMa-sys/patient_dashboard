@@ -63,7 +63,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly avatar: string = environment.cloudFront + 'public/users/profile/';
     readonly url: string = environment.assets + 'utitlity/';
     recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
-    recentTransactionsTableColumns: string[] = ['name', 'date', 'type', 'for', 'doctor', 'issue_seeking', 'status', 'action'];
+    displayedColumns: string[] = ['name', 'date', 'type', 'for', 'doctor', 'issue_seeking', 'status', 'action'];
     data: any[] = [];
     today: any;
     upcoming: any;

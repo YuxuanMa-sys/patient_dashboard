@@ -1,0 +1,382 @@
+<!-- Calendar Header - Vertically Stacked -->
+<div class="bg-white p-4 border-b border-gray-200">
+  <!-- Row 1 - Doctor Selector -->
+  <div class="flex items-center justify-start mb-4">
+    <div class="relative">
+      <button (click)="toggleDoctorDropdown()" 
+              class="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <mat-icon class="w-5 h-5 mr-2" svgIcon="heroicons_outline:user"></mat-icon>
+        {{ selectedDoctor }}
+        <mat-icon class="w-4 h-4 ml-2" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+      </button>
+      
+      <!-- Doctor Dropdown -->
+      <div *ngIf="showDoctorDropdown" 
+           class="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+        <div class="py-2">
+          <button *ngFor="let doctor of availableDoctors" 
+                  (click)="selectDoctor(doctor.name)"
+                  class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            <img [src]="'assets/images/avatars/male-0' + (doctor.id % 5 + 1) + '.jpg'" 
+                 [alt]="doctor.name" 
+                 class="w-8 h-8 rounded-full mr-3">
+            {{ doctor.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2 - Date Navigation -->
+  <div class="flex items-center justify-center mb-4">
+    <div class="flex items-center space-x-4">
+      <button (click)="previousDay()" 
+              class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+        <mat-icon svgIcon="heroicons_outline:chevron-left"></mat-icon>
+      </button>
+      
+      <h2 class="text-xl font-semibold text-gray-900">
+        {{ getCurrentDateFormatted() }}
+      </h2>
+      
+      <button (click)="nextDay()" 
+              class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+        <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Row 3 - View Toggle -->
+  <div class="flex items-center justify-center">
+    <div class="flex items-center space-x-2">
+      <button (click)="setView('day')" 
+              [class.bg-blue-600]="currentView === 'day'"
+              [class.text-white]="currentView === 'day'"
+              [class.bg-gray-200]="currentView !== 'day'"
+              [class.text-gray-700]="currentView !== 'day'"
+              class="px-4 py-2 text-sm font-medium rounded-lg">
+        Day
+      </button>
+      <button (click)="setView('week')" 
+              [class.bg-blue-600]="currentView === 'week'"
+              [class.text-white]="currentView === 'week'"
+              [class.bg-gray-200]="currentView !== 'week'"
+              [class.text-gray-700]="currentView !== 'week'"
+              class="px-4 py-2 text-sm font-medium rounded-lg">
+        Week
+      </button>
+      <button (click)="setView('month')" 
+              [class.bg-blue-600]="currentView === 'month'"
+              [class.text-white]="currentView === 'month'"
+              [class.bg-gray-200]="currentView !== 'month'"
+              [class.text-gray-700]="currentView !== 'month'"
+              class="px-4 py-2 text-sm font-medium rounded-lg">
+        Month
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Grid -->
+<div class="w-full bg-white calendar-grid">
+  <div class="grid grid-cols-6 gap-0 border-b border-gray-200">
+    <!-- Time Column Header -->
+    <div class="p-4 text-sm font-medium text-gray-500 border-r border-gray-200">
+      <mat-icon class="w-5 h-5" svgIcon="heroicons_outline:clock"></mat-icon>
+    </div>
+    
+    <!-- Slot Headers -->
+    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 1</div>
+    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 2</div>
+    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 3</div>
+    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 4</div>
+    <div class="p-4 text-sm font-medium text-gray-500 text-center">Slot 5</div>
+  </div>
+
+  <!-- Time Slots -->
+  <div *ngFor="let time of timeSlots" class="grid grid-cols-6 gap-0 min-h-[120px] border-b border-gray-200">
+    <!-- Time Label -->
+    <div class="p-4 text-sm font-medium text-gray-700 border-r border-gray-200 flex items-start">
+      {{ time }}
+    </div>
+    
+    <!-- Slot Columns -->
+    <div class="border-r border-gray-200 p-2">
+      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 1)" 
+           class="mb-2 last:mb-0">
+        <div (click)="openAppointmentDetails(appointment)" 
+             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
+          <div class="flex items-center space-x-3">
+            <img [src]="appointment.patient.avatar" 
+                 [alt]="appointment.patient.name" 
+                 class="w-8 h-8 rounded-full">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+              <div class="text-xs font-medium" 
+                   [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
+                {{ appointment.category }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-r border-gray-200 p-2">
+      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 2)" 
+           class="mb-2 last:mb-0">
+        <div (click)="openAppointmentDetails(appointment)" 
+             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
+          <div class="flex items-center space-x-3">
+            <img [src]="appointment.patient.avatar" 
+                 [alt]="appointment.patient.name" 
+                 class="w-8 h-8 rounded-full">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+              <div class="text-xs font-medium" 
+                   [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
+                {{ appointment.category }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-r border-gray-200 p-2">
+      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 3)" 
+           class="mb-2 last:mb-0">
+        <div (click)="openAppointmentDetails(appointment)" 
+             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-green-50 border border-green-200'">
+          <div class="flex items-center space-x-3">
+            <img [src]="appointment.patient.avatar" 
+                 [alt]="appointment.patient.name" 
+                 class="w-8 h-8 rounded-full">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+              <div class="text-xs font-medium" 
+                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-yellow-600'">
+                {{ appointment.category }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-r border-gray-200 p-2">
+      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 4)" 
+           class="mb-2 last:mb-0">
+        <div (click)="openAppointmentDetails(appointment)" 
+             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+             [ngClass]="appointment.category === 'Virtual' ? 'bg-purple-50 border border-purple-200' : 'bg-green-50 border border-green-200'">
+          <div class="flex items-center space-x-3">
+            <img [src]="appointment.patient.avatar" 
+                 [alt]="appointment.patient.name" 
+                 class="w-8 h-8 rounded-full">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+              <div class="text-xs font-medium" 
+                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-purple-600'">
+                {{ appointment.category }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-2">
+      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 5)" 
+           class="mb-2 last:mb-0">
+        <div (click)="openAppointmentDetails(appointment)" 
+             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+             [ngClass]="appointment.category === 'Virtual' ? 'bg-pink-50 border border-pink-200' : 'bg-green-50 border border-green-200'">
+          <div class="flex items-center space-x-3">
+            <img [src]="appointment.patient.avatar" 
+                 [alt]="appointment.patient.name" 
+                 class="w-8 h-8 rounded-full">
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+              <div class="text-xs font-medium" 
+                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-pink-600'">
+                {{ appointment.category }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div *ngIf="showAppointmentDetails" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg max-w-sm w-full m-4 relative">
+    <!-- Close Button -->
+    <button (click)="closeAppointmentDetails()" 
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+      <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+    </button>
+    
+    <div *ngIf="selectedAppointment" class="p-6">
+      <!-- Patient Info -->
+      <div class="flex items-center space-x-4 mb-6">
+        <img [src]="selectedAppointment.patient.avatar" 
+             [alt]="selectedAppointment.patient.name" 
+             class="w-12 h-12 rounded-full">
+        <div>
+          <div class="text-lg font-semibold text-gray-900">{{ selectedAppointment.patient.name }}</div>
+          <div class="text-sm text-gray-500">{{ selectedAppointment.type }}</div>
+          <div class="text-sm text-gray-500">{{ selectedAppointment.doctor.name }}</div>
+          <div class="text-sm font-medium" 
+               [ngClass]="getCategoryColor(selectedAppointment.category)">
+            {{ selectedAppointment.category }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Issues Mentioned (if available) -->
+      <div *ngIf="selectedAppointment.issuesMentioned" class="mb-6">
+        <div class="text-sm font-medium text-gray-700 mb-2">Issues Mentioned</div>
+        <ul class="space-y-1">
+          <li *ngFor="let issue of selectedAppointment.issuesMentioned" 
+              class="flex items-center text-sm text-gray-600">
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
+            {{ issue }}
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex space-x-2">
+        <button (click)="rescheduleAppointment(selectedAppointment)" 
+                class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+          Reschedule
+        </button>
+        <button (click)="checkInAppointment(selectedAppointment)" 
+                class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+          Check In
+        </button>
+        <button (click)="cancelAppointment(selectedAppointment)" 
+                class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Appointment Modal -->
+<div *ngIf="showChangeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 max-w-lg w-full m-4">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-900">Change Appointment Schedule</h2>
+      <button (click)="closeChangeModal()" mat-icon-button>
+        <mat-icon svgIcon="heroicons_outline:x-mark"></mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="changeAppointmentForm" (ngSubmit)="onChangeAppointment()">
+      <div class="space-y-4">
+        <!-- Patient Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+          <div class="text-sm text-gray-900">{{ selectedAppointment?.patient?.name }}</div>
+        </div>
+
+        <!-- Dentist -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Dentist</label>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-900">{{ selectedAppointment?.doctor?.name }}</span>
+            <button type="button" mat-button color="primary" class="text-sm">Change</button>
+          </div>
+        </div>
+
+        <!-- Reason for Visit -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Visit</label>
+          <div class="flex flex-wrap gap-2 mb-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+              Tooth Pain
+              <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+              </button>
+            </span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+              Swollen Gums
+              <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+              </button>
+            </span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+              Bad Breath
+              <button type="button" class="ml-2 text-gray-500 hover:text-gray-700">
+                <mat-icon class="w-4 h-4" svgIcon="heroicons_outline:x-mark"></mat-icon>
+              </button>
+            </span>
+          </div>
+          <div class="text-sm text-gray-500">Suggested: Tooth pain, Swollen gums</div>
+        </div>
+
+        <!-- Category -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="Virtual">Virtual</mat-option>
+            <mat-option value="In-Person">In-Person</mat-option>
+            <mat-option value="Teledentistry">Teledentistry</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-900">03.07.21</span>
+            <button type="button" mat-button color="primary" class="text-sm">Edit</button>
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-900">06:00 pm</span>
+            <button type="button" mat-button color="primary" class="text-sm">Edit</button>
+          </div>
+        </div>
+
+        <!-- Reschedule Message -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Reschedule Message</mat-label>
+          <textarea matInput formControlName="rescheduleMessage" rows="3"></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-between mt-6">
+        <button type="button" mat-stroked-button (click)="closeChangeModal()">
+          Cancel
+        </button>
+        <button type="submit" mat-flat-button color="primary">
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 
