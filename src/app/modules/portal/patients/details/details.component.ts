@@ -64,6 +64,12 @@ export class DetailsComponent implements OnInit {
     familyDataMain: any;
     selectedAttachments: File[] = [];
 
+    // New properties for the redesigned UI
+    showEditForm: boolean = false;
+    showAppointmentDetails: boolean = false;
+    selectedAppointment: any = null;
+    displayAppointments: any[] = [];
+
     constructor(
         private fb: FormBuilder,
         private _portalService: PortalService,
@@ -75,40 +81,32 @@ export class DetailsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        // Try to get `patientId` from the current route
-        this.patientId = this.route.snapshot.paramMap.get('id');
-        this.familyMemberId = this.route.snapshot.paramMap.get('patientId'); // Optional for family member update
+        this.isFamilyMember = this._router.url.includes('/family/');
 
-        // Use `parent` to access the full route path and detect if `family` is part of it
-        (this.route.parent || this.route).url.subscribe((segments) => {
-            // Check if 'family' is part of any segment
-            this.isFamilyMember = segments.some(segment => segment.path === 'family');
-
-            console.log('URL Segments:', segments);
-            console.log('isFamilyMember:', this.isFamilyMember);
-
-            // Initialize forms based on route context
-            this.initializeForms();
-            this.loadInsuranceOptions();
-
-            // Decide which data to load based on context
-            if (this.isFamilyMember) {
-                if (this.familyMemberId) {
-                    // Load family member details for update
-                    this.loadFamilyMemberDetails();
-                } else {
-                    // It's a family member creation, so no data to load
-                    console.log('Creating new family member');
-                }
-            } else {
-                // Load main patient details
-                this.loadPatientFamily();
-                this.loadPatientDetails();
+        // Extract patient ID and family member ID from URL
+        this.route.params.subscribe(params => {
+            if (params['id']) {
+                this.patientId = params['id'];
+            }
+            if (params['patientId'] && this.isFamilyMember) {
+                this.familyMemberId = params['patientId'];
             }
         });
+
+        this.initializeForms();
+        this.loadInsuranceOptions();
+
+        if (this.patientId && !this.isFamilyMember) {
+            this.loadPatientDetails();
+            this.loadAppointments();
+            this.loadPatientFamily();
+        } else if (this.familyMemberId && this.isFamilyMember) {
+            this.loadFamilyMemberDetails();
+        }
+
+        // Initialize display appointments with sample data
+        this.initializeDisplayAppointments();
     }
-
-
 
     initializeForms(): void {
         // Patient form
@@ -237,7 +235,6 @@ export class DetailsComponent implements OnInit {
         }
     }
 
-
     // Load appointments by patient ID
     loadAppointments(): void {
         this._portalService.getAppointmentsByPatientId(this.patientId).subscribe({
@@ -303,9 +300,6 @@ export class DetailsComponent implements OnInit {
         }
     }
 
-
-
-
     async onProfileImageSelect(event: Event): Promise<void> {
         const fileInput = event.target as HTMLInputElement;
         this.selectedProfileImage = fileInput.files ? fileInput.files[0] : null;
@@ -342,8 +336,6 @@ export class DetailsComponent implements OnInit {
         }
     }
 
-
-
     async uploadProfileImage(): Promise<void> {
         if (this.selectedProfileImage) {
             try {
@@ -367,8 +359,6 @@ export class DetailsComponent implements OnInit {
             }
         }
     }
-
-
 
     onAddFamilyMember(): void {
         if (this.familyForm.valid) {
@@ -397,8 +387,6 @@ export class DetailsComponent implements OnInit {
                 .catch((error) => console.error('Error deleting family member:', error));
         }
     }
-
-
 
     async onSave(): Promise<void> {
         const formToUse = this.isFamilyMember ? this.familyForm : this.form;
@@ -477,9 +465,6 @@ export class DetailsComponent implements OnInit {
         }
     }
 
-
-
-
     getFileType(url: string): string {
         const extension = url.split('.').pop()?.toLowerCase();
         if (!extension) return 'other';
@@ -494,7 +479,6 @@ export class DetailsComponent implements OnInit {
             return 'other';
         }
     }
-
 
     getFileIcon(type: string | undefined): string {
         if (!type) return 'text-gray-500'; // Default icon color if type is undefined
@@ -532,5 +516,111 @@ export class DetailsComponent implements OnInit {
         }
     }
 
+    /**
+     * Initialize display appointments with sample data matching the screenshots
+     */
+    initializeDisplayAppointments(): void {
+        this.displayAppointments = [
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            },
+            {
+                type: 'General Checkup',
+                doctor: 'Dr. Jamie Garcia',
+                date: '03.07.21',
+                time: '06:00 pm',
+                reason: 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta'
+            }
+        ];
+    }
 
+    /**
+     * Generate patient ID for display
+     */
+    generatePatientId(): string {
+        return this.contact?.id?.substring(0, 6) || '332142';
+    }
+
+    /**
+     * Get last active date for app status
+     */
+    getLastActiveDate(): string {
+        return '23.06.21 | 12:34 pm';
+    }
+
+    /**
+     * Open edit form modal
+     */
+    openEditForm(): void {
+        this.showEditForm = true;
+    }
+
+    /**
+     * Close edit form modal
+     */
+    closeEditForm(): void {
+        this.showEditForm = false;
+    }
+
+    /**
+     * Open appointment details modal
+     */
+    openAppointmentDetails(appointment: any): void {
+        this.selectedAppointment = appointment;
+        this.showAppointmentDetails = true;
+    }
+
+    /**
+     * Close appointment details modal
+     */
+    closeAppointmentDetails(): void {
+        this.showAppointmentDetails = false;
+        this.selectedAppointment = null;
+    }
 }

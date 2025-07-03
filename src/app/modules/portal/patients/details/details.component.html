@@ -1,476 +1,224 @@
-<div class="flex w-full space-x-6">
-    <!-- Left Side - Patient Form -->
-    <div class="w-1/2 bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl font-semibold mb-4">Patient Details</h2>
+<div class="w-full max-w-full mx-auto px-6 py-8">
+    <!-- Patient Detail Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left Column - Patient Information -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Patient Information</h2>
+            
+            <div class="space-y-6">
+                <!-- Patient Avatar and Name -->
+                <div class="flex flex-col items-center">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mb-4">
+                        <img class="w-full h-full object-cover" 
+                             [src]="contact?.profilePictureUrl || 'images/avatars/male-01.jpg'" 
+                             [alt]="contact?.fname + ' ' + contact?.lname">
+                    </div>
+                </div>
 
+                <!-- Patient Details Grid -->
+                <div class="space-y-4">
+                    <!-- Patient Name -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                        <div class="text-lg font-semibold text-gray-900">
+                            {{ contact?.fname }} {{ contact?.lname }}
+                        </div>
+                    </div>
 
-
-        <form *ngIf="!isFamilyMember" [formGroup]="form" (ngSubmit)="onSave()">
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Attachment Field -->
-                <div class="col-span-2">
-                    <div
-                        class="ring-bg-card relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full ring-4">
-                        <!-- Upload / Remove avatar -->
-                        <div class="absolute inset-0 z-10 bg-black bg-opacity-50"></div>
-                        <div class="absolute inset-0 z-20 flex items-center justify-center">
-                            <div>
-                                <input id="avatar-file-input"
-                                    class="pointer-events-none invisible absolute h-0 w-0 opacity-0" type="file"
-                                    [multiple]="false" [accept]="'image/jpeg, image/png'" (change)="
-                                onProfileImageSelect($event)
-                            " #avatarFileInput />
-                                <label
-                                    class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-hover"
-                                    for="avatar-file-input" matRipple>
-                                    <mat-icon class="text-white" [svgIcon]="
-                                    'heroicons_outline:camera'
-                                "></mat-icon>
-                                </label>
+                    <!-- Two Column Layout for Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- ID Number -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ID Number</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.id || generatePatientId() }}
                             </div>
                         </div>
-                        <!-- Image/Letter -->
-                        @if (contact?.profilePictureUrl) {
-                        <img class="h-full w-full object-cover" [src]="contact?.profilePictureUrl" />
-                        }
-                        @if (!contact?.profilePictureUrl) {
-                        <div
-                            class="flex h-full w-full items-center justify-center overflow-hidden rounded bg-gray-200 text-8xl font-bold uppercase leading-none text-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                            {{ contact?.fname.charAt(0) }}
-                        </div>
-                        }
-                    </div>
-                </div>
 
-                <!-- First Name -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>First Name</mat-label>
-                    <input matInput formControlName="fname" placeholder="First Name" />
-                </mat-form-field>
-
-                <!-- Last Name -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Last Name</mat-label>
-                    <input matInput formControlName="lname" placeholder="Last Name" />
-                </mat-form-field>
-
-                <div class="col-span-2">
-                    <!-- Dental Needs -->
-                    <mat-form-field appearance="fill" class="w-full">
-                        <mat-label>Dental Needs</mat-label>
-                        <input matInput formControlName="dental_needs" placeholder="Dental Needs" />
-                    </mat-form-field>
-                </div>
-
-                <!-- Phone Number -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Phone Number</mat-label>
-                    <input matInput formControlName="number" placeholder="Phone Number" />
-                </mat-form-field>
-
-
-
-                <!-- Insurance -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Insurance</mat-label>
-                    <mat-select formControlName="insurance" multiple>
-                        <mat-option *ngFor="let insurance of insuranceList" [value]="insurance.name">
-                            {{ insurance.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <!-- Email -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" placeholder="Email" type="email" />
-                </mat-form-field>
-
-                <!-- Date of Birth -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Date of Birth</mat-label>
-                    <input matInput formControlName="dob" [matDatepicker]="dobPicker" placeholder="DOB" />
-                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-                    <mat-datepicker #dobPicker></mat-datepicker>
-                </mat-form-field>
-
-                <!-- Created At -->
-                <!-- <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Created At</mat-label>
-                    <input matInput formControlName="createdAt" placeholder="Created At" disabled readonly />
-                </mat-form-field> -->
-
-                <!-- Address -->
-                <mat-form-field appearance="fill" class="col-span-2 w-full">
-                    <mat-label>Address</mat-label>
-                    <input matInput formControlName="address" placeholder="Address" />
-                </mat-form-field>
-
-                <!-- Notes -->
-                <mat-form-field appearance="fill" class="col-span-2 w-full">
-                    <mat-label>Notes</mat-label>
-                    <textarea matInput formControlName="notes" placeholder="Notes"></textarea>
-                </mat-form-field>
-
-                <!-- Gender -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Gender</mat-label>
-                    <mat-select formControlName="gender">
-                        <mat-option value="male">Male</mat-option>
-                        <mat-option value="female">Female</mat-option>
-                        <mat-option value="other">Other</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <!-- Languages -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Languages</mat-label>
-                    <mat-select formControlName="languages" multiple>
-                        <mat-option *ngFor="let language of languagesList" [value]="language">
-                            {{ language }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-            </div>
-
-            <!-- Save Button -->
-            <div class="mt-6 flex justify-end">
-                <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
-            </div>
-        </form>
-
-        <form *ngIf="isFamilyMember" [formGroup]="familyForm" (ngSubmit)="onSave()">
-            <div class="grid grid-cols-2 gap-4">
-                <!-- Attachment Field -->
-                <div class="col-span-2">
-                    <div
-                        class="ring-bg-card relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full ring-4">
-                        <!-- Upload / Remove avatar -->
-                        <div class="absolute inset-0 z-10 bg-black bg-opacity-50"></div>
-                        <div class="absolute inset-0 z-20 flex items-center justify-center">
-                            <div>
-                                <input id="avatar-file-input"
-                                    class="pointer-events-none invisible absolute h-0 w-0 opacity-0" type="file"
-                                    [multiple]="false" [accept]="'image/jpeg, image/png'" (change)="
-                                onProfileImageSelect($event)
-                            " #avatarFileInput />
-                                <label
-                                    class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-hover"
-                                    for="avatar-file-input" matRipple>
-                                    <mat-icon class="text-white" [svgIcon]="
-                                    'heroicons_outline:camera'
-                                "></mat-icon>
-                                </label>
+                        <!-- Date Added -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Added</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.createdAt?.toDate() | date: 'dd.MM.yyyy' }}
                             </div>
                         </div>
-                        <!-- Image/Letter -->
-                        @if (contact?.profilePictureUrl) {
-                        <img class="h-full w-full object-cover" [src]="contact?.profilePictureUrl" />
-                        }
-                        @if (!contact?.profilePictureUrl) {
-                        <div
-                            class="flex h-full w-full items-center justify-center overflow-hidden rounded bg-gray-200 text-8xl font-bold uppercase leading-none text-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                            {{ contact?.fname.charAt(0) }}
+
+                        <!-- Date of Birth -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.dob?.toDate() | date: 'dd - MMM - yyyy' }}
+                            </div>
                         </div>
-                        }
+
+                        <!-- Gender -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.gender || 'Male' }}
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Email Address -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <div class="text-sm text-gray-900">
+                            {{ contact?.email || 'moeed.shahid@yahoo.com' }}
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <div class="text-sm text-gray-900">
+                            {{ contact?.number || contact?.phone || '+92 - 333 - 6787103' }}
+                        </div>
+                    </div>
+
+                    <!-- Language and Status Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Language Spoken -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Language Spoken</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.languages || 'English' }}
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <div class="text-sm text-gray-900">
+                                {{ contact?.status || 'Active' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <div class="text-sm text-gray-900">
+                            {{ contact?.address || 'House # 5, Street # 4, Shadab Town, Sargodha' }}
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <div class="text-sm text-gray-900">
+                            {{ contact?.notes || 'Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta , agar apko pta hy tou mai bta skta ho. Eleq koi confirmation nhi hy' }}
+                        </div>
+                    </div>
                 </div>
 
-
-
-                <!-- First Name -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>First Name</mat-label>
-                    <input matInput formControlName="fname" placeholder="First Name" />
-                </mat-form-field>
-
-                <!-- Last Name -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Last Name</mat-label>
-                    <input matInput formControlName="lname" placeholder="Last Name" />
-                </mat-form-field>
-
-                <div class="col-span-2">
-                    <!-- Dental Needs -->
-                    <mat-form-field appearance="fill" class="w-full">
-                        <mat-label>Dental Needs</mat-label>
-                        <input matInput formControlName="dental_needs" placeholder="Dental Needs" />
-                    </mat-form-field>
+                <!-- Edit Details Button -->
+                <div class="pt-4">
+                    <button mat-flat-button color="primary" (click)="openEditForm()">
+                        Edit Details
+                    </button>
                 </div>
+            </div>
+        </div>
 
-                <!-- Phone Number -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Phone Number</mat-label>
-                    <input matInput formControlName="number" placeholder="Phone Number" />
-                </mat-form-field>
-
-
-
-                <!-- Insurance -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Insurance</mat-label>
-                    <mat-select formControlName="insurance" multiple>
-                        <mat-option *ngFor="let insurance of insuranceList" [value]="insurance.name">
-                            {{ insurance.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <!-- Email -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" placeholder="Email" type="email" />
-                </mat-form-field>
-
-                <!-- Date of Birth -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Date of Birth</mat-label>
-                    <input matInput formControlName="dob" [matDatepicker]="dobPicker" placeholder="DOB" />
-                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-                    <mat-datepicker #dobPicker></mat-datepicker>
-                </mat-form-field>
-
-                <!-- Created At -->
-                <!-- <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Created At</mat-label>
-                    <input matInput formControlName="createdAt" placeholder="Created At" disabled readonly />
-                </mat-form-field> -->
-
-                <!-- Address -->
-                <mat-form-field appearance="fill" class="col-span-2 w-full">
-                    <mat-label>Address</mat-label>
-                    <input matInput formControlName="address" placeholder="Address" />
-                </mat-form-field>
-
-                <!-- Notes -->
-                <mat-form-field appearance="fill" class="col-span-2 w-full">
-                    <mat-label>Notes</mat-label>
-                    <textarea matInput formControlName="notes" placeholder="Notes"></textarea>
-                </mat-form-field>
-
-                <!-- Gender -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Gender</mat-label>
-                    <mat-select formControlName="gender">
-                        <mat-option value="male">Male</mat-option>
-                        <mat-option value="female">Female</mat-option>
-                        <mat-option value="other">Other</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <!-- Languages -->
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Languages</mat-label>
-                    <mat-select formControlName="languages" multiple>
-                        <mat-option *ngFor="let language of languagesList" [value]="language">
-                            {{ language }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="fill" class="w-full">
-                    <mat-label>Relationship</mat-label>
-                    <mat-select formControlName="relationship">
-                        <mat-option *ngFor="let relation of relationshipOptions" [value]="relation">
-                            {{ relation }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-
+        <!-- Right Column - Appointment Summary and Family Members -->
+        <div class="space-y-6">
+            <!-- Appointment Summary -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Appointment Summary</h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Appointment Type
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Doctor Name
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr *ngFor="let appointment of displayAppointments" class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ appointment.type }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ appointment.doctor }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ appointment.date }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-800" (click)="openAppointmentDetails(appointment)">
+                                        See Details
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Save Button -->
-            <div class="mt-6 flex justify-end">
-                <div id="recaptcha-container"></div>
-
-                <button mat-raised-button color="primary" type="submit" [disabled]="familyForm.invalid">Save</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Right Side - Appointment History Table -->
-    <div class="w-1/2 bg-white p-6 rounded-lg shadow-lg">
-        <ng-container *ngIf="patientId">
-            <h2 class="text-xl font-semibold mb-4">Appointment History</h2>
-
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Type</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Provider</th>
-                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    <tr *ngFor="let appointment of appointments">
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ appointment?.appointment_type }}
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ appointment?.createdAt?.toDate() | date: "medium" }}
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ appointment.provider?.name || 'N/A' }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            <span
-                                class="inline-flex items-center font-normal text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                [ngClass]="{
-                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': appointment.status === 'Cancelled',
-                'bg-blue-200 text-blue-800 dark:bg-blue-600 dark:text-blue-50': appointment.status === 'Upcoming',
-                'bg-primary-200 text-blue-800 dark:bg-primary-600 dark:text-primary-50': appointment.status === 'Confirmed',
-                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': appointment.status === 'Pending',
-                'bg-orange-200 text-orange-800 dark:bg-orange-600 dark:text-orange-50': appointment.status === 'Rejected',
-                'bg-purple-200 text-purple-800 dark:bg-purple-600 dark:text-purple-50': appointment.status === 'Miss',
-                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': appointment.status === 'Completed'
-            }">
-                                <span class="leading-relaxed whitespace-nowrap">
-                                    {{ appointment.status || 'N/A' }}</span>
-                            </span>
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- No appointments message -->
-            <p *ngIf="appointments.length === 0" class="text-sm text-gray-500 mt-4">
-                No appointment history available.
-            </p>
-
-
-            <ng-container *ngIf="!isFamilyMember">
-                <div class="flex items-center justify-between w-full py-3 px-2 mt-10">
-                    <div>
-                        <h2 class="text-xl font-semibold mb-4">Family Members</h2>
-                    </div>
-
-                    <div class="mt-4 sm:mt-0">
-                        <!-- Upload button -->
-                        <button mat-flat-button [color]="'primary'"
-                            [routerLink]="['/portal/patients/' + patientId + '/family/create']"
-                            routerLinkActive="router-link-active">
-                            <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                            <span class="ml-2 mr-1">Add Family </span>
-                        </button>
-                    </div>
+            <!-- Family Members -->
+            <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!isFamilyMember">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Family Members</h2>
                 </div>
 
-
-                <table class="min-w-full divide-y divide-gray-200 mt-8">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Dob</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Relation</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr *ngFor="let family of familyData">
-                            <td class="px-4 py-2 text-sm text-gray-700">
-                                <div class="flex items-center space-x-6 gap-3">
-                                    <div
-                                        class="flex h-10 w-10 flex-0 items-center justify-center overflow-hidden rounded-full">
-                                        @if (family.profilePictureUrl) {
-                                        <img class="h-full w-full object-cover" [src]="family.profilePictureUrl"
-                                            alt="family profilePictureUrl" />
-                                        }
-                                        @if (!family.profilePictureUrl) {
-                                        <div
-                                            class="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-lg uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                                            {{ family.fname.charAt(0) }}
-                                        </div>
-                                        }
-                                    </div>
+                <div class="space-y-4">
+                    <div *ngFor="let family of familyData" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-full overflow-hidden">
+                                <img class="w-full h-full object-cover" 
+                                     [src]="family?.profilePictureUrl || 'images/avatars/female-01.jpg'" 
+                                     [alt]="family?.fname + ' ' + family?.lname">
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">
                                     {{ family?.fname }} {{ family?.lname }}
                                 </div>
-                            </td>
-                            <td class="px-4 py-2 text-sm text-gray-700">
-                                {{ family?.dob?.toDate() | date: "mediumDate" }}
-                            </td>
-                            <td class="px-4 py-2 text-sm text-gray-700">{{ family?.relationship || 'N/A' }}</td>
-
-                            <td class="px-4 py-2 text-blue-500 text-sm cursor-pointer">
-                                <div class="flex justify-between items-center">
-                                    <div
-                                        [routerLink]="['/portal/patients/' + patientId + '/family/' + family.familyMemberId + '/details']">
-                                        See Details
-                                    </div>
-
-                                    <button (click)="deleteFamilyMember(family.familyMemberId)" class="text-red-500">
-                                        <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
-                                    </button>
-                                </div>
-                                <!-- {{'/portal/patients/' + patientId + '/family/' + family.familyMemberId + '/details'}} -->
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <p *ngIf="familyData?.length === 0" class="text-sm text-gray-500 mt-4">
-                    No family member available.
-                </p>
-            </ng-container>
-
-
-            <div class="flex items-center justify-between w-full py-3 px-2 mt-10">
-                <div>
-                    <h2 class="text-xl font-semibold mb-4">Attechments</h2>
-                </div>
-
-                <div class="mt-4 sm:mt-0">
-
-
-                    <div class="flex items-center space-x-2">
-                        <input id="attachment-file-input" type="file" (change)="onAttachmentSelect($event)" multiple
-                            #fileInput class="hidden" />
-                        <button mat-flat-button (click)="fileInput.click()" color="primary">
-                            <mat-icon>attach_file</mat-icon>
-                            <span class="ml-2 mr-1">Upload Attachments</span>
-                        </button>
-                        <!--
-                        <button mat-flat-button [color]="'primary'" (click)="uploadAttachments()">
-                            <mat-icon>attach_file</mat-icon>
-                            <span class="ml-2 mr-1">Upload Attachments</span>
-                        </button> -->
-                        <!-- <span>Upload Attachments</span> -->
-                    </div>
-
-
-
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-6 grid-cols-3  gap-4 p-4">
-                <a *ngFor="let file of contact?.attachmentUrls"
-                    class="bg-gray-100 flex cursor-pointer flex-col rounded-2xl p-4 " [href]="file.url" target="_blank">
-                    <div class="aspect-[9/6]">
-                        <div class="flex h-full items-center justify-center">
-                            <!-- Icon based on file type -->
-                            <div class="relative">
-                                <mat-icon [ngClass]="getFileIcon(file.type)"
-                                    class="text-gray-500 opacity-50 icon-size-10">
-                                    {{ getFileIconName(file.type) }}
-                                </mat-icon>
-                                <div class="absolute bottom-0 left-0 rounded px-1 text-xs font-normal leading-5 text-white"
-                                    [ngClass]="getFileTypeColor(file.type)">
-                                    {{ file.type }}
+                                <div class="text-sm text-gray-500">
+                                    {{ family?.relationship || 'Daughter' }}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex flex-auto flex-col justify-center text-center text-sm font-medium">
-                        <div class="truncate" [matTooltip]="file.name">
-                            {{ file.name }}
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-500">
+                                {{ family?.dob?.toDate() | date: 'dd.MM.yyyy' }}
+                            </div>
+                            <button class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    [routerLink]="['/portal/patients/' + patientId + '/family/' + family.familyMemberId + '/details']">
+                                See Details
+                            </button>
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
 
-
-
-        </ng-container>
+            <!-- App Status -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">App Status</h2>
+                <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                    <mat-icon class="text-yellow-600 mr-3" svgIcon="heroicons_outline:check-circle"></mat-icon>
+                    <span class="text-sm text-gray-900">
+                        {{ contact?.fname || 'Moeed' }} has an active app, recently used on {{ getLastActiveDate() }}
+                    </span>
+                </div>
+                
+                <div class="mt-4">
+                    <button mat-flat-button color="primary">
+                        New Patient Form
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

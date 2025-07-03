@@ -22,6 +22,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -38,13 +39,22 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     RouterLink,
     MatIconModule,
     MatStepperModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatOptionModule, MatButtonModule, MatCheckboxModule, MatRadioModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatSelectModule,
+    MatOptionModule, 
+    MatButtonModule, 
+    MatCheckboxModule, 
+    MatRadioModule,
     MatDatepickerModule,
     MatProgressSpinnerModule,
-    MatMenuModule, MatDividerModule,
-    NgClass, MatTableModule,
-    MatSortModule, DatePipe,
+    MatMenuModule, 
+    MatDividerModule,
+    NgClass, 
+    MatTableModule,
+    MatSortModule, 
+    DatePipe,
+    FormsModule
   ]
 })
 export class PatientsModule { }

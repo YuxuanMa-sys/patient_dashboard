@@ -21,6 +21,23 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     tableColumn: string[] = ['name', 'phone', 'gender', 'status', 'date added', 'action'];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
+    // Filter properties
+    searchQuery: string = '';
+    dateFilter: Date | null = null;
+    firstNameFilter: string = '';
+    lastNameFilter: string = '';
+
+    // Sorting properties
+    sortField: string = '';
+    sortDirection: 'asc' | 'desc' = 'asc';
+
+    // Data properties
+    data: any[] = [];
+    filteredPatients: any[] = [];
+    loading: boolean = true;
+    error: string | null = null;
+
+    // Legacy properties (keeping for compatibility)
     patientCount: number = 0;
     query: string;
     patientForm: FormGroup;
@@ -43,10 +60,6 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     phonePattern: RegExp =
         /^[+]{1}[1]{1}[\s]*((\([0-9]{3}\))|[0-9]{3})[\s\-]?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[0-9]{4}$/;
 
-
-    data: any[] = []; // Initialize data as an empty array
-    loading: boolean = true;
-    error: string | null = null;
     /**
      * Constructor
      */
@@ -71,10 +84,10 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         this._portalService.getPatients().subscribe({
             next: (data) => {
                 if (data && data.length > 0) {
-                    this.data = data;  // Assign the fetched data to the data array
-
+                    this.data = data;
+                    this.filteredPatients = [...this.data]; // Initialize filtered data
                 }
-                this.loading = false; // Turn off loading after data fetch
+                this.loading = false;
                 this.cdr.detectChanges();
                 console.log('Patients:', this.data);
             },
@@ -85,6 +98,131 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.cdr.detectChanges();
             }
         });
+    }
+
+    /**
+     * Filter patients based on search and filter criteria
+     */
+    applyFilters(): void {
+        let filtered = [...this.data];
+
+        // Search filter
+        if (this.searchQuery.trim()) {
+            const query = this.searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(patient => 
+                (patient.fname?.toLowerCase().includes(query)) ||
+                (patient.lname?.toLowerCase().includes(query)) ||
+                (patient.email?.toLowerCase().includes(query)) ||
+                (patient.number?.includes(query)) ||
+                (patient.phone?.includes(query))
+            );
+        }
+
+        // First name filter
+        if (this.firstNameFilter.trim()) {
+            const query = this.firstNameFilter.toLowerCase().trim();
+            filtered = filtered.filter(patient => 
+                patient.fname?.toLowerCase().includes(query)
+            );
+        }
+
+        // Last name filter
+        if (this.lastNameFilter.trim()) {
+            const query = this.lastNameFilter.toLowerCase().trim();
+            filtered = filtered.filter(patient => 
+                patient.lname?.toLowerCase().includes(query)
+            );
+        }
+
+        // Date filter
+        if (this.dateFilter) {
+            filtered = filtered.filter(patient => {
+                if (patient.createdAt?.toDate) {
+                    const patientDate = patient.createdAt.toDate();
+                    return patientDate.toDateString() === this.dateFilter.toDateString();
+                }
+                return false;
+            });
+        }
+
+        this.filteredPatients = filtered;
+        this.applySorting();
+        this.cdr.detectChanges();
+    }
+
+    /**
+     * Apply sorting to filtered patients
+     */
+    applySorting(): void {
+        if (!this.sortField) return;
+
+        this.filteredPatients.sort((a, b) => {
+            let aValue, bValue;
+
+            switch (this.sortField) {
+                case 'name':
+                    aValue = `${a.fname || ''} ${a.lname || ''}`.toLowerCase();
+                    bValue = `${b.fname || ''} ${b.lname || ''}`.toLowerCase();
+                    break;
+                case 'id':
+                    aValue = a.id || '';
+                    bValue = b.id || '';
+                    break;
+                case 'phone':
+                    aValue = a.number || a.phone || '';
+                    bValue = b.number || b.phone || '';
+                    break;
+                case 'date':
+                    aValue = a.createdAt?.toDate() || new Date(0);
+                    bValue = b.createdAt?.toDate() || new Date(0);
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aValue < bValue) {
+                return this.sortDirection === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return this.sortDirection === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+    /**
+     * Handle search input changes
+     */
+    onSearchChange(): void {
+        this.applyFilters();
+    }
+
+    /**
+     * Handle filter changes
+     */
+    onFilterChange(): void {
+        this.applyFilters();
+    }
+
+    /**
+     * Sort by field
+     */
+    sortBy(field: string): void {
+        if (this.sortField === field) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortField = field;
+            this.sortDirection = 'asc';
+        }
+        this.applySorting();
+        this.cdr.detectChanges();
+    }
+
+    /**
+     * Generate patient ID for display
+     */
+    generatePatientId(patient: any): string {
+        return patient.id?.substring(0, 6) || '332142';
     }
 
     getCurrentAge(dob: string): string {
@@ -102,16 +240,13 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         return ageString;
     }
 
-
-
-
     trackByFn(index: number, item: any): any {
         return item.id || index;
     }
 
     /**
-   * On destroy
-   */
+     * On destroy
+     */
     ngOnDestroy(): void {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
