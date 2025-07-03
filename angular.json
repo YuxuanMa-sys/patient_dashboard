@@ -28,7 +28,8 @@
                             "crypto-js/enc-utf8",
                             "crypto-js/hmac-sha256",
                             "crypto-js/enc-base64",
-                            "quill-delta"
+                            "quill-delta",
+                            "@cometchat/calls-sdk-javascript"
                         ],
                         "assets": [
                             {
@@ -43,6 +44,11 @@
                             {
                                 "glob": "**/*",
                                 "input": "./node_modules/@cometchat/chat-uikit-angular/assets/",
+                                "output": "assets/"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@cometchat/calls-uikit-angular/assets/",
                                 "output": "assets/"
                             }
                         ],
@@ -112,6 +118,11 @@
                             {
                                 "glob": "**/*",
                                 "input": "./node_modules/@cometchat/chat-uikit-angular/assets/",
+                                "output": "assets/"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@cometchat/calls-uikit-angular/assets/",
                                 "output": "assets/"
                             }
                         ],

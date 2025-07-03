@@ -4,6 +4,7 @@ import { ChatService } from 'app/core/chat/chat.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
 import { Auth } from '@angular/fire/auth';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
     selector: 'portal-chat',
@@ -18,7 +19,7 @@ import { Auth } from '@angular/fire/auth';
 export class ChatComponent implements AfterViewInit {
     loading = true;
 
-    constructor(private _chat: ChatService, private _auth: Auth) { }
+    constructor(private _chat: ChatService, private _auth: Auth, private _cdr: ChangeDetectorRef) { }
 
     async ngAfterViewInit(): Promise<void> {
         console.log('ngAfterViewInit started');
@@ -59,6 +60,7 @@ export class ChatComponent implements AfterViewInit {
         if (!uid) {
             console.error('CometChat UID not found. Please store uid in localStorage("chatUid") or get from auth.');
             this.loading = false;
+            this._cdr.markForCheck();
             return;
         }
 
@@ -72,6 +74,8 @@ export class ChatComponent implements AfterViewInit {
         } finally {
             console.log('ngAfterViewInit completed');
             this.loading = false;
+            this._cdr.markForCheck();
+            console.log('Chat loading completed', this.loading);
         }
     }
 }

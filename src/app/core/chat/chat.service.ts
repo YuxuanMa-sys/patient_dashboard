@@ -7,7 +7,10 @@ import { CometChatUIKit } from '@cometchat/chat-uikit-angular';
 // For user creation we still need base SDK types
 // @ts-ignore
 import { CometChat, User } from '@cometchat/chat-sdk-javascript';
+// @ts-ignore
+import { CometChatCalls } from '@cometchat/calls-sdk-javascript';
 import { environment } from 'environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -17,22 +20,55 @@ export class ChatService {
 
     private _initialised = false;
 
+    // Stream for incoming calls so UI can react
+    private _incomingCall = new BehaviorSubject<any>(null);
+    incomingCall$ = this._incomingCall.asObservable();
+
     /** Initialise UI Kit once */
     private async initUIKit(): Promise<void> {
         if (this._initialised) { return; }
-        const settings = new UIKitSettingsBuilder()
+
+        // Initialise Chat UI Kit
+        const uiKitSettings = new UIKitSettingsBuilder()
             .setAppId(this.appId)
             .setRegion(this.region?.toLowerCase())
             .setAuthKey(this.apiKey)
             .subscribePresenceForAllUsers()
             .build();
+
+        // Build Call SDK settings (new API requires CallAppSettings instance)
+        const callSettings = new (CometChatCalls as any).CallAppSettingsBuilder()
+            .setAppId(this.appId)
+            .setRegion(this.region?.toLowerCase())
+            .build();
+
         try {
-            await CometChatUIKit.init(settings);
-            console.log('CometChat UIKit initialised');
+            await CometChatUIKit.init(uiKitSettings);
+            await CometChatCalls.init(callSettings);
+
+            // Attach global call listener once
+            const listenerId = 'portal-listener-' + Date.now();
+            (CometChat as any).addCallListener(
+                listenerId,
+                new (CometChat as any).CallListener({
+                    onIncomingCallReceived: (call: any) => {
+                        console.log('Incoming call received', call);
+                        this._incomingCall.next(call);
+                    },
+                    onOutgoingCallRejected: () => {
+                        this._incomingCall.next(null);
+                    },
+                    onIncomingCallCancelled: () => {
+                        this._incomingCall.next(null);
+                    }
+                })
+            );
+            console.log('CometChat UIKit & Calls initialised');
         } catch (err) {
             console.error('CometChat init error', err);
             throw err;
         }
+
         this._initialised = true;
     }
 

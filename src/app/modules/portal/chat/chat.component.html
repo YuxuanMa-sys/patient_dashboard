@@ -1,4 +1,12 @@
 <!-- <div class="w-full h-full flex items-center justify-center" *ngIf="loading">
     <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
  </div> -->
- <cometchat-conversations-with-messages class="w-full h-full" ></cometchat-conversations-with-messages>
+
+<div class="w-full h-full flex items-center justify-center" *ngIf="loading">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<cometchat-conversations-with-messages
+    *ngIf="!loading"
+    class="w-full p-5">
+</cometchat-conversations-with-messages>
