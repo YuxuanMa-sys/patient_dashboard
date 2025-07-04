@@ -22,9 +22,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
-
-
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -45,6 +43,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatMenuModule, MatDividerModule,
     NgClass, MatTableModule,
     MatSortModule, DatePipe,
+    FormsModule
   ]
 })
 export class PromotionModule { }

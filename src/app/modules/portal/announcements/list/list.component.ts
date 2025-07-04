@@ -47,10 +47,33 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     phonePattern: RegExp =
         /^[+]{1}[1]{1}[\s]*((\([0-9]{3}\))|[0-9]{3})[\s\-]?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[0-9]{4}$/;
 
-
-    announcements: any[] = []; // Initialize data as an empty array
+    // Search and filter properties
+    searchQuery: string = '';
+    selectedMonth: string = '';
+    
+    // Data properties
+    announcements: any[] = [];
+    filteredAnnouncements: any[] = [];
     loading: boolean = true;
     error: string | null = null;
+
+    // Month options
+    months = [
+        { value: '', label: 'All Months' },
+        { value: '0', label: 'January' },
+        { value: '1', label: 'February' },
+        { value: '2', label: 'March' },
+        { value: '3', label: 'April' },
+        { value: '4', label: 'May' },
+        { value: '5', label: 'June' },
+        { value: '6', label: 'July' },
+        { value: '7', label: 'August' },
+        { value: '8', label: 'September' },
+        { value: '9', label: 'October' },
+        { value: '10', label: 'November' },
+        { value: '11', label: 'December' }
+    ];
+
     /**
      * Constructor
      */
@@ -85,6 +108,9 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 // Sort by createdAt in descending order
                 this.announcements.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+                
+                // Initialize filtered announcements
+                this.filteredAnnouncements = [...this.announcements];
                 console.log(this.announcements);
 
                 this.loading = false;
@@ -92,38 +118,85 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
             },
             error: (err) => {
                 console.error('Error fetching announcements:', err);
+                this.loading = false;
+                this.error = 'Failed to load announcements';
+                this.cdr.detectChanges();
             }
         });
     }
 
-    createOrUpdate(data: any) {
+    /**
+     * Handle search input change
+     */
+    onSearchChange(): void {
+        this.applyFilters();
+    }
 
+    /**
+     * Handle month selection change
+     */
+    onMonthChange(): void {
+        this.applyFilters();
+    }
+
+    /**
+     * Apply search and month filters
+     */
+    applyFilters(): void {
+        let filtered = [...this.announcements];
+
+        // Apply search filter
+        if (this.searchQuery.trim()) {
+            const query = this.searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(item => 
+                item.title?.toLowerCase().includes(query) ||
+                item.description?.toLowerCase().includes(query) ||
+                item.type?.toLowerCase().includes(query) ||
+                item.for?.toLowerCase().includes(query)
+            );
+        }
+
+        // Apply month filter
+        if (this.selectedMonth !== '') {
+            const monthNumber = parseInt(this.selectedMonth);
+            filtered = filtered.filter(item => {
+                if (item.createdAt?.toDate) {
+                    const itemMonth = item.createdAt.toDate().getMonth();
+                    return itemMonth === monthNumber;
+                }
+                return false;
+            });
+        }
+
+        this.filteredAnnouncements = filtered;
+        this.cdr.detectChanges();
+    }
+
+    createOrUpdate(data: any) {
         const dialogRef = this._matDialog.open(AnnouncementModalComponent, {
             autoFocus: false,
-            data: cloneDeep(data)
+            data: cloneDeep(data),
+            width: '600px',
+            maxHeight: '90vh'
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            console.log(result);
-            this.getAllPromotion();
+            if (result) {
+                this.getAllPromotion();
+            }
         });
     }
 
-
     deleteData(id: string): void {
-        if (confirm('Are you sure you want to delete this family member?')) {
+        if (confirm('Are you sure you want to delete this announcement?')) {
             this._portalService.deleteAnnouncements(id)
                 .then(() => {
-                    console.log('Family member deleted successfully!');
-                    // Refresh the family data to remove the deleted member
+                    console.log('Announcement deleted successfully!');
                     this.getAllPromotion();
                 })
-                .catch((error) => console.error('Error deleting family member:', error));
+                .catch((error) => console.error('Error deleting announcement:', error));
         }
     }
-
-
-
 
     trackByFn(index: number, item: any): any {
         return item.id || index;

@@ -1,6 +1,6 @@
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { AsyncPipe, CommonModule, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, QueryList, ViewChildren, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild, ElementRef, QueryList, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -45,9 +45,10 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
     providers: [DatePipe]
 })
 export class AnnouncementModalComponent implements OnInit, OnDestroy {
+    @ViewChild('fileInput') fileInput: ElementRef;
+    
     form: FormGroup;
-    forOptions: string[] = ["Patient", "Staff", "Provider", "All"];
-    typeOptions: string[] = ["Info", "Update", "News"];
+    selectedTarget: 'Individual' | 'All' = 'Individual';
     selectedImage: File | null = null;
     imagePreviewUrl: SafeUrl | null = null;
     loading: boolean = false;
@@ -83,8 +84,8 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
             description: [null, Validators.required],
             image: [null],
             status: [true],
-            for: [null, Validators.required],
-            type: [null, Validators.required],
+            for: ['All'], // Set default to 'All'
+            type: ['Info'], // Set default type
             createdAt: new Date(),
         });
 
@@ -93,11 +94,60 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
 
         if (this.single !== 'add') {
             this.imagePreviewUrl = this.single.image;
+            this.selectedTarget = this.single.for === 'All' ? 'All' : 'Individual';
             this.single.createdAt = this.single.createdAt && this.single.createdAt.seconds ? new Date(this.single.createdAt.seconds * 1000) : null;
             this.form.patchValue(this.single);
         }
+
+        // Update form when target changes
+        this.updateFormForTarget();
     }
 
+    /**
+     * On destroy
+     */
+    ngOnDestroy(): void {
+        // Cleanup if needed
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ Public methods
+    // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Select target (Individual or All)
+     */
+    selectTarget(target: 'Individual' | 'All'): void {
+        this.selectedTarget = target;
+        this.updateFormForTarget();
+    }
+
+    /**
+     * Update form based on selected target
+     */
+    updateFormForTarget(): void {
+        this.form.patchValue({
+            for: this.selectedTarget
+        });
+    }
+
+    /**
+     * Get recipient text based on selected target
+     */
+    getRecipientText(): string {
+        return this.selectedTarget === 'All' ? '@All' : '@Andy Martins';
+    }
+
+    /**
+     * Trigger file input click
+     */
+    triggerFileInput(): void {
+        this.fileInput.nativeElement.click();
+    }
+
+    /**
+     * Handle image selection
+     */
     onImageSelect(event: Event): void {
         const fileInput = event.target as HTMLInputElement;
         this.selectedImage = fileInput.files ? fileInput.files[0] : null;
@@ -116,6 +166,9 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Upload image and patch form
+     */
     async uploadImageAndPatchForm(): Promise<void> {
         if (this.selectedImage) {
             try {
@@ -134,8 +187,9 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
         }
     }
 
-
-
+    /**
+     * Save announcement
+     */
     async save(): Promise<void> {
         console.log(this.form.value);
 
@@ -146,61 +200,37 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
                 ...this.form.value,
             };
 
-            if (this.single === 'add') {
-                this._portalService.createAnnouncements(formData)
-                    .then((res) => {
-                        console.log('Patient created successfully with ID:', res.id);
-
-                        this._matDialogRef.close({ ...res, id: res.id });
-                        // Optionally, navigate or reload data if needed
-                    })
-                    .catch((error) => console.error('Error creating patient:', error));
-            } else {
-
-                this._portalService.updateAnnouncements(this.single.id, formData)
-                    .then((res: any) => {
-                        this._matDialogRef.close(res);
-                        console.log('Patient updated successfully!'
-
-                        )
-                    })
-                    .catch((error) => console.error('Error updating patient:', error));
+            try {
+                if (this.single === 'add') {
+                    const res = await this._portalService.createAnnouncements(formData);
+                    console.log('Announcement created successfully with ID:', res.id);
+                    this._matDialogRef.close({ ...res, id: res.id });
+                } else {
+                    const res = await this._portalService.updateAnnouncements(this.single.id, formData);
+                    console.log('Announcement updated successfully!');
+                    this._matDialogRef.close(res);
+                }
+            } catch (error) {
+                console.error('Error saving announcement:', error);
+                this.error = 'Failed to save announcement. Please try again.';
+            } finally {
+                this.loading = false;
+                this.cdr.detectChanges();
             }
-
         }
-
     }
 
-
-
-    close() {
+    /**
+     * Close modal
+     */
+    close(): void {
         this._matDialogRef.close();
     }
-    /**
-    * On destroy
-    */
-    ngOnDestroy(): void {
-        // // Unsubscribe from all subscriptions
-        // this._unsubscribeAll.next(null);
-        // this._unsubscribeAll.complete();
-    }
-
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-
 
     /**
      * Track by function for ngFor loops
-     *
-     * @param index
-     * @param item
      */
     trackByFn(index: number, item: any): any {
         return item.id || index;
     }
-
-
 }
