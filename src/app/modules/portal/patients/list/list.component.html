@@ -5,14 +5,14 @@
         <div class="flex flex-wrap items-center gap-4 mb-6">
             <!-- Search Input -->
             <div class="flex-1 min-w-80">
-                <mat-form-field appearance="outline" class="w-full">
+                <mat-form-field appearance="outline" class="w-full h-14">
                     <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
                     <input matInput placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
                 </mat-form-field>
             </div>
 
             <!-- Date Filter -->
-            <mat-form-field appearance="outline" class="min-w-40">
+            <mat-form-field appearance="outline" class="min-w-40 h-14">
                 <mat-icon matPrefix svgIcon="heroicons_outline:calendar-days"></mat-icon>
                 <input matInput placeholder="Date" [matDatepicker]="datePicker" [(ngModel)]="dateFilter" (ngModelChange)="onFilterChange()" />
                 <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
@@ -20,13 +20,13 @@
             </mat-form-field>
 
             <!-- First Name Filter -->
-            <mat-form-field appearance="outline" class="min-w-40">
+            <mat-form-field appearance="outline" class="min-w-40 h-14">
                 <mat-icon matPrefix svgIcon="heroicons_outline:user"></mat-icon>
                 <input matInput placeholder="First Name" [(ngModel)]="firstNameFilter" (ngModelChange)="onFilterChange()" />
             </mat-form-field>
 
             <!-- Last Name Filter -->
-            <mat-form-field appearance="outline" class="min-w-40">
+            <mat-form-field appearance="outline" class="min-w-40 h-14">
                 <mat-icon matPrefix svgIcon="heroicons_outline:user"></mat-icon>
                 <input matInput placeholder="Last Name" [(ngModel)]="lastNameFilter" (ngModelChange)="onFilterChange()" />
             </mat-form-field>

@@ -1,4 +1,4 @@
-<section class="w-full max-w-full mx-auto px-4 py-6">
+<section class="w-full max-w-full mx-auto px-6 py-8">
     <!-- Header with Search, Filter and New Button -->
     <div class="flex items-center gap-4 mb-8">
         <!-- Search Bar -->
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Announcements Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6">
         <div *ngFor="let item of filteredAnnouncements" 
              class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer relative"
              (click)="createOrUpdate(item)">
@@ -60,25 +60,24 @@
             </div>
 
             <!-- Bottom Section with Date and Action Buttons -->
-            <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                <!-- Date Added - Bottom Left -->
-                <div class="text-blue-600 text-sm font-medium">
-                    Date added: {{ item.createdAt?.toDate() | date: 'dd.MM.yy' }}
-                </div>
+            <div class="absolute bottom-0 left-0 right-0 p-6 pt-4">
+                <div class="flex items-center justify-between">
+                    <!-- Date added -->
+                    <span class="text-sm text-gray-500">
+                        {{ item?.createdAt?.toDate() | date: 'dd.MM.yy' }}
+                    </span>
 
-                <!-- Action Buttons - Bottom Right -->
-                <div class="flex space-x-2">
-                    <!-- Edit Button -->
-                    <button (click)="createOrUpdate(item); $event.stopPropagation()"
-                            class="w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-                        <mat-icon class="text-sm" svgIcon="heroicons_outline:pencil"></mat-icon>
-                    </button>
-                    
-                    <!-- Delete Button -->
-                    <button (click)="deleteData(item.id); $event.stopPropagation()"
-                            class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center hover:bg-red-200 transition-colors">
-                        <mat-icon class="text-sm" svgIcon="heroicons_outline:trash"></mat-icon>
-                    </button>
+                    <!-- Action buttons -->
+                    <div class="flex items-center space-x-2">
+                        <button mat-icon-button (click)="$event.stopPropagation(); createOrUpdate(item)" 
+                                class="w-8 h-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full">
+                            <mat-icon class="text-sm" svgIcon="heroicons_outline:pencil"></mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="$event.stopPropagation(); deleteData(item.id)" 
+                                class="w-8 h-8 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full">
+                            <mat-icon class="text-sm" svgIcon="heroicons_outline:trash"></mat-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

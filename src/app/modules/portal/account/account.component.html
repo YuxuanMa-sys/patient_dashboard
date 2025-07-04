@@ -1,351 +1,178 @@
-<div class="w-full mx-auto mt-8 flex space-x-12">
-    <div class="flex-auto px-6 pb-12 pt-9 md:p-8 md:pb-12 lg:p-12">
-        <!-- Panel header -->
-        <div class="flex items-center">
-            <!-- Panel title -->
-            <div class="ml-2 text-3xl font-bold leading-none tracking-tight lg:ml-0">
-                Clinic Details
-            </div>
-        </div>
-        <div class="flex">
+<div class="w-full mx-auto mt-8">
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold leading-none tracking-tight text-gray-900">Clinic Details</h1>
+        <p class="mt-2 text-gray-600">Following information is publicly displayed, be careful!</p>
+    </div>
 
-            <div class="w-2/3 p-4 space-y-6">
-                <div class="w-full max-w-3xl">
-                    <!-- Form -->
-                    <form [formGroup]="accountForm">
-                        <!-- Section -->
-                        <div class="w-full">
-                            <!-- <div class="text-xl">Profile</div> -->
-                            <div class="text-secondary">
-                                Following information is publicly displayed, be careful!
-                            </div>
+    <!-- Main Content Container -->
+    <div class="max-w-5xl mx-auto">
+        <!-- Logo and Banner Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Clinic Logo Section -->
+                <div class="text-center lg:text-left">
+                    <h2 class="text-xl font-semibold mb-4">Clinic Logo</h2>
+                    <div class="flex flex-col items-center lg:items-start">
+                        <div class="relative flex items-center justify-center w-32 h-32 overflow-hidden ring-4 ring-gray-200 rounded-2xl mb-4">
+                            <ng-container *ngIf="accountForm.get('logo')?.value; else logoPlaceholder">
+                                <img class="object-cover w-full h-full" [src]="accountForm.get('logo')?.value" alt="Clinic Logo">
+                            </ng-container>
+                            <ng-template #logoPlaceholder>
+                                <div class="flex items-center justify-center w-full h-full bg-gray-100">
+                                    <mat-icon class="icon-size-12 text-gray-400" svgIcon="heroicons_outline:camera"></mat-icon>
+                                </div>
+                            </ng-template>
                         </div>
-                        <div class="mt-8 grid w-full gap-6 sm:grid-cols-4">
-                            <!-- Name -->
-
-                            <div class="col-span-1">
-                                <h2 class="text-dark leading-none mb-2">Upload Clinic Logo</h2>
-                                <div class="flex flex-auto items-end">
-                                    <div class="relative flex items-center justify-center w-44 h-32 overflow-hidden ring-4 ring-bg-card
-                            border-dashed border-2 border-gray-400 rounded-lg">
-                                        <!-- Upload / Remove avatar -->
-                                        <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-                                        <div class="absolute inset-0 flex items-center justify-center z-20">
-                                            <div>
-                                                <input id="logo-file-input"
-                                                    class="absolute h-0 w-0 opacity-0 invisible pointer-events-none"
-                                                    type="file" [multiple]="false" [accept]="'image/jpeg, image/png'"
-                                                    (change)="uploadLogo(logoFileInput.files)" #logoFileInput>
-                                                <label
-                                                    class="flex items-center justify-center w-10 h-10 cursor-pointer hover:bg-hover"
-                                                    for="logo-file-input" matRipple>
-                                                    <mat-icon class="text-white"
-                                                        [svgIcon]="'heroicons_outline:camera'"></mat-icon>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center justify-center w-44 h-32 overflow-hidden ring-4 ring-bg-card border-dashed border-2 border-gray-400 rounded-lg">
-                                            <img *ngIf="accountForm.get('logo').value"
-                                                [src]="accountForm.get('logo').value"
-                                                class="object-cover w-full h-full rounded-lg" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="sm:col-span-4">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Clinic Name</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:user'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'name'" matInput />
-                                </mat-form-field>
-                            </div>
-
-                            <!-- About -->
-                            <div class="sm:col-span-4">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>About</mat-label>
-                                    <textarea matInput [formControlName]="'description'" cdkTextareaAutosize
-                                        [cdkAutosizeMinRows]="5"></textarea>
-                                </mat-form-field>
-                                <div class="text-hint mt-1 text-md">
-                                    Brief description for your profile. Basic HTML and Emoji are
-                                    allowed.
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                            <div class="col-span-4 mt-5">
-                                <h2 class="text-dark leading-none mb-2">Upload Clinic Banner</h2>
-                                <div class="flex flex-auto items-end">
-                                    <div class="relative flex items-center justify-center w-full h-44 overflow-hidden ring-4 ring-bg-card
-                            border-dashed border-2 border-gray-400 rounded-lg">
-                                        <!-- Upload / Remove avatar -->
-                                        <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-                                        <div class="absolute inset-0 flex items-center justify-center z-20">
-                                            <div>
-                                                <input id="banner-file-input"
-                                                    class="absolute h-0 w-0 opacity-0 invisible pointer-events-none"
-                                                    type="file" [multiple]="false" [accept]="'image/jpeg, image/png'"
-                                                    (change)="uploadBanner(bannerFileInput.files)" #bannerFileInput>
-                                                <label
-                                                    class="flex items-center justify-center w-10 h-10 cursor-pointer hover:bg-hover"
-                                                    for="banner-file-input" matRipple>
-                                                    <mat-icon class="text-white"
-                                                        [svgIcon]="'heroicons_outline:camera'"></mat-icon>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center justify-center w-full h-44 overflow-hidden ring-4 ring-bg-card border-dashed border-2 border-gray-400 rounded-lg">
-                                            <img *ngIf="accountForm.get('banner').value"
-                                                [src]="accountForm.get('banner').value"
-                                                class="object-cover w-full h-full rounded-lg" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-span-4 py-10">
-                                <h2 class="text-dark font-medium leading-none mb-4">Upload Gallery Photos</h2>
-                                <div class="flex flex-col items-center space-y-4">
-                                    <div class="w-full max-w-md">
-                                        <input type="file" multiple (change)="onFileSelect($event)" #fileInput class="hidden" accept="image/jpeg, image/png" />
-                                        <button (click)="fileInput.click()"
-                                            class="w-full fuse-mat-button-medium rounded-[6px] shadow-xl font-normal flex items-center justify-center"
-                                            mat-flat-button [color]="'primary'">
-                                            <mat-icon class="mr-2 icon-size-5" [svgIcon]="'heroicons_outline:cloud-arrow-up'"></mat-icon>
-                                            <span>Select Photos</span>
-                                        </button>
-                                    </div>
-
-                                    <div *ngIf="uploadProgress > 0" class="w-full max-w-md">
-                                        <div class="relative pt-1 bg-card shadow-lg shadow-primary-100 p-4 rounded-lg">
-                                            <div class="flex mb-2 items-center justify-between">
-                                                <div>
-                                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-primary-600 bg-primary-200">
-                                                        Upload Progress
-                                                    </span>
-                                                </div>
-                                                <div class="text-right">
-                                                    <span class="text-xs font-semibold inline-block text-primary-600">
-                                                        {{ uploadProgress }}%
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary-200">
-                                                <div [style.width.%]="uploadProgress"
-                                                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary-500">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                                        <div *ngFor="let img of accountForm.get('gallery_collection').value"
-                                            class="relative group">
-                                            <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg">
-                                                <img [src]="img" class="object-cover w-full h-full" />
-                                            </div>
-                                            <button (click)="removeGalleryImage(img)"
-                                                class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <mat-icon class="text-sm" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        <div class="col-span-4 py-10 flex flex-col items-center">
-                            <h2 class=" text-dark  font-medium  leading-none mb-2">Upload your photos</h2>
-                            <input type="file" multiple (change)="onFileSelect($event)" #fileInput class="hidden " />
-                            <button (click)="fileInput.click()"
-                                class="fuse-mat-button-medium md:w-36 w-full rounded-[6px] shadow-xl mt-3 font-normal"
-                                mat-flat-button [color]="'primary'">Upload</button>
-
-                            <div *ngIf="uploadProgress > 0">
-                                <div class="relative pt-1 bg-card shadow-lg  shadow-primary-100 p-2">
-                                    <div class="flex mb-2 items-center justify-between">
-                                        <div>
-                                            <span
-                                                class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-primary-600 bg-primary-200">
-                                                Upload Progress
-                                            </span>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-xs font-semibold inline-block text-primary-600">
-                                                {{ uploadProgress }}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col space-y-1">
-                                        <div class="flex w-full items-center justify-between">
-                                            <div class="text-xs leading-none"></div>
-                                        </div>
-                                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-primary-200">
-                                            <div [style.width.%]="uploadProgress"
-                                                class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary-500">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="my-2 border-t"></div>
-
-
-                        <div class="mt-8 grid w-full gap-6 sm:grid-cols-4">
-                            <!-- Email -->
-                            <div class="sm:col-span-4">
-                                <div class="w-full">
-                                    <div class="text-xl">Clinic Information</div>
-                                    <div class="text-secondary">
-                                        Communication details in case we want to connect with you. These
-                                        will be kept private.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- <div class="col-span-1 flex flex-col justify-end items-end ">
-                                <h2 class=" text-dark  leading-none mb-2">Upload Clinic Logo</h2>
-                                <div class="flex flex-auto items-end">
-                                    <div class="relative flex items-center justify-center w-28 h-28 overflow-hidden ring-4 ring-bg-card
-                            border-dashed border-2  border-gray-400 rounded-lg">
-                                        <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-                                        <div class="absolute inset-0 flex items-center justify-center z-20">
-                                            <div>
-                                                <input id="avatar-file-input"
-                                                    class="absolute h-0 w-0 opacity-0 invisible pointer-events-none"
-                                                    type="file" [multiple]="false" [accept]="'image/jpeg, image/png'"
-                                                    (change)="uploadAvatar(avatarFileInput.files)" #avatarFileInput>
-                                                <label
-                                                    class="flex items-center justify-center w-10 h-10  cursor-pointer hover:bg-hover"
-                                                    for="avatar-file-input" matRipple>
-                                                    <mat-icon class="text-white"
-                                                        [svgIcon]="'heroicons_outline:camera'"></mat-icon>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="flex items-center justify-center w-28 h-28 overflow-hidden ring-4 ring-bg-card border-dashed border-2 border-gray-400 rounded-lg">
-                                            <img *ngIf="accountForm.get('gallery_main').value"
-                                                [src]="accountForm.get('gallery_main').value"
-                                                class="object-cover w-full h-full rounded-lg" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> -->
-
-                            <div class="sm:col-span-2 ">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Email</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:envelope'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'email'" matInput />
-                                </mat-form-field>
-                            </div>
-                            <!-- Phone -->
-                            <div class="sm:col-span-2">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Phone</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:phone'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'phone'" matInput />
-                                </mat-form-field>
-                            </div>
-                            <!-- Country -->
-                            <div class="sm:col-span-4">
-
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Address</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'address'" matInput />
-                                </mat-form-field>
-                            </div>
-                            <!-- Country -->
-                            <div class="sm:col-span-2">
-
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Country</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'"
-                                        matPrefix></mat-icon>
-                                    <mat-select [formControlName]="'country'">
-                                        <mat-option [value]="'United States'">United States</mat-option>
-                                        <mat-option [value]="'canada'">Canada</mat-option>
-                                        <mat-option [value]="'mexico'">Mexico</mat-option>
-                                        <mat-option [value]="'france'">France</mat-option>
-                                        <mat-option [value]="'germany'">Germany</mat-option>
-                                        <mat-option [value]="'italy'">Italy</mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-
-                            <div class="sm:col-span-2">
-
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>State</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'state'" matInput />
-                                </mat-form-field>
-                            </div>
-
-                            <div class="sm:col-span-2">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>City</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'city'" matInput />
-                                </mat-form-field>
-                            </div>
-
-                            <div class="sm:col-span-2">
-                                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                                    <mat-label>Zip Code</mat-label>
-                                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'"
-                                        matPrefix></mat-icon>
-                                    <input [formControlName]="'zipcode'" matInput />
-                                </mat-form-field>
-                            </div>
-
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="mb-10 mt-11 border-t"></div>
-
-                        <!-- Actions -->
-                        <div class="flex items-center justify-end">
-                            <button mat-stroked-button type="button">Cancel</button>
-                            <button class="ml-4" mat-flat-button type="button" [color]="'primary'" (click)="saveClinicDetails()">
-                                Save
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Removing the right-side gallery display as it's now handled in the form -->
-            <!--
-            <div class="w-1/3 p-4 space-y-6">
-                <h2 class="text-2xl font-semibold mb-6 text-blue-600">Gallery</h2>
-
-                <div class="flex flex-wrap gap-2 mt-4">
-                    <div *ngFor="let img of clinic?.gallery_collection" class="w-32 h-32 overflow-hidden rounded-lg">
-                        <img [src]="img" class="object-cover w-full h-full" />
+                        <input #logoFileInput type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)">
+                        <button mat-stroked-button color="primary" (click)="logoFileInput.click()">
+                            Upload Logo
+                        </button>
                     </div>
                 </div>
 
+                <!-- Clinic Banner Section -->
+                <div class="text-center lg:text-left">
+                    <h2 class="text-xl font-semibold mb-4">Clinic Banner</h2>
+                    <div class="flex flex-col items-center lg:items-start">
+                        <div class="relative w-full h-32 overflow-hidden ring-4 ring-gray-200 rounded-lg mb-4">
+                            <ng-container *ngIf="accountForm.get('banner')?.value; else bannerPlaceholder">
+                                <img class="object-cover w-full h-full" [src]="accountForm.get('banner')?.value" alt="Clinic Banner">
+                            </ng-container>
+                            <ng-template #bannerPlaceholder>
+                                <div class="flex items-center justify-center w-full h-full bg-gray-100">
+                                    <mat-icon class="icon-size-12 text-gray-400" svgIcon="heroicons_outline:camera"></mat-icon>
+                                </div>
+                            </ng-template>
+                        </div>
+                        <input #bannerFileInput type="file" accept="image/*" class="hidden" (change)="onBannerSelected($event)">
+                        <button mat-stroked-button color="primary" (click)="bannerFileInput.click()">
+                            Upload Banner
+                        </button>
+                    </div>
+                </div>
             </div>
-             -->
+        </div>
+
+        <!-- Clinic Information Form -->
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+            <form [formGroup]="accountForm">
+                <!-- Basic Information Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Clinic Name -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>Clinic Name</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:building-office-2'" matPrefix></mat-icon>
+                            <input [formControlName]="'name'" matInput />
+                        </mat-form-field>
+
+                        <!-- Email -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>Email</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:envelope'" matPrefix></mat-icon>
+                            <input [formControlName]="'email'" matInput />
+                        </mat-form-field>
+
+                        <!-- Phone -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>Phone Number</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:phone'" matPrefix></mat-icon>
+                            <input [formControlName]="'phone'" matInput />
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Description -->
+                    <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                        <mat-label>About</mat-label>
+                        <textarea matInput [formControlName]="'description'" rows="4" 
+                                  placeholder="Brief description for your profile. Basic HTML and Emoji are allowed."></textarea>
+                    </mat-form-field>
+                </div>
+
+                <!-- Address Information Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Address Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Address -->
+                        <div class="md:col-span-2">
+                            <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                                <mat-label>Address</mat-label>
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'" matPrefix></mat-icon>
+                                <input [formControlName]="'address'" matInput />
+                            </mat-form-field>
+                        </div>
+
+                        <!-- Country -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>Country</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:globe-americas'" matPrefix></mat-icon>
+                            <mat-select [formControlName]="'country'">
+                                <mat-option value="United States">United States</mat-option>
+                                <mat-option value="Canada">Canada</mat-option>
+                                <mat-option value="United Kingdom">United Kingdom</mat-option>
+                                <mat-option value="Germany">Germany</mat-option>
+                                <mat-option value="Australia">Australia</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- State -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>State</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'" matPrefix></mat-icon>
+                            <input [formControlName]="'state'" matInput />
+                        </mat-form-field>
+
+                        <!-- City -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>City</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'" matPrefix></mat-icon>
+                            <input [formControlName]="'city'" matInput />
+                        </mat-form-field>
+
+                        <!-- Zip Code -->
+                        <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
+                            <mat-label>Zip Code</mat-label>
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:map-pin'" matPrefix></mat-icon>
+                            <input [formControlName]="'zipcode'" matInput />
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Gallery Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Gallery Photos</h2>
+                    <div class="text-center">
+                        <input #galleryFileInput type="file" accept="image/*" multiple class="hidden" (change)="onGallerySelected($event)">
+                        <button mat-flat-button color="primary" (click)="galleryFileInput.click()" class="mb-6">
+                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                            <span class="ml-2">Select Photos</span>
+                        </button>
+                        
+                        <!-- Gallery Preview -->
+                        <div *ngIf="accountForm.get('gallery_collection')?.value?.length > 0" 
+                             class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                            <div *ngFor="let img of accountForm.get('gallery_collection')?.value; let i = index" 
+                                 class="relative group">
+                                <img [src]="img" class="w-full h-24 object-cover rounded-lg border-2 border-gray-200">
+                                <button type="button" (click)="removeGalleryImage(i)"
+                                        class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <mat-icon class="icon-size-4">close</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-center gap-4 pt-6 border-t border-gray-200">
+                    <button mat-stroked-button type="button" class="px-8">Cancel</button>
+                    <button mat-flat-button type="button" [color]="'primary'" (click)="saveClinicDetails()" class="px-8">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

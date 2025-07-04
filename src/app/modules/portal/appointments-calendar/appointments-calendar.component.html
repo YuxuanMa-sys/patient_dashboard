@@ -1,219 +1,279 @@
-<!-- Calendar Header - Vertically Stacked -->
-<div class="bg-white p-4 border-b border-gray-200">
-  <!-- Row 1 - Doctor Selector -->
-  <div class="flex items-center justify-start mb-4">
-    <div class="relative">
-      <button (click)="toggleDoctorDropdown()" 
-              class="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <mat-icon class="w-5 h-5 mr-2" svgIcon="heroicons_outline:user"></mat-icon>
-        {{ selectedDoctor }}
-        <mat-icon class="w-4 h-4 ml-2" svgIcon="heroicons_outline:chevron-down"></mat-icon>
-      </button>
-      
-      <!-- Doctor Dropdown -->
-      <div *ngIf="showDoctorDropdown" 
-           class="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-        <div class="py-2">
-          <button *ngFor="let doctor of availableDoctors" 
-                  (click)="selectDoctor(doctor.name)"
-                  class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            <img [src]="'assets/images/avatars/male-0' + (doctor.id % 5 + 1) + '.jpg'" 
-                 [alt]="doctor.name" 
-                 class="w-8 h-8 rounded-full mr-3">
+<section class="w-full max-w-full mx-auto px-6 py-8">
+  <!-- Header with Search and Filters -->
+  <div class="mb-8">
+    <!-- Compact Header with Search, Filters and Actions -->
+    <div class="flex items-center justify-between w-full gap-2 mb-6">
+      <!-- Search Input -->
+      <div class="flex-1 max-w-sm">
+        <mat-form-field appearance="outline" class="w-full h-12" style="margin-bottom: 0;">
+          <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+          <input matInput placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+        </mat-form-field>
+      </div>
+
+      <!-- Date Filter -->
+      <mat-form-field appearance="outline" class="w-32 h-12" style="margin-bottom: 0;">
+        <mat-icon matPrefix svgIcon="heroicons_outline:calendar-days"></mat-icon>
+        <input matInput placeholder="Date" [matDatepicker]="datePicker" [(ngModel)]="dateFilter" (ngModelChange)="onFilterChange()" />
+        <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+        <mat-datepicker #datePicker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Doctor Filter -->
+      <mat-form-field appearance="outline" class="w-40 h-12" style="margin-bottom: 0;">
+        <mat-icon matPrefix svgIcon="heroicons_outline:user-circle"></mat-icon>
+        <mat-select placeholder="Doctor" [(ngModel)]="doctorFilter" (ngModelChange)="onFilterChange()">
+          <mat-option value="">All Doctors</mat-option>
+          <mat-option *ngFor="let doctor of availableDoctors" [value]="doctor.name">
             {{ doctor.name }}
-          </button>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Appointment Type Filter -->
+      <mat-form-field appearance="outline" class="w-44 h-12" style="margin-bottom: 0;">
+        <mat-icon matPrefix svgIcon="heroicons_outline:calendar"></mat-icon>
+        <mat-select placeholder="Appointment Type" [(ngModel)]="appointmentTypeFilter" (ngModelChange)="onFilterChange()">
+          <mat-option value="">All Types</mat-option>
+          <mat-option value="General Checkup">General Checkup</mat-option>
+          <mat-option value="Cavity Fillings">Cavity Fillings</mat-option>
+          <mat-option value="Consultation">Consultation</mat-option>
+          <mat-option value="Emergency">Emergency</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Add New Button -->
+      <button mat-flat-button color="primary" (click)="openAddAppointmentModal()" class="h-12 px-3 rounded-lg whitespace-nowrap">
+        <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+        <span class="ml-2">Add New</span>
+      </button>
+
+      <!-- Table View Button -->
+      <button mat-stroked-button (click)="goToTableView()" class="h-12 px-3 rounded-lg whitespace-nowrap">
+        <mat-icon svgIcon="heroicons_outline:table-cells"></mat-icon>
+        <span class="ml-2">Table View</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Header - Horizontal Layout -->
+  <div class="bg-white p-4 border-b border-gray-200 mb-6">
+    <div class="flex items-center justify-between">
+      <!-- Left - Doctor Selector -->
+      <div class="relative">
+        <button (click)="toggleDoctorDropdown()" 
+                class="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <mat-icon class="w-5 h-5 mr-2 text-white" svgIcon="heroicons_outline:user-circle"></mat-icon>
+          {{ selectedDoctor }}
+          <mat-icon class="w-4 h-4 ml-2 text-white" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+        </button>
+        
+        <!-- Doctor Dropdown -->
+        <div *ngIf="showDoctorDropdown" 
+             class="absolute left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+          <div class="py-2">
+            <button *ngFor="let doctor of availableDoctors"
+                    (click)="selectDoctor(doctor.name)"
+                    class="flex items-center w-full px-4 py-2 text-left hover:bg-gray-50">
+              <div class="flex items-center space-x-3">
+                <img src="assets/images/avatars/male-01.jpg" 
+                     [alt]="doctor.name"
+                     class="w-8 h-8 rounded-full object-cover">
+                <div>
+                  <div class="font-medium text-gray-900">{{ doctor.name }}</div>
+                  <div class="text-sm text-gray-500">Dentist</div>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Center - Date Navigation -->
+      <div class="flex items-center space-x-4">
+        <button (click)="previousDay()" 
+                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+          <mat-icon svgIcon="heroicons_outline:chevron-left"></mat-icon>
+        </button>
+        
+        <h2 class="text-xl font-semibold text-gray-900 min-w-0">
+          {{ getCurrentDateFormatted() }}
+        </h2>
+        
+        <button (click)="nextDay()" 
+                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
+          <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+        </button>
+      </div>
+
+      <!-- Right - View Toggle -->
+      <div class="flex items-center space-x-2">
+        <button (click)="setView('day')" 
+                [class.bg-blue-600]="currentView === 'day'"
+                [class.text-white]="currentView === 'day'"
+                [class.bg-gray-200]="currentView !== 'day'"
+                [class.text-gray-700]="currentView !== 'day'"
+                class="px-4 py-2 text-sm font-medium rounded-lg">
+          Day
+        </button>
+        <button (click)="setView('week')" 
+                [class.bg-blue-600]="currentView === 'week'"
+                [class.text-white]="currentView === 'week'"
+                [class.bg-gray-200]="currentView !== 'week'"
+                [class.text-gray-700]="currentView !== 'week'"
+                class="px-4 py-2 text-sm font-medium rounded-lg">
+          Week
+        </button>
+        <button (click)="setView('month')" 
+                [class.bg-blue-600]="currentView === 'month'"
+                [class.text-white]="currentView === 'month'"
+                [class.bg-gray-200]="currentView !== 'month'"
+                [class.text-gray-700]="currentView !== 'month'"
+                class="px-4 py-2 text-sm font-medium rounded-lg">
+          Month
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Row 2 - Date Navigation -->
-  <div class="flex items-center justify-center mb-4">
-    <div class="flex items-center space-x-4">
-      <button (click)="previousDay()" 
-              class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
-        <mat-icon svgIcon="heroicons_outline:chevron-left"></mat-icon>
-      </button>
+  <!-- Calendar Grid -->
+  <div class="w-full bg-white calendar-grid shadow-sm rounded-lg overflow-hidden">
+    <div class="grid grid-cols-6 gap-0 border-b border-gray-200">
+      <!-- Time Column Header -->
+      <div class="p-4 text-sm font-medium text-gray-500 border-r border-gray-200">
+        <mat-icon class="w-5 h-5" svgIcon="heroicons_outline:clock"></mat-icon>
+      </div>
       
-      <h2 class="text-xl font-semibold text-gray-900">
-        {{ getCurrentDateFormatted() }}
-      </h2>
+      <!-- Slot Headers -->
+      <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 1</div>
+      <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 2</div>
+      <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 3</div>
+      <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 4</div>
+      <div class="p-4 text-sm font-medium text-gray-500 text-center">Slot 5</div>
+    </div>
+
+    <!-- Time Slots -->
+    <div *ngFor="let time of timeSlots" class="grid grid-cols-6 gap-0 min-h-[120px] border-b border-gray-200">
+      <!-- Time Label -->
+      <div class="p-4 text-sm font-medium text-gray-700 border-r border-gray-200 flex items-start">
+        {{ time }}
+      </div>
       
-      <button (click)="nextDay()" 
-              class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg">
-        <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
-      </button>
-    </div>
-  </div>
-
-  <!-- Row 3 - View Toggle -->
-  <div class="flex items-center justify-center">
-    <div class="flex items-center space-x-2">
-      <button (click)="setView('day')" 
-              [class.bg-blue-600]="currentView === 'day'"
-              [class.text-white]="currentView === 'day'"
-              [class.bg-gray-200]="currentView !== 'day'"
-              [class.text-gray-700]="currentView !== 'day'"
-              class="px-4 py-2 text-sm font-medium rounded-lg">
-        Day
-      </button>
-      <button (click)="setView('week')" 
-              [class.bg-blue-600]="currentView === 'week'"
-              [class.text-white]="currentView === 'week'"
-              [class.bg-gray-200]="currentView !== 'week'"
-              [class.text-gray-700]="currentView !== 'week'"
-              class="px-4 py-2 text-sm font-medium rounded-lg">
-        Week
-      </button>
-      <button (click)="setView('month')" 
-              [class.bg-blue-600]="currentView === 'month'"
-              [class.text-white]="currentView === 'month'"
-              [class.bg-gray-200]="currentView !== 'month'"
-              [class.text-gray-700]="currentView !== 'month'"
-              class="px-4 py-2 text-sm font-medium rounded-lg">
-        Month
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Calendar Grid -->
-<div class="w-full bg-white calendar-grid">
-  <div class="grid grid-cols-6 gap-0 border-b border-gray-200">
-    <!-- Time Column Header -->
-    <div class="p-4 text-sm font-medium text-gray-500 border-r border-gray-200">
-      <mat-icon class="w-5 h-5" svgIcon="heroicons_outline:clock"></mat-icon>
-    </div>
-    
-    <!-- Slot Headers -->
-    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 1</div>
-    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 2</div>
-    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 3</div>
-    <div class="p-4 text-sm font-medium text-gray-500 text-center border-r border-gray-200">Slot 4</div>
-    <div class="p-4 text-sm font-medium text-gray-500 text-center">Slot 5</div>
-  </div>
-
-  <!-- Time Slots -->
-  <div *ngFor="let time of timeSlots" class="grid grid-cols-6 gap-0 min-h-[120px] border-b border-gray-200">
-    <!-- Time Label -->
-    <div class="p-4 text-sm font-medium text-gray-700 border-r border-gray-200 flex items-start">
-      {{ time }}
-    </div>
-    
-    <!-- Slot Columns -->
-    <div class="border-r border-gray-200 p-2">
-      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 1)" 
-           class="mb-2 last:mb-0">
-        <div (click)="openAppointmentDetails(appointment)" 
-             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
-             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
-          <div class="flex items-center space-x-3">
-            <img [src]="appointment.patient.avatar" 
-                 [alt]="appointment.patient.name" 
-                 class="w-8 h-8 rounded-full">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
-              <div class="text-xs font-medium" 
-                   [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
-                {{ appointment.category }}
+      <!-- Slot Columns -->
+      <div class="border-r border-gray-200 p-2">
+        <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 1)" 
+             class="mb-2 last:mb-0">
+          <div (click)="openAppointmentDetails(appointment)" 
+               class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+               [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
+            <div class="flex items-center space-x-3">
+              <img [src]="appointment.patient.avatar" 
+                   [alt]="appointment.patient.name" 
+                   class="w-8 h-8 rounded-full">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+                <div class="text-xs font-medium" 
+                     [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
+                  {{ appointment.category }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="border-r border-gray-200 p-2">
-      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 2)" 
-           class="mb-2 last:mb-0">
-        <div (click)="openAppointmentDetails(appointment)" 
-             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
-             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
-          <div class="flex items-center space-x-3">
-            <img [src]="appointment.patient.avatar" 
-                 [alt]="appointment.patient.name" 
-                 class="w-8 h-8 rounded-full">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
-              <div class="text-xs font-medium" 
-                   [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
-                {{ appointment.category }}
+      
+      <div class="border-r border-gray-200 p-2">
+        <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 2)" 
+             class="mb-2 last:mb-0">
+          <div (click)="openAppointmentDetails(appointment)" 
+               class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+               [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
+            <div class="flex items-center space-x-3">
+              <img [src]="appointment.patient.avatar" 
+                   [alt]="appointment.patient.name" 
+                   class="w-8 h-8 rounded-full">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+                <div class="text-xs font-medium" 
+                     [ngClass]="appointment.category === 'Virtual' ? 'text-yellow-600' : 'text-blue-600'">
+                  {{ appointment.category }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="border-r border-gray-200 p-2">
-      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 3)" 
-           class="mb-2 last:mb-0">
-        <div (click)="openAppointmentDetails(appointment)" 
-             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
-             [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-green-50 border border-green-200'">
-          <div class="flex items-center space-x-3">
-            <img [src]="appointment.patient.avatar" 
-                 [alt]="appointment.patient.name" 
-                 class="w-8 h-8 rounded-full">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
-              <div class="text-xs font-medium" 
-                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-yellow-600'">
-                {{ appointment.category }}
+      
+      <div class="border-r border-gray-200 p-2">
+        <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 3)" 
+             class="mb-2 last:mb-0">
+          <div (click)="openAppointmentDetails(appointment)" 
+               class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+               [ngClass]="appointment.category === 'Virtual' ? 'bg-yellow-50 border border-yellow-200' : 'bg-green-50 border border-green-200'">
+            <div class="flex items-center space-x-3">
+              <img [src]="appointment.patient.avatar" 
+                   [alt]="appointment.patient.name" 
+                   class="w-8 h-8 rounded-full">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+                <div class="text-xs font-medium" 
+                     [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-yellow-600'">
+                  {{ appointment.category }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="border-r border-gray-200 p-2">
-      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 4)" 
-           class="mb-2 last:mb-0">
-        <div (click)="openAppointmentDetails(appointment)" 
-             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
-             [ngClass]="appointment.category === 'Virtual' ? 'bg-purple-50 border border-purple-200' : 'bg-green-50 border border-green-200'">
-          <div class="flex items-center space-x-3">
-            <img [src]="appointment.patient.avatar" 
-                 [alt]="appointment.patient.name" 
-                 class="w-8 h-8 rounded-full">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
-              <div class="text-xs font-medium" 
-                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-purple-600'">
-                {{ appointment.category }}
+      
+      <div class="border-r border-gray-200 p-2">
+        <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 4)" 
+             class="mb-2 last:mb-0">
+          <div (click)="openAppointmentDetails(appointment)" 
+               class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+               [ngClass]="appointment.category === 'Virtual' ? 'bg-purple-50 border border-purple-200' : 'bg-green-50 border border-green-200'">
+            <div class="flex items-center space-x-3">
+              <img [src]="appointment.patient.avatar" 
+                   [alt]="appointment.patient.name" 
+                   class="w-8 h-8 rounded-full">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+                <div class="text-xs font-medium" 
+                     [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-purple-600'">
+                  {{ appointment.category }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="p-2">
-      <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 5)" 
-           class="mb-2 last:mb-0">
-        <div (click)="openAppointmentDetails(appointment)" 
-             class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
-             [ngClass]="appointment.category === 'Virtual' ? 'bg-pink-50 border border-pink-200' : 'bg-green-50 border border-green-200'">
-          <div class="flex items-center space-x-3">
-            <img [src]="appointment.patient.avatar" 
-                 [alt]="appointment.patient.name" 
-                 class="w-8 h-8 rounded-full">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.type }}</div>
-              <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
-              <div class="text-xs font-medium" 
-                   [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-pink-600'">
-                {{ appointment.category }}
+      
+      <div class="p-2">
+        <div *ngFor="let appointment of getAppointmentsForTimeSlot(time, 5)" 
+             class="mb-2 last:mb-0">
+          <div (click)="openAppointmentDetails(appointment)" 
+               class="p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+               [ngClass]="appointment.category === 'Virtual' ? 'bg-pink-50 border border-pink-200' : 'bg-green-50 border border-green-200'">
+            <div class="flex items-center space-x-3">
+              <img [src]="appointment.patient.avatar" 
+                   [alt]="appointment.patient.name" 
+                   class="w-8 h-8 rounded-full">
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-900">{{ appointment.patient.name }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.type }}</div>
+                <div class="text-xs text-gray-500">{{ appointment.doctor.name }}</div>
+                <div class="text-xs font-medium" 
+                     [ngClass]="appointment.category === 'In-Person' ? 'text-green-600' : 'text-pink-600'">
+                  {{ appointment.category }}
+                </div>
               </div>
             </div>
           </div>
@@ -221,7 +281,7 @@
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- Appointment Details Modal -->
 <div *ngIf="showAppointmentDetails" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

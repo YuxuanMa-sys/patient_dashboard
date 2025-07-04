@@ -1,57 +1,60 @@
-<div class="w-full px-2 py-4">
-    <!-- Search and Filter Bar -->
-    <div class="flex flex-wrap items-center gap-4 mb-6">
-        <!-- Search Input -->
-        <div class="flex-1 min-w-80">
-            <mat-form-field appearance="outline" class="w-full">
-                <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
-                <input matInput placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+<section class="w-full max-w-full mx-auto px-6 py-8">
+    <!-- Header with Search and Filters -->
+    <div class="mb-8">
+        <!-- Search and Filter Bar -->
+        <div class="flex items-center justify-between w-full gap-2 mb-6">
+            <!-- Search Input -->
+            <div class="flex-1 max-w-sm">
+                <mat-form-field appearance="outline" class="w-full h-12" style="margin-bottom: 0;">
+                    <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                    <input matInput placeholder="Search" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" />
+                </mat-form-field>
+            </div>
+
+            <!-- Date Filter -->
+            <mat-form-field appearance="outline" class="w-32 h-12" style="margin-bottom: 0;">
+                <mat-icon matPrefix svgIcon="heroicons_outline:calendar-days"></mat-icon>
+                <input matInput placeholder="Date" [matDatepicker]="datePicker" [(ngModel)]="dateFilter" (ngModelChange)="onFilterChange()" />
+                <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                <mat-datepicker #datePicker></mat-datepicker>
             </mat-form-field>
+
+            <!-- Doctor Filter -->
+            <mat-form-field appearance="outline" class="w-40 h-12" style="margin-bottom: 0;">
+                <mat-icon matPrefix svgIcon="heroicons_outline:user-circle"></mat-icon>
+                <mat-select placeholder="Doctor" [(ngModel)]="doctorFilter" (ngModelChange)="onFilterChange()">
+                    <mat-option value="">All Doctors</mat-option>
+                    <mat-option *ngFor="let doctor of availableDoctors" [value]="doctor.name">
+                        {{ doctor.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Appointment Type Filter -->
+            <mat-form-field appearance="outline" class="w-44 h-12" style="margin-bottom: 0;">
+                <mat-icon matPrefix svgIcon="heroicons_outline:calendar"></mat-icon>
+                <mat-select placeholder="Appointment Type" [(ngModel)]="appointmentTypeFilter" (ngModelChange)="onFilterChange()">
+                    <mat-option value="">All Types</mat-option>
+                    <mat-option value="General Checkup">General Checkup</mat-option>
+                    <mat-option value="Cavity Fillings">Cavity Fillings</mat-option>
+                    <mat-option value="Consultation">Consultation</mat-option>
+                    <mat-option value="Emergency">Emergency</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Add New Button -->
+            <button mat-flat-button color="primary" (click)="openAddAppointmentModal()" class="h-12 px-3 rounded-lg whitespace-nowrap">
+                <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                <span class="ml-2">Add New</span>
+            </button>
+
+            <!-- View Toggle -->
+            <button mat-stroked-button [color]="currentView === 'calendar' ? 'primary' : 'basic'" 
+                    (click)="toggleView()" class="h-12 px-3 rounded-lg whitespace-nowrap">
+                <mat-icon [svgIcon]="currentView === 'calendar' ? 'heroicons_outline:table-cells' : 'heroicons_outline:calendar-days'"></mat-icon>
+                <span class="ml-2">{{ currentView === 'calendar' ? 'Table View' : 'Calendar View' }}</span>
+            </button>
         </div>
-
-        <!-- Date Filter -->
-        <mat-form-field appearance="outline" class="min-w-40">
-            <mat-icon matPrefix svgIcon="heroicons_outline:calendar-days"></mat-icon>
-            <input matInput placeholder="Date" [matDatepicker]="datePicker" [(ngModel)]="dateFilter" (ngModelChange)="onFilterChange()" />
-            <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
-            <mat-datepicker #datePicker></mat-datepicker>
-        </mat-form-field>
-
-        <!-- Doctor Filter -->
-        <mat-form-field appearance="outline" class="min-w-40">
-            <mat-icon matPrefix svgIcon="heroicons_outline:user"></mat-icon>
-            <mat-select placeholder="Doctor" [(ngModel)]="doctorFilter" (ngModelChange)="onFilterChange()">
-                <mat-option value="">All Doctors</mat-option>
-                <mat-option *ngFor="let doctor of availableDoctors" [value]="doctor.name">
-                    {{ doctor.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <!-- Appointment Type Filter -->
-        <mat-form-field appearance="outline" class="min-w-40">
-            <mat-icon matPrefix svgIcon="heroicons_outline:calendar"></mat-icon>
-            <mat-select placeholder="Appointment Type" [(ngModel)]="appointmentTypeFilter" (ngModelChange)="onFilterChange()">
-                <mat-option value="">All Types</mat-option>
-                <mat-option value="General Checkup">General Checkup</mat-option>
-                <mat-option value="Cavity Fillings">Cavity Fillings</mat-option>
-                <mat-option value="Consultation">Consultation</mat-option>
-                <mat-option value="Emergency">Emergency</mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <!-- Add New Button -->
-        <button mat-flat-button color="primary" (click)="openAddAppointmentModal()" class="h-14 px-6">
-            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
-            <span class="ml-2">Add New</span>
-        </button>
-
-        <!-- View Toggle -->
-        <button mat-stroked-button [color]="currentView === 'calendar' ? 'primary' : 'basic'" 
-                (click)="toggleView()" class="h-14 px-6">
-            <mat-icon [svgIcon]="currentView === 'calendar' ? 'heroicons_outline:table-cells' : 'heroicons_outline:calendar-days'"></mat-icon>
-            <span class="ml-2">{{ currentView === 'calendar' ? 'Table View' : 'Calendar View' }}</span>
-        </button>
     </div>
 
     <!-- Status Tabs -->
@@ -170,4 +173,4 @@
             </form>
         </div>
     </div>
-</div>
+</section>

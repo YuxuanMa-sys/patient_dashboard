@@ -39,6 +39,12 @@ export class AppointmentsCalendarComponent implements OnInit, OnDestroy {
   currentView: 'day' | 'week' | 'month' = 'day';
   selectedDoctor: string = 'Dentist';
   
+  // Search and filter properties
+  searchQuery: string = '';
+  dateFilter: Date | null = null;
+  doctorFilter: string = '';
+  appointmentTypeFilter: string = '';
+  
   // Time slots for calendar
   timeSlots = [
     '08:00 am', '09:00 am', '10:00 am', '11:00 am', '12:00 pm', '01:00 pm'
@@ -367,5 +373,31 @@ export class AppointmentsCalendarComponent implements OnInit, OnDestroy {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  // Search and filter methods
+  onSearchChange(): void {
+    // Implement search logic here
+    console.log('Search query:', this.searchQuery);
+  }
+
+  onFilterChange(): void {
+    // Implement filter logic here
+    console.log('Filters:', {
+      date: this.dateFilter,
+      doctor: this.doctorFilter,
+      type: this.appointmentTypeFilter
+    });
+  }
+
+  openAddAppointmentModal(): void {
+    // Implement add appointment modal logic
+    console.log('Opening add appointment modal');
+  }
+
+  goToTableView(): void {
+    // Navigate to table view
+    console.log('Going to table view');
+    window.location.href = '/portal/appointments-list';
   }
 } 

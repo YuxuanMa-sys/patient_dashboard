@@ -228,10 +228,10 @@ export class SettingsAccountComponent implements OnInit {
         });
     }
 
-    removeGalleryImage(imageUrl: string): void {
+    removeGalleryImage(index: number): void {
         const currentGallery = this.accountForm.get('gallery_collection').value || [];
-        const updatedGallery = currentGallery.filter(url => url !== imageUrl);
-        this.accountForm.get('gallery_collection').setValue(updatedGallery);
+        currentGallery.splice(index, 1);
+        this.accountForm.get('gallery_collection').setValue([...currentGallery]);
         this._changeDetectorRef.detectChanges();
         this._snackBar.open('Image removed from gallery', 'Close', { duration: 3000 });
     }
@@ -273,5 +273,26 @@ export class SettingsAccountComponent implements OnInit {
             const errorMessage = error.message || 'Failed to save clinic details. Please try again.';
             this._snackBar.open(errorMessage, 'Close', { duration: 5000 });
         });
+    }
+
+    onLogoSelected(event: any): void {
+        const files = event.target.files as FileList;
+        if (files && files.length > 0) {
+            this.uploadLogo(files);
+        }
+    }
+
+    onBannerSelected(event: any): void {
+        const files = event.target.files as FileList;
+        if (files && files.length > 0) {
+            this.uploadBanner(files);
+        }
+    }
+
+    onGallerySelected(event: any): void {
+        this.selectedFiles = event.target.files as FileList;
+        if (this.selectedFiles) {
+            this.uploadImages();
+        }
     }
 }
