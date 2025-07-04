@@ -1,0 +1,50 @@
+/* Modal specific styles */
+.mat-dialog-container {
+  padding: 0 !important;
+}
+
+.mat-form-field {
+  width: 100%;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #e5e7eb;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: #3b82f6;
+}
+
+.mat-button, .mat-flat-button, .mat-stroked-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+.mat-flat-button.mat-primary {
+  background-color: #3b82f6;
+  color: white;
+  
+  &:hover {
+    background-color: #2563eb;
+  }
+  
+  &:disabled {
+    background-color: #9ca3af;
+    color: #6b7280;
+  }
+}
+
+.mat-stroked-button {
+  border-color: #dc2626;
+  color: #dc2626;
+  
+  &:hover {
+    background-color: #fef2f2;
+  }
+}
+
+.mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+} 

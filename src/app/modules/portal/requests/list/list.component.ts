@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, Inject } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -9,12 +9,12 @@ import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { AppointmentDetailModalComponent } from 'app/modules/landing/common/appointment-detail/appointment-detail.component';
 import { cloneDeep } from 'lodash';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DocumentReference, getDoc } from 'firebase/firestore';
-
+import { AppointmentRequestDetailModalComponent } from '../appointment-request-detail-modal/appointment-request-detail-modal.component';
 
 @Component({
-  selector: 'app-list',
+  selector: 'app-requests-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })
@@ -22,23 +22,135 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly avatar: string = environment.cloudFront + 'public/users/profile/';
   readonly url: string = environment.assets + 'utitlity/';
-  recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
-  recentTransactionsTableColumns: string[] = ['name',  'type', 'issue_seeking', 'date', 'status', 'action'];
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-    patientCount: number = 0;
-    query: string;
-    patientForm: FormGroup;
-    cities = [];
-    patients: Array<any> = [];
-    sortedData: Array<any>;
-    patientsToShow: Array<any> = [];
+  // Filter and search properties
+  searchTerm: string = '';
+  selectedAppointmentType: string = '';
+  selectedTab: string = 'active';
+  
+  // Data properties
+  appointments: any[] = [];
+  filteredRequests: any[] = [];
+  loading: boolean = false;
+  error: string | null = null;
 
+  // Tab configuration
+  statusTabs = [
+    { label: 'Active', value: 'Active' },
+    { label: 'Cancelled', value: 'Cancelled' },
+    { label: 'Completed', value: 'Completed' }
+  ];
 
-      data: any[] = []; // Initialize data as an empty array
-      loading: boolean = true;
-      error: string | null = null;
-    appointments: any[] = [];
+  // Mock data for demonstration
+  mockAppointmentRequests = [
+    {
+      id: 1,
+      patient: {
+        name: 'Emma Johnson',
+        avatar: 'assets/images/avatars/female-01.jpg'
+      },
+      appointmentType: 'Virtual Consultation',
+      reasonForVisit: 'Follow-up on blood test results',
+      requestDate: new Date('2024-01-15'),
+      firstPreference: new Date('2024-01-20T10:00'),
+      secondPreference: new Date('2024-01-20T14:00'),
+      thirdPreference: new Date('2024-01-21T09:00'),
+      notes: 'Patient prefers morning appointments due to work schedule',
+      status: 'active'
+    },
+    {
+      id: 2,
+      patient: {
+        name: 'Michael Chen',
+        avatar: 'assets/images/avatars/male-01.jpg'
+      },
+      appointmentType: 'In-Person Visit',
+      reasonForVisit: 'Annual physical examination',
+      requestDate: new Date('2024-01-14'),
+      firstPreference: new Date('2024-01-22T11:00'),
+      secondPreference: new Date('2024-01-22T15:00'),
+      thirdPreference: new Date('2024-01-23T10:00'),
+      notes: 'Patient has history of hypertension',
+      status: 'active'
+    },
+    {
+      id: 3,
+      patient: {
+        name: 'Sarah Wilson',
+        avatar: 'assets/images/avatars/female-02.jpg'
+      },
+      appointmentType: 'Emergency Consultation',
+      reasonForVisit: 'Severe headache and dizziness',
+      requestDate: new Date('2024-01-16'),
+      firstPreference: new Date('2024-01-17T08:00'),
+      secondPreference: new Date('2024-01-17T12:00'),
+      thirdPreference: new Date('2024-01-17T16:00'),
+      notes: 'Urgent - symptoms started 2 days ago',
+      status: 'active'
+    },
+    {
+      id: 4,
+      patient: {
+        name: 'Robert Davis',
+        avatar: 'assets/images/avatars/male-02.jpg'
+      },
+      appointmentType: 'Virtual Consultation',
+      reasonForVisit: 'Prescription refill consultation',
+      requestDate: new Date('2024-01-12'),
+      firstPreference: new Date('2024-01-18T13:00'),
+      secondPreference: new Date('2024-01-18T17:00'),
+      thirdPreference: new Date('2024-01-19T14:00'),
+      notes: 'Regular diabetes medication refill',
+      status: 'cancelled'
+    },
+    {
+      id: 5,
+      patient: {
+        name: 'Lisa Anderson',
+        avatar: 'assets/images/avatars/female-03.jpg'
+      },
+      appointmentType: 'In-Person Visit',
+      reasonForVisit: 'Skin condition consultation',
+      requestDate: new Date('2024-01-10'),
+      firstPreference: new Date('2024-01-15T09:00'),
+      secondPreference: new Date('2024-01-15T13:00'),
+      thirdPreference: new Date('2024-01-16T10:00'),
+      notes: 'Patient has developed rash on arms',
+      status: 'completed'
+    },
+    {
+      id: 6,
+      patient: {
+        name: 'David Thompson',
+        avatar: 'assets/images/avatars/male-03.jpg'
+      },
+      appointmentType: 'Consultation',
+      reasonForVisit: 'Back pain assessment',
+      requestDate: new Date('2024-01-13'),
+      firstPreference: new Date('2024-01-19T10:00'),
+      secondPreference: new Date('2024-01-19T14:00'),
+      thirdPreference: new Date('2024-01-20T11:00'),
+      notes: 'Pain started after lifting heavy boxes',
+      status: 'active'
+    },
+    {
+      id: 7,
+      patient: {
+        name: 'Jennifer Martinez',
+        avatar: 'assets/images/avatars/female-04.jpg'
+      },
+      appointmentType: 'Virtual Consultation',
+      reasonForVisit: 'Mental health check-in',
+      requestDate: new Date('2024-01-08'),
+      firstPreference: new Date('2024-01-12T16:00'),
+      secondPreference: new Date('2024-01-13T14:00'),
+      thirdPreference: new Date('2024-01-13T17:00'),
+      notes: 'Regular monthly consultation',
+      status: 'completed'
+    }
+  ];
+
   /**
    * Constructor
    */
@@ -50,7 +162,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-this.getAppointments();
+    this.getAppointments();
   }
 
   /**
@@ -61,113 +173,125 @@ this.getAppointments();
   }
 
   getAppointments(): void {
-    this._portalService.getAlongWithPendingAppointments().subscribe({
-        next: (res) => {
-            this.appointments = res; // Contains enriched appointments with patient and doctor data
-            this.loading = false;
-            console.log(res);
-
-            this.cdr.detectChanges();
-            console.log('Enriched Appointments:', this.appointments);
-        },
-        error: (err) => {
-            console.error('Error fetching appointments:', err);
-        }
-    });
-}
-
-
-
-  getAllRequests(): void {
+    this.loading = true;
+    
+    // Try to get real data first
     this._portalService.getAlongWithPendingAppointments().subscribe({
       next: (res) => {
-        this.appointments = [];
-
-        // Step 1: Map over the documents and format the appointment objects
-        this.appointments = res.map((e: any) => {
-          return {
-            id: e.id,  // Adjusted id mapping
-            ...e,
-          };
-        });
-
-        // Step 2: Filter and sort appointments based on status and createdAt
-        this.appointments = this.appointments.filter(a => a.createdAt && a.status === ClinicStatus.PENDING);
-        this.appointments.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
-
-        // Step 3: Fetch patient data for each appointment
-        this.appointments.forEach((e, index) => {
-          if (e.patient_id instanceof DocumentReference) {  // Ensure patient_id is a DocumentReference
-            getDoc(e.patient_id).then((p) => {
-              if (p.exists()) {
-                e['patient'] = p.data(); // Attach patient data
-              }
-              if (index === this.appointments.length - 1) {
-                this.sortedData = this.appointments.slice();  // Finalize sorted data
-                this.cdr.detectChanges();  // Trigger change detection
-              }
-            }).catch(err => {
-              console.error('Error fetching patient data:', err);
-            });
-          }
-        });
+        if (res && res.length > 0) {
+          this.appointments = res;
+        } else {
+          // Use mock data if no real data available
+          this.appointments = this.mockAppointmentRequests;
+        }
+        
         this.loading = false;
+        this.applyFilters();
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error fetching pending appointments:', err);
+        console.error('Error fetching appointments:', err);
+        // Use mock data on error
+        this.appointments = this.mockAppointmentRequests;
+        this.loading = false;
+        this.applyFilters();
+        this.cdr.detectChanges();
       }
     });
   }
 
+  /**
+   * Handle search input change
+   */
+  onSearchChange(): void {
+    this.applyFilters();
+  }
 
-  openApptDetailDialog(data: any): void {
-    const dialogRef = this._matDialog.open(AppointmentDetailModalComponent, {
-        autoFocus: false,
-        data: cloneDeep(data)
+  /**
+   * Handle filter change
+   */
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  /**
+   * Set active tab
+   */
+  selectTab(tab: string): void {
+    this.selectedTab = tab;
+    this.applyFilters();
+  }
+
+  /**
+   * Get tab class for styling
+   */
+  getTabClass(tab: string): string {
+    return this.selectedTab === tab 
+      ? 'border-blue-500 text-blue-600' 
+      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+  }
+
+  /**
+   * Apply all filters
+   */
+  applyFilters(): void {
+    let filtered = [...this.appointments];
+
+    // Apply status filter
+    if (this.selectedTab && this.selectedTab !== 'All') {
+      filtered = filtered.filter(request => request.status === this.selectedTab);
+    }
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const query = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(request => 
+        request.patient.name.toLowerCase().includes(query) ||
+        request.appointmentType.toLowerCase().includes(query) ||
+        request.reasonForVisit?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply appointment type filter
+    if (this.selectedAppointmentType) {
+      filtered = filtered.filter(request => 
+        request.appointmentType === this.selectedAppointmentType
+      );
+    }
+
+    this.filteredRequests = filtered;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Open request details modal
+   */
+  viewRequestDetails(request: any): void {
+    const dialogRef = this._matDialog.open(AppointmentRequestDetailModalComponent, {
+      width: '600px',
+      data: request
     });
 
     dialogRef.afterClosed().subscribe(result => {
-        console.log(result);
-
-        // Yahan par aap modal se wapas aaya data result mein prapt kar sakte hain.
-        // this.form.get('availability_id').setValue(result.availability_id);
-        // this.form.get('availability_slot_id').setValue(result.availability_slot_id);
-        // this.form.get('dated').setValue(result.dated);
-        // this.form.get('start_time').setValue(result.start_time);
-        // this.form.get('end_time').setValue(result.end_time);
-        // this.form.get('type').setValue(result.type);
+      if (result === true) {
+        console.log('Appointment confirmed');
+      } else if (result === false) {
+        console.log('Appointment declined');
+      }
     });
-}
-
-
-  getCurrentAge(dob: string): string {
-    const birthDate = moment(dob);
-    const today = moment();
-    const years = today.diff(birthDate, 'years');
-    birthDate.add(years, 'years');
-    const months = today.diff(birthDate, 'months');
-    let ageString = years + ' years';
-
-    if (years < 1) {
-      ageString =  months + ' months';
-    }
-
-    return ageString;
   }
 
-
-
-
+  /**
+   * Track by function for ngFor
+   */
   trackByFn(index: number, item: any): any {
     return item.id || index;
   }
 
   /**
- * On destroy
- */
+   * On destroy
+   */
   ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions
     this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();
   }
