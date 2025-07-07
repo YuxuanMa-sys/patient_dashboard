@@ -6,161 +6,142 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id   : 'dashboard',
         title: 'Overview',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu1.svg',
+        icon : 'mat_solid:dashboard',
         link : '/portal/dashboard'
     },
     {
         id   : 'patients',
         title: 'Patients',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu2.svg',
+        icon : 'mat_solid:people',
         link : '/portal/patients'
     },
-
-    // {
-    //     id   : 'newpatients',
-    //     title: 'New Patient Requests',
-    //     type : 'basic',
-    //     // icon : 'heroicons_outline:chart-pie',
-    //     image : 'menu/menu3.svg',
-    //     link : '/portal/new-patients'
-    // },
+    {
+        id   : 'new-patient-requests',
+        title: 'New Patient Requests',
+        type : 'basic',
+        icon : 'mat_solid:person_add',
+        link : '/portal/new-patients'
+    },
     {
         id   : 'appointments',
         title: 'Appointments',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu4.svg',
+        icon : 'mat_solid:schedule',
         link : '/portal/appointments-list'
     },
-
     {
-        id   : 'requests',
+        id   : 'appointment-requests',
         title: 'Appointment Requests',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu5.svg',
+        icon : 'mat_solid:event_note',
         link : '/portal/requests'
     },
     {
         id   : 'announcements',
         title: 'Announcements',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu6.svg',
+        icon : 'mat_solid:campaign',
         link : '/portal/announcements'
     },
     {
-        id   : 'promotion',
-        title: 'Promotion',
+        id   : 'promotions',
+        title: 'Promotions',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu7.svg',
+        icon : 'mat_solid:card_giftcard',
         link : '/portal/promotion'
     },
-
     {
         id   : 'inbox',
         title: 'Inbox',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu8.svg',
+        icon : 'mat_solid:inbox',
         link : '#'
     },
     {
         id   : 'notifications',
         title: 'Notifications',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu9.svg',
+        icon : 'mat_solid:notifications',
         link : '/portal/notifications'
     },
     {
-        id   : 'staff',
-        title: 'Staff',
-        type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu10.svg',
-        link : '/portal/staff'
-    },
-    {
-        id   : 'insurance',
-        title: 'Insurance',
-        type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu10.svg',
-        link : '/portal/insurance'
-    },
-    {
-        id   : 'Service',
-        title: 'Services',
-        type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu10.svg',
-        link : '/portal/services'
-    },
-    {
-        id   : 'setting',
+        id   : 'clinic-settings',
         title: 'Clinic Settings',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu11.svg',
+        icon : 'mat_solid:settings',
         link : '/portal/settings'
     },
-
     {
-        id   : 'clinic',
-        title: 'Clinic Details',
+        id   : 'clinic-gallery',
+        title: 'Clinic Gallery',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu11.svg',
-        link : '/portal/clinic-details'
+        icon : 'mat_solid:photo_library',
+        link : '/portal/clinic-gallery'
     },
-
+    {
+        id   : 'providers',
+        title: 'Providers',
+        type : 'basic',
+        icon : 'mat_solid:medical_services',
+        link : '/portal/providers'
+    },
     {
         id   : 'logout',
         title: 'Logout',
         type : 'basic',
-        // icon : 'heroicons_outline:chart-pie',
-        image : 'menu/menu11.svg',
-        link : '/portal/setting'
-    },
-
-
+        icon : 'mat_solid:logout',
+        link : '/sign-out'
+    }
 ];
+
 export const compactNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
+        id   : 'dashboard',
+        title: 'Overview',
         type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        icon : 'mat_solid:dashboard',
+        link : '/portal/dashboard'
     },
     {
-        id   : 'example2',
-        title: 'Example2',
+        id   : 'patients',
+        title: 'Patients',
         type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        icon : 'mat_solid:people',
+        link : '/portal/patients'
+    },
+    {
+        id   : 'appointments',
+        title: 'Appointments',
+        type : 'basic',
+        icon : 'mat_solid:schedule',
+        link : '/portal/appointments-list'
+    },
+    {
+        id   : 'settings',
+        title: 'Settings',
+        type : 'basic',
+        icon : 'mat_solid:settings',
+        link : '/portal/settings'
     }
 ];
+
 export const futuristicNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
+        id   : 'dashboard',
+        title: 'Overview',
         type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        icon : 'mat_solid:dashboard',
+        link : '/portal/dashboard'
     }
 ];
+
 export const horizontalNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
+        id   : 'dashboard',
+        title: 'Overview',
         type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        icon : 'mat_solid:dashboard',
+        link : '/portal/dashboard'
     }
 ];

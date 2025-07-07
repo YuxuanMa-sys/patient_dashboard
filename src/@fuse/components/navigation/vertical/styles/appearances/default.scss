@@ -142,7 +142,7 @@ fuse-vertical-navigation {
         .fuse-vertical-navigation-content {
             flex: 1 1 auto;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
             overscroll-behavior: contain;
 
             /* Divider */
@@ -152,7 +152,7 @@ fuse-vertical-navigation {
 
             /* Group */
             > fuse-vertical-navigation-group-item {
-                margin-top: 24px;
+                margin-top: 8px;
             }
         }
 
@@ -174,7 +174,7 @@ fuse-vertical-navigation {
         height: 100%;
         z-index: 5;
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         transition-duration: 400ms;
         transition-property: left, right;
@@ -220,7 +220,7 @@ fuse-vertical-navigation {
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
-                padding: 10px 16px;
+                padding: 8px 16px;
                 font-size: 13px;
                 font-weight: 500;
                 line-height: 20px;
@@ -275,7 +275,7 @@ fuse-vertical-navigation {
     fuse-vertical-navigation-aside-item,
     fuse-vertical-navigation-basic-item,
     fuse-vertical-navigation-collapsable-item {
-        margin-bottom: 4px;
+        margin-bottom: 2px;
 
         .fuse-vertical-navigation-item {
             cursor: pointer;

@@ -10,6 +10,8 @@ export class IconsService {
     constructor() {
         const domSanitizer = inject(DomSanitizer);
         const matIconRegistry = inject(MatIconRegistry);
+        
+        console.log('IconsService: Initializing custom icons...');
 
         // Register icon sets
         matIconRegistry.addSvgIconSet(
@@ -51,5 +53,68 @@ export class IconsService {
                 'icons/heroicons-mini.svg'
             )
         );
+
+        // Register custom navigation icons
+        try {
+            matIconRegistry.addSvgIcon(
+                'custom_overview',
+                domSanitizer.bypassSecurityTrustResourceUrl('icons/overview.svg')
+            );
+            console.log('Registered custom_overview icon');
+            
+            matIconRegistry.addSvgIcon(
+                'custom_patients',
+                domSanitizer.bypassSecurityTrustResourceUrl('icons/patients.svg')
+            );
+            console.log('Registered custom_patients icon');
+        } catch (error) {
+            console.error('Error registering custom icons:', error);
+        }
+        matIconRegistry.addSvgIcon(
+            'custom_new_patient_request',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/new-patient-request.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_appointments',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/appointments.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_appointment_request',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/appointment-request.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_announcement',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/announcement.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_promotion',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/promotion.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_inbox',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/inbox.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_notification',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/notification.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_clinic_setting',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/clinic-setting.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_clinic_gallery',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/clinic-gallery.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_provider',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/provider.svg')
+        );
+        matIconRegistry.addSvgIcon(
+            'custom_logout',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/logout.svg')
+        );
+        
+        console.log('IconsService: Custom icons registered successfully');
     }
 }
