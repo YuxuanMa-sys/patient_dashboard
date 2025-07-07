@@ -1,232 +1,223 @@
-<div
-    class="flex min-w-0 flex-auto flex-col items-center sm:flex-row sm:justify-center md:items-start md:justify-start"
->
-    <div
-        class="w-full px-4 py-8 sm:bg-card sm:w-auto sm:rounded-2xl sm:p-12 sm:shadow md:flex md:h-full md:w-1/2 md:items-center md:justify-end md:rounded-none md:p-16 md:shadow-none"
-    >
-        <div class="mx-auto w-full max-w-80 sm:mx-0 sm:w-80">
-            <!-- Logo -->
-            <div class="w-12">
-                <img src="images/logo/logo.svg" />
+<!-- Login Page Container -->
+<div class="auth-sign-in flex h-screen w-full bg-[#F2F5F9] overflow-hidden">
+    <!-- Left Side - Blue Background with Doctor Image -->
+    <div class="relative bg-[#0056FB] overflow-hidden flex-1 max-w-lg">
+        <!-- 3DEX Logo -->
+        <div class="absolute top-8 left-0 right-0 flex justify-center">
+            <img 
+                src="images/logo.png" 
+                alt="3DEX Logo" 
+                class="h-12 w-auto"
+            />
+        </div>
+
+        <!-- Top Left Decorative Dots -->
+        <div class="absolute top-72 left-16">
+            <div class="flex flex-col space-y-2">
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
             </div>
+        </div>
 
-            <!-- Title -->
-            <div
-                class="mt-8 text-4xl font-extrabold leading-tight tracking-tight"
-            >
-                Sign in
-            </div>
-            <div class="mt-0.5 flex items-baseline font-medium">
-                <div>Don't have an account?</div>
-                <a
-                    class="ml-1 text-primary-500 hover:underline"
-                    [routerLink]="['/sign-up']"
-                    >Sign up
-                </a>
-            </div>
-
-            <!-- Alert -->
-            <fuse-alert
-                class="mt-8"
-                [appearance]="'outline'"
-                [showIcon]="false"
-                [type]="'info'"
-            >
-                You are browsing <strong>Fuse Demo</strong>. Click on the "Sign
-                in" button to access the Demo and Documentation.
-            </fuse-alert>
-
-            <!-- Alert -->
-            @if (showAlert) {
-                <fuse-alert
-                    class="mt-8"
-                    [appearance]="'outline'"
-                    [showIcon]="false"
-                    [type]="alert.type"
-                    [@shake]="alert.type === 'error'"
-                >
-                    {{ alert.message }}
-                </fuse-alert>
-            }
-
-            <!-- Sign in form -->
-            <form class="mt-8" [formGroup]="signInForm" #signInNgForm="ngForm">
-                <!-- Email field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Email address</mat-label>
-                    <input id="email" matInput [formControlName]="'email'" />
-                    @if (signInForm.get('email').hasError('required')) {
-                        <mat-error> Email address is required </mat-error>
-                    }
-                    @if (signInForm.get('email').hasError('email')) {
-                        <mat-error>
-                            Please enter a valid email address
-                        </mat-error>
-                    }
-                </mat-form-field>
-
-                <!-- Password field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Password</mat-label>
-                    <input
-                        id="password"
-                        matInput
-                        type="password"
-                        [formControlName]="'password'"
-                        #passwordField
+        <!-- Doctor Image Container -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <!-- White Background Circle -->
+            <div class="relative">
+                <div class="w-[440px] h-[530px] bg-white rounded-t-full rounded-b-3xl opacity-95 shadow-2xl"></div>
+                
+                <!-- Doctor Image -->
+                <div class="absolute inset-0 flex items-center justify-center pt-4">
+                    <img 
+                        src="images/doctor.png" 
+                        alt="Doctor" 
+                        class="w-96 h-[420px] object-contain"
+                        onerror="this.src='images/avatars/female-01.jpg'"
                     />
-                    <button
-                        mat-icon-button
-                        type="button"
-                        (click)="
-                            passwordField.type === 'password'
-                                ? (passwordField.type = 'text')
-                                : (passwordField.type = 'password')
-                        "
-                        matSuffix
-                    >
-                        @if (passwordField.type === 'password') {
-                            <mat-icon
-                                class="icon-size-5"
-                                [svgIcon]="'heroicons_solid:eye'"
-                            ></mat-icon>
-                        }
-                        @if (passwordField.type === 'text') {
-                            <mat-icon
-                                class="icon-size-5"
-                                [svgIcon]="'heroicons_solid:eye-slash'"
-                            ></mat-icon>
-                        }
-                    </button>
-                    <mat-error> Password is required </mat-error>
-                </mat-form-field>
+                </div>
+                
+                <!-- Yellow accent circle -->
+                <div class="absolute -top-6 -right-6 w-20 h-20 bg-[#FFB91D] rounded-full"></div>
+            </div>
+        </div>
 
-                <!-- Actions -->
-                <div
-                    class="mt-1.5 inline-flex w-full items-center justify-between"
-                >
-                    <mat-checkbox
-                        class="-ml-2"
-                        [color]="'primary'"
-                        [formControlName]="'rememberMe'"
-                    >
-                        Remember me
-                    </mat-checkbox>
-                    <a
-                        class="text-md font-medium text-primary-500 hover:underline"
-                        [routerLink]="['/forgot-password']"
-                        >Forgot password?
-                    </a>
+        <!-- Bottom Left Decorative Dots -->
+        <div class="absolute bottom-40 left-72">
+            <div class="flex flex-col space-y-2">
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                    <div class="w-3 h-3 bg-[#FFB91D] rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom decorative elements -->
+        <div class="absolute bottom-12 left-12">
+            <div class="w-8 h-8 border-3 border-[#FFB91D] rounded-full"></div>
+        </div>
+    </div>
+
+    <!-- Right Side - Sign In Form -->
+    <div class="flex-1 flex flex-col bg-[#F2F5F9] px-8 py-6">
+        <!-- Top Right Link -->
+        <div class="flex justify-end mb-8">
+            <span class="text-[#666666] text-lg">Not a member? </span>
+            <a [routerLink]="['/sign-up']" class="text-[#0056FB] text-lg font-medium hover:underline ml-1">Join Now</a>
+        </div>
+
+        <!-- Sign In Form Container -->
+        <div class="flex-1 flex items-center justify-center">
+            <div class="w-full max-w-lg">
+                <!-- Sign In Title -->
+                <div class="mb-8">
+                    <h1 class="text-6xl font-bold text-[#344153] mb-2">Sign In</h1>
                 </div>
 
-                <!-- Submit button -->
+                <!-- Alert -->
+                @if (showAlert) {
+                    <div class="mb-6">
+                        <fuse-alert
+                            [appearance]="'outline'"
+                            [showIcon]="false"
+                            [type]="alert.type"
+                            [@shake]="alert.type === 'error'"
+                        >
+                            {{ alert.message }}
+                        </fuse-alert>
+                    </div>
+                }
+
+                <!-- Sign In Form -->
+                <form [formGroup]="signInForm" #signInNgForm="ngForm" class="space-y-5">
+                <!-- Username/Email Address -->
+                <div class="space-y-2">
+                    <label class="block text-[#666666] text-lg font-medium">
+                        Username/Email Address
+                    </label>
+                    <input
+                        type="text"
+                        formControlName="email"
+                        placeholder="moeed.shahid@yahoo.com"
+                        class="w-full px-4 py-4 bg-white border-0 rounded-lg text-[#000000] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0056FB] font-medium"
+                    />
+                    @if (signInForm.get('email')?.hasError('required')) {
+                        <div class="text-red-500 text-sm">Email address is required</div>
+                    }
+                    @if (signInForm.get('email')?.hasError('email')) {
+                        <div class="text-red-500 text-sm">Please enter a valid email address</div>
+                    }
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-2">
+                    <label class="block text-[#666666] text-lg font-medium">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            [type]="showPassword ? 'text' : 'password'"
+                            formControlName="password"
+                            placeholder="********************"
+                            class="w-full px-4 py-4 pr-12 bg-white border-0 rounded-lg text-[#000000] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0056FB] font-medium"
+                        />
+                        <button
+                            type="button"
+                            (click)="togglePasswordVisibility()"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#666666] hover:text-[#000000]"
+                        >
+                            <mat-icon [svgIcon]="showPassword ? 'heroicons_outline:eye-slash' : 'heroicons_outline:eye'"></mat-icon>
+                        </button>
+                    </div>
+                    @if (signInForm.get('password')?.hasError('required')) {
+                        <div class="text-red-500 text-sm">Password is required</div>
+                    }
+                </div>
+
+                <!-- OR Divider -->
+                <div class="flex items-center my-4">
+                    <div class="flex-1 border-t border-[#E0E0E0]"></div>
+                    <span class="px-4 text-[#666666] text-sm">or</span>
+                    <div class="flex-1 border-t border-[#E0E0E0]"></div>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="space-y-2">
+                    <label class="block text-[#666666] text-lg font-medium">
+                        Phone Number
+                    </label>
+                    <input
+                        type="tel"
+                        formControlName="phone"
+                        placeholder="+92-333-6787103"
+                        class="w-full px-4 py-4 bg-white border-0 rounded-lg text-[#000000] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0056FB] font-medium"
+                    />
+                </div>
+
+                <!-- Sign In Button -->
                 <button
-                    class="fuse-mat-button-large mt-6 w-full"
-                    mat-flat-button
-                    [color]="'primary'"
-                    [disabled]="signInForm.disabled"
+                    type="submit"
                     (click)="signIn()"
+                    [disabled]="signInForm.disabled"
+                    class="w-full bg-[#0056FB] hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center text-lg"
                 >
                     @if (!signInForm.disabled) {
-                        <span> Sign in </span>
+                        <span>Sign In</span>
                     }
                     @if (signInForm.disabled) {
                         <mat-progress-spinner
-                            [diameter]="24"
+                            [diameter]="20"
                             [mode]="'indeterminate'"
+                            class="text-white"
                         ></mat-progress-spinner>
                     }
                 </button>
 
-                <!-- Separator -->
-                <div class="mt-8 flex items-center">
-                    <div class="mt-px flex-auto border-t"></div>
-                    <div class="text-secondary mx-2">Or continue with</div>
-                    <div class="mt-px flex-auto border-t"></div>
+                <!-- Forgot Password Link -->
+                <div class="text-center mt-4">
+                    <a [routerLink]="['/forgot-password']" class="text-[#666666] hover:text-[#344153] text-lg">
+                        Forgot Password
+                    </a>
                 </div>
 
-                <!-- Single sign-on buttons -->
-                <div class="mt-8 flex items-center space-x-4">
-                    <button class="flex-auto" type="button" mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:facebook'"
-                        ></mat-icon>
-                    </button>
-                    <button class="flex-auto" type="button" mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:twitter'"
-                        ></mat-icon>
-                    </button>
-                    <button class="flex-auto" type="button" mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:github'"
-                        ></mat-icon>
-                    </button>
+                <!-- Don't have an account -->
+                <div class="text-center pt-4">
+                    <span class="text-[#666666] text-lg">Don't have an account? </span>
+                    <a [routerLink]="['/sign-up']" class="text-[#344153] font-medium hover:underline text-lg">Signup</a>
                 </div>
             </form>
-        </div>
-    </div>
-    <div
-        class="relative hidden h-full w-1/2 flex-auto items-center justify-center overflow-hidden bg-gray-800 p-16 dark:border-l md:flex lg:px-28"
-    >
-        <!-- Background -->
-        <!-- Rings -->
-        <!-- prettier-ignore -->
-        <svg class="absolute inset-0 pointer-events-none"
-             viewBox="0 0 960 540" width="100%" height="100%" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-            <g class="text-gray-700 opacity-25" fill="none" stroke="currentColor" stroke-width="100">
-                <circle r="234" cx="196" cy="23"></circle>
-                <circle r="234" cx="790" cy="491"></circle>
-            </g>
-        </svg>
-        <!-- Dots -->
-        <!-- prettier-ignore -->
-        <svg class="absolute -top-16 -right-16 text-gray-700"
-             viewBox="0 0 220 192" width="220" height="192" fill="none">
-            <defs>
-                <pattern id="837c3e70-6c3a-44e6-8854-cc48c737b659" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <rect x="0" y="0" width="4" height="4" fill="currentColor"></rect>
-                </pattern>
-            </defs>
-            <rect width="220" height="192" fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)"></rect>
-        </svg>
-        <!-- Content -->
-        <div class="relative z-10 w-full max-w-2xl">
-            <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Welcome to</div>
-                <div>our community</div>
-            </div>
-            <div class="mt-6 text-lg leading-6 tracking-tight text-gray-400">
-                Fuse helps developers to build organized and well coded
-                dashboards full of beautiful and rich modules. Join us and start
-                building your application today.
-            </div>
-            <div class="mt-8 flex items-center">
-                <div class="flex flex-0 items-center -space-x-1.5">
-                    <img
-                        class="h-10 w-10 flex-0 rounded-full object-cover ring-4 ring-gray-800 ring-offset-1 ring-offset-gray-800"
-                        src="images/avatars/female-18.jpg"
-                    />
-                    <img
-                        class="h-10 w-10 flex-0 rounded-full object-cover ring-4 ring-gray-800 ring-offset-1 ring-offset-gray-800"
-                        src="images/avatars/female-11.jpg"
-                    />
-                    <img
-                        class="h-10 w-10 flex-0 rounded-full object-cover ring-4 ring-gray-800 ring-offset-1 ring-offset-gray-800"
-                        src="images/avatars/male-09.jpg"
-                    />
-                    <img
-                        class="h-10 w-10 flex-0 rounded-full object-cover ring-4 ring-gray-800 ring-offset-1 ring-offset-gray-800"
-                        src="images/avatars/male-16.jpg"
-                    />
-                </div>
-                <div class="ml-4 font-medium tracking-tight text-gray-400">
-                    More than 17k people joined us, it's your turn
-                </div>
-            </div>
         </div>
     </div>
 </div>

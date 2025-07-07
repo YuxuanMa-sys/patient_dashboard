@@ -203,11 +203,26 @@ export class AuthService {
      * Sign out
      */
     signOut(): Observable<any> {
-        // Remove the access token from the local storage
+        // Remove all authentication data from local storage
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('authenticated');
+        localStorage.removeItem('chatUid');
 
         // Set the authenticated flag to false
         this._authenticated = false;
+
+        // Clear the user data from the user service
+        this._userService.user = null;
+
+        // Sign out from Firebase Auth
+        from(this._angularFireAuth.signOut()).pipe(
+            catchError((error) => {
+                console.error('Error signing out from Firebase:', error);
+                return of(null);
+            })
+        ).subscribe();
+
+        // Note: CometChat signout is handled when the user data is cleared
 
         // Return the observable
         return of(true);
