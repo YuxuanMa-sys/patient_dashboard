@@ -82,7 +82,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     sampleAppointments = [
         {
             id: 1,
-            patient: { fname: 'Tony', lname: 'Lanister', profilePictureUrl: 'assets/images/avatars/male-01.jpg' },
+            patient: { id: 'pat_1', fname: 'Tony', lname: 'Lanister', profilePictureUrl: 'images/avatars/male-01.jpg' },
             doctor: { name: 'Dr. Jamie Garcia' },
             appointmentType: 'General Checkup',
             status: 'Active',
@@ -93,7 +93,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
             id: 2,
-            patient: { fname: 'Ammy', lname: 'Anderson', profilePictureUrl: 'assets/images/avatars/female-01.jpg' },
+            patient: { id: 'pat_2', fname: 'Ammy', lname: 'Anderson', profilePictureUrl: 'images/avatars/female-01.jpg' },
             doctor: { name: 'Dr. Olivia Wilde' },
             appointmentType: 'Cavity Fillings',
             status: 'Active',
@@ -104,7 +104,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
             id: 3,
-            patient: { fname: 'James', lname: 'May', profilePictureUrl: 'assets/images/avatars/male-02.jpg' },
+            patient: { id: 'pat_3', fname: 'James', lname: 'May', profilePictureUrl: 'images/avatars/male-02.jpg' },
             doctor: { name: 'Dr. Anderson Phillips' },
             appointmentType: 'Cavity Fillings',
             status: 'Active',
@@ -115,7 +115,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
             id: 4,
-            patient: { fname: 'Sebastian', lname: 'Olivera', profilePictureUrl: 'assets/images/avatars/male-03.jpg' },
+            patient: { id: 'pat_4', fname: 'Sebastian', lname: 'Olivera', profilePictureUrl: 'images/avatars/male-03.jpg' },
             doctor: { name: 'Dr. Maddison May' },
             appointmentType: 'General Checkup',
             status: 'Cancelled',
@@ -126,7 +126,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
             id: 5,
-            patient: { fname: 'Kendra', lname: 'Rush', profilePictureUrl: 'assets/images/avatars/female-02.jpg' },
+            patient: { id: 'pat_5', fname: 'Kendra', lname: 'Rush', profilePictureUrl: 'images/avatars/female-02.jpg' },
             doctor: { name: 'Dr. Martin Odegaard' },
             appointmentType: 'Cavity Fillings',
             status: 'Active',
@@ -136,6 +136,13 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
             appointmentReason: 'Cavity treatment and cleaning'
         }
     ];
+    
+    // Sorting properties
+    currentSortField: string = '';
+    currentSortDirection: 'asc' | 'desc' = 'asc';
+    
+    // Image loading state management
+    imageLoadingStates: Map<string, boolean> = new Map();
     
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -188,21 +195,18 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.appointments = this.sampleAppointments;
         this.dataSource.data = this.appointments;
         this.loading = false;
+        this.initializeImageLoadingStates();
         this.cdr.detectChanges();
         console.log('Appointments loaded:', this.appointments);
         
         // Commented out for now - uncomment when real service is available
         /*
         this._portalService.getUpcomingAppointments().subscribe({
-            next: (res) => {
-                if (res && res.length > 0) {
-                    this.appointments = res;
-                } else {
-                    // Fall back to sample data if no real appointments
-                    this.appointments = this.sampleAppointments;
-                }
+            next: (appointments) => {
+                this.appointments = appointments;
                 this.dataSource.data = this.appointments;
                 this.loading = false;
+                this.initializeImageLoadingStates();
                 this.cdr.detectChanges();
                 console.log('Appointments loaded:', this.appointments);
             },
@@ -212,6 +216,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.appointments = this.sampleAppointments;
                 this.dataSource.data = this.appointments;
                 this.loading = false;
+                this.initializeImageLoadingStates();
                 this.cdr.detectChanges();
             }
         });
@@ -317,5 +322,116 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     trackByFn(index: number, item: any): any {
         return item.id || index;
+    }
+
+    // Image loading state management
+    initializeImageLoadingStates(): void {
+        this.appointments.forEach(appointment => {
+            if (appointment.patient && appointment.patient.id) {
+                this.imageLoadingStates.set(appointment.patient.id, true);
+            }
+        });
+    }
+    
+    isImageLoading(patientId: string): boolean {
+        return this.imageLoadingStates.get(patientId) || false;
+    }
+    
+    onImageLoad(patientId: string): void {
+        this.imageLoadingStates.set(patientId, false);
+        this.cdr.detectChanges();
+    }
+    
+    onImageError(patientId: string): void {
+        this.imageLoadingStates.set(patientId, false);
+        this.cdr.detectChanges();
+    }
+    
+    // Patient helper methods
+    getPatientAvatar(patient: any): string {
+        if (patient?.profilePictureUrl) {
+            return patient.profilePictureUrl;
+        }
+        
+        // Use different default avatars based on gender or patient ID
+        const defaultAvatars = [
+            'images/avatars/male-01.jpg',
+            'images/avatars/female-01.jpg',
+            'images/avatars/male-02.jpg',
+            'images/avatars/female-02.jpg',
+            'images/avatars/male-03.jpg',
+            'images/avatars/female-03.jpg'
+        ];
+        
+        // Use patient ID to consistently assign the same default avatar
+        const index = patient?.id ? patient.id.length % defaultAvatars.length : 0;
+        return defaultAvatars[index];
+    }
+
+    getPatientFullName(patient: any): string {
+        if (!patient) return 'Unknown Patient';
+        
+        const firstName = patient.fname || patient.firstName || '';
+        const lastName = patient.lname || patient.lastName || '';
+        
+        return `${firstName} ${lastName}`.trim() || 'Unknown Patient';
+    }
+
+    // Sorting methods
+    sortBy(field: string): void {
+        if (this.currentSortField === field) {
+            // Toggle direction if clicking the same field
+            this.currentSortDirection = this.currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Set new field and default to ascending
+            this.currentSortField = field;
+            this.currentSortDirection = 'asc';
+        }
+
+        this.sortAppointments();
+    }
+
+    private sortAppointments(): void {
+        this.appointments.sort((a, b) => {
+            let aValue: any;
+            let bValue: any;
+
+            switch (this.currentSortField) {
+                case 'patientName':
+                    aValue = this.getPatientFullName(a.patient).toLowerCase();
+                    bValue = this.getPatientFullName(b.patient).toLowerCase();
+                    break;
+                case 'appointmentType':
+                    aValue = a.appointmentType?.toLowerCase() || '';
+                    bValue = b.appointmentType?.toLowerCase() || '';
+                    break;
+                case 'status':
+                    aValue = a.status?.toLowerCase() || '';
+                    bValue = b.status?.toLowerCase() || '';
+                    break;
+                case 'category':
+                    aValue = (a.appointmentFor || 'Teledentistry').toLowerCase();
+                    bValue = (b.appointmentFor || 'Teledentistry').toLowerCase();
+                    break;
+                case 'doctorName':
+                    aValue = a.doctor?.name?.toLowerCase() || '';
+                    bValue = b.doctor?.name?.toLowerCase() || '';
+                    break;
+                case 'date':
+                    aValue = new Date(a.date).getTime();
+                    bValue = new Date(b.date).getTime();
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aValue < bValue) {
+                return this.currentSortDirection === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return this.currentSortDirection === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
     }
 }

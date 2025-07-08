@@ -45,6 +45,9 @@ export class AppointmentsListComponent implements OnInit {
   showAddModal: boolean = false;
   addAppointmentForm: FormGroup;
   
+  // Tag functionality for reasons
+  selectedReasons: string[] = ['Tooth Pain', 'Swollen Gums', 'Bad Breath'];
+  
   // Sample data
   availableDoctors = [
     { name: 'Dr. Jamie Garcia', id: 1 },
@@ -117,12 +120,16 @@ export class AppointmentsListComponent implements OnInit {
   closeAddModal(): void {
     this.showAddModal = false;
     this.addAppointmentForm.reset();
+    this.selectedReasons = ['Tooth Pain', 'Swollen Gums', 'Bad Breath']; // Reset to default
     this.initializeForm();
   }
 
   onAddAppointment(): void {
     if (this.addAppointmentForm.valid) {
-      const appointmentData = this.addAppointmentForm.value;
+      const appointmentData = {
+        ...this.addAppointmentForm.value,
+        reasonsForVisit: this.selectedReasons
+      };
       console.log('Adding appointment:', appointmentData);
       
       // Here you would typically call a service to save the appointment
@@ -131,6 +138,25 @@ export class AppointmentsListComponent implements OnInit {
       
       // Show success message or handle the response
       alert('Appointment added successfully!');
+    }
+  }
+
+  // Tag functionality methods
+  addReason(event: KeyboardEvent): void {
+    event.preventDefault();
+    const input = event.target as HTMLInputElement;
+    const value = input.value.trim();
+    
+    if (value && !this.selectedReasons.includes(value)) {
+      this.selectedReasons.push(value);
+      input.value = '';
+    }
+  }
+
+  removeReason(reason: string): void {
+    const index = this.selectedReasons.indexOf(reason);
+    if (index >= 0) {
+      this.selectedReasons.splice(index, 1);
     }
   }
 

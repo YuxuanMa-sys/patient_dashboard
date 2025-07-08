@@ -5,13 +5,10 @@ import { Observable, Subject, takeUntil } from 'rxjs';
 import { environment } from 'environments/environment';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApexOptions, ChartComponent } from 'ng-apexcharts';
-
 import { MatDialog } from '@angular/material/dialog';
-
 import { cloneDeep } from 'lodash';
 import { AppointmentDetailModalComponent } from 'app/modules/landing/common/appointment-detail/appointment-detail.component';
 import { ActivatedRoute } from '@angular/router';
-
 import { PortalService } from 'app/modules/portal/portal.service';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { DocumentReference, getDoc } from 'firebase/firestore';
@@ -27,6 +24,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AppointmentsListService } from 'app/modules/portal/appointments-list/appointments-list.service';
 
 @Component({
     selector: 'app-cancelled-appointments',
@@ -56,6 +55,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChild('btcChartComponent') btcChartComponent: ChartComponent;
+    @ViewChild(MatSort) sort: MatSort;
+    
     appConfig: any;
     btcOptions: ApexOptions = {};
     drawerMode: 'over' | 'side' = 'side';
@@ -65,6 +66,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     readonly url: string = environment.assets + 'utitlity/';
     recentTransactionsDataSource: MatTableDataSource<any> = new MatTableDataSource();
     displayedColumns: string[] = ['name', 'date', 'type', 'for', 'doctor', 'issue_seeking', 'status', 'action'];
+    dataSource: MatTableDataSource<any> = new MatTableDataSource();
     data: any[] = [];
     today: any;
     upcoming: any;
@@ -75,6 +77,10 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     sortedData: any[];
 
     loading: boolean = true;
+    
+    // Form properties
+    changeAppointmentForm: FormGroup;
+
     /**
      * Constructor
      */
@@ -82,31 +88,64 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         private _matDialog: MatDialog,
         private route: ActivatedRoute,
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private fb: FormBuilder
     ) {
+        this.initializeForms();
     }
 
     ngOnInit(): void {
-
         this.getAppointments();
-
+        this.initializeTable();
     }
 
-    getAppointments(): void {
-        this._portalService.getCancelledAppointments().subscribe({
-            next: (res) => {
-                this.appointments = res; // Contains enriched appointments with patient and doctor data
-                this.loading = false;
-                this.cdr.detectChanges();
-                console.log('Enriched Appointments:', this.appointments);
-            },
-            error: (err) => {
-                console.error('Error fetching appointments:', err);
-            }
-        });
-    }
+    // Sample data for cancelled appointments
+    sampleCancelledAppointments = [
+        {
+            id: 1,
+            patient: { id: 'pat_4', fname: 'Sebastian', lname: 'Olivera', profilePictureUrl: 'images/avatars/male-03.jpg' },
+            doctor: { name: 'Dr. Maddison May' },
+            appointmentType: 'General Checkup',
+            status: 'Cancelled',
+            appointmentFor: 'Teledentistry',
+            date: new Date('2021-07-03'),
+            selectedSlot: '11:00 AM',
+            appointmentReason: 'Routine checkup - cancelled due to emergency'
+        },
+        {
+            id: 2,
+            patient: { id: 'pat_6', fname: 'Michael', lname: 'Brown', profilePictureUrl: 'images/avatars/male-04.jpg' },
+            doctor: { name: 'Dr. Olivia Wilde' },
+            appointmentType: 'Cavity Fillings',
+            status: 'Cancelled',
+            appointmentFor: 'In-Person',
+            date: new Date('2021-07-02'),
+            selectedSlot: '02:00 PM',
+            appointmentReason: 'Cavity treatment - patient rescheduled'
+        },
+        {
+            id: 3,
+            patient: { id: 'pat_7', fname: 'Sarah', lname: 'Johnson', profilePictureUrl: 'images/avatars/female-03.jpg' },
+            doctor: { name: 'Dr. Jamie Garcia' },
+            appointmentType: 'Consultation',
+            status: 'Cancelled',
+            appointmentFor: 'Teledentistry',
+            date: new Date('2021-07-01'),
+            selectedSlot: '04:00 PM',
+            appointmentReason: 'Dental consultation - no longer needed'
+        }
+    ];
 
-
+    // Sorting properties
+    currentSortField: string = '';
+    currentSortDirection: 'asc' | 'desc' = 'asc';
+    
+    // Image loading state management
+    imageLoadingStates: Map<string, boolean> = new Map();
+    
+    // Modal properties
+    showDetailsModal: boolean = false;
+    selectedAppointment: any = null;
 
     sortData(sort: Sort) {
         const data = this.appointments.slice();
@@ -137,7 +176,6 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     compare(a: number | string, b: number | string, isAsc: boolean) {
         return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
     }
-
 
     openApptDetailDialog(data: any): void {
         const dialogRef = this._matDialog.open(AppointmentDetailModalComponent, {
@@ -192,9 +230,10 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
      * After view init
      */
     ngAfterViewInit(): void {
-
+        if (this.sort) {
+            this.dataSource.sort = this.sort;
+        }
     }
-
 
     trackByFn(index: number, item: any): any {
         return item.id || index;
@@ -207,5 +246,153 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+    }
+
+    // Patient helper methods
+    getPatientAvatar(patient: any): string {
+        if (patient?.profilePictureUrl) {
+            return patient.profilePictureUrl;
+        }
+        
+        // Use different default avatars based on gender or patient ID
+        const defaultAvatars = [
+            'images/avatars/male-01.jpg',
+            'images/avatars/female-01.jpg',
+            'images/avatars/male-02.jpg',
+            'images/avatars/female-02.jpg',
+            'images/avatars/male-03.jpg',
+            'images/avatars/female-03.jpg'
+        ];
+        
+        // Use patient ID to consistently assign the same default avatar
+        const index = patient?.id ? patient.id.length % defaultAvatars.length : 0;
+        return defaultAvatars[index];
+    }
+
+    getPatientFullName(patient: any): string {
+        if (!patient) return 'Unknown Patient';
+        
+        const firstName = patient.fname || patient.firstName || '';
+        const lastName = patient.lname || patient.lastName || '';
+        
+        return `${firstName} ${lastName}`.trim() || 'Unknown Patient';
+    }
+
+    // Modal methods
+    openAppointmentDetails(appointment: any): void {
+        this.selectedAppointment = appointment;
+        this.showDetailsModal = true;
+    }
+
+    closeDetailsModal(): void {
+        this.showDetailsModal = false;
+        this.selectedAppointment = null;
+    }
+
+    // Sorting methods
+    sortBy(field: string): void {
+        if (this.currentSortField === field) {
+            // Toggle direction if clicking the same field
+            this.currentSortDirection = this.currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Set new field and default to ascending
+            this.currentSortField = field;
+            this.currentSortDirection = 'asc';
+        }
+
+        this.sortAppointments();
+    }
+
+    private sortAppointments(): void {
+        this.appointments.sort((a, b) => {
+            let aValue: any;
+            let bValue: any;
+
+            switch (this.currentSortField) {
+                case 'patientName':
+                    aValue = this.getPatientFullName(a.patient).toLowerCase();
+                    bValue = this.getPatientFullName(b.patient).toLowerCase();
+                    break;
+                case 'appointmentType':
+                    aValue = a.appointmentType?.toLowerCase() || '';
+                    bValue = b.appointmentType?.toLowerCase() || '';
+                    break;
+                case 'status':
+                    aValue = a.status?.toLowerCase() || '';
+                    bValue = b.status?.toLowerCase() || '';
+                    break;
+                case 'category':
+                    aValue = (a.appointmentFor || 'Teledentistry').toLowerCase();
+                    bValue = (b.appointmentFor || 'Teledentistry').toLowerCase();
+                    break;
+                case 'doctorName':
+                    aValue = a.doctor?.name?.toLowerCase() || '';
+                    bValue = b.doctor?.name?.toLowerCase() || '';
+                    break;
+                case 'date':
+                    aValue = new Date(a.date).getTime();
+                    bValue = new Date(b.date).getTime();
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (aValue < bValue) {
+                return this.currentSortDirection === 'asc' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return this.currentSortDirection === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+    private initializeForms(): void {
+        this.changeAppointmentForm = this.fb.group({
+            category: ['Virtual', Validators.required],
+            rescheduleMessage: ['Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta']
+        });
+    }
+
+    private initializeTable(): void {
+        this.dataSource = new MatTableDataSource(this.appointments);
+        if (this.sort) {
+            this.dataSource.sort = this.sort;
+        }
+    }
+
+    getAppointments(): void {
+        this.loading = true;
+        
+        // Filter sample data to show only cancelled appointments
+        this.appointments = this.sampleCancelledAppointments.filter(app => app.status === 'Cancelled');
+        this.dataSource.data = this.appointments;
+        this.loading = false;
+        this.initializeImageLoadingStates();
+        this.cdr.detectChanges();
+        console.log('Cancelled appointments loaded:', this.appointments);
+    }
+
+    // Image loading state management
+    initializeImageLoadingStates(): void {
+        this.appointments.forEach(appointment => {
+            if (appointment.patient && appointment.patient.id) {
+                this.imageLoadingStates.set(appointment.patient.id, true);
+            }
+        });
+    }
+    
+    isImageLoading(patientId: string): boolean {
+        return this.imageLoadingStates.get(patientId) || false;
+    }
+    
+    onImageLoad(patientId: string): void {
+        this.imageLoadingStates.set(patientId, false);
+        this.cdr.detectChanges();
+    }
+    
+    onImageError(patientId: string): void {
+        this.imageLoadingStates.set(patientId, false);
+        this.cdr.detectChanges();
     }
 }
