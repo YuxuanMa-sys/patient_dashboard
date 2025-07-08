@@ -31,11 +31,7 @@
                                     <!-- Main message with larger font -->
                                     <p class="text-base font-medium text-gray-900 leading-tight">
                                         {{ getBriefMessage(notification) }}
-                                    </p>
-                                    
-                                    <!-- Relative time on second line -->
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        {{ getTimeAgo(notification?.createdAt || notification?.timestamp || notification?.time) }}
+                                        <span class="text-sm text-gray-500 font-normal"> on {{ getExactTimestamp(notification) }}</span>
                                     </p>
                                     
                                     <!-- Expanded Full Message (only for this specific notification) -->

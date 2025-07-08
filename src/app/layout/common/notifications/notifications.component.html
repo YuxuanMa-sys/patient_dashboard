@@ -148,30 +148,33 @@
                         </div>
                     }
                     <!-- Image -->
-                    @if (notification.image) {
+                    @if (notification.image || notification.userAvatar) {
                         <img
                             class="mr-4 h-8 w-8 shrink-0 overflow-hidden rounded-full object-cover object-center"
-                            [src]="notification.image"
+                            [src]="notification.image || notification.userAvatar"
                             [alt]="'Notification image'"
                         />
                     }
-                    <!-- Title, description & time -->
+                    <!-- Title & time -->
                     <div class="flex flex-auto flex-col">
-                        @if (notification.title) {
+                        <!-- Title/Name on first line -->
+                        <div class="line-clamp-1 font-semibold">
+                            {{ notification.title || notification.userName || 'Notification' }}
+                            @if (notification.message && !notification.title) {
+                                <span class="font-normal">{{ ' ' + notification.message }}</span>
+                            }
+                        </div>
+                        <!-- Time on second line -->
+                        <div class="text-secondary mt-1 text-sm leading-none">
+                            {{ notification.time | date: 'MMM dd, h:mm a' }}
+                        </div>
+                        <!-- Description if exists and different from message -->
+                        @if (notification.description && notification.description !== notification.message) {
                             <div
-                                class="line-clamp-1 font-semibold"
-                                [innerHTML]="notification.title"
-                            ></div>
-                        }
-                        @if (notification.description) {
-                            <div
-                                class="line-clamp-2"
+                                class="line-clamp-2 mt-1 text-sm"
                                 [innerHTML]="notification.description"
                             ></div>
                         }
-                        <div class="text-secondary mt-2 text-sm leading-none">
-                            {{ notification.time | date: 'MMM dd, h:mm a' }}
-                        </div>
                     </div>
                 </ng-template>
             }

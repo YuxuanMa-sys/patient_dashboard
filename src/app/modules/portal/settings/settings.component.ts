@@ -14,8 +14,8 @@ import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { Subject, takeUntil } from 'rxjs';
 
-
 import { SettingsSecurityComponent } from './security/security.component';
+import { SettingsInsuranceComponent } from './insurance/insurance.component';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { SettingsVirtualComponent } from './virtual/virtual.component';
@@ -37,6 +37,7 @@ import { SettingsPlanBillingComponent } from './plan-billing/plan-billing.compon
         SettingsVirtualComponent,
         SettingsSecurityComponent,
         SettingsPlanBillingComponent,
+        SettingsInsuranceComponent,
         MatTabsModule,
         NgFor
     ],
@@ -97,10 +98,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     'Manage your subscription plan, payment method and billing information',
             },
             {
-                id: 'notifications',
-                icon: 'heroicons_outline:bell',
-                title: 'Notifications',
-                description: "Manage when you'll be notified on which channels",
+                id: 'insurance',
+                icon: 'heroicons_outline:shield-check',
+                title: 'Insurance',
+                description: 'Manage insurance providers and policies',
             },
             // {
             //     id: 'team',

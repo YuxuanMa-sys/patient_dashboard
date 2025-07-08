@@ -1,0 +1,161 @@
+<section class="w-full max-w-full mx-auto px-6 py-8">
+    <!-- Header with Search and Filters -->
+    <div class="mb-8">
+        <!-- Search and Filter Bar -->
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+            <!-- Search Input -->
+            <div class="min-w-60 max-w-xs w-full">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                    </div>
+                    <input type="text" 
+                           placeholder="Search" 
+                           [(ngModel)]="searchQuery" 
+                           (ngModelChange)="onSearchChange()"
+                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-input">
+                </div>
+            </div>
+
+            <!-- Add Provider Button -->
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-base font-medium transition-colors duration-200 flex items-center add-provider-btn ml-auto" 
+                    (click)="createOrUpdate('add')">
+                <mat-icon class="h-5 w-5 mr-2 text-white" svgIcon="heroicons_solid:plus"></mat-icon>
+                Add a Provider
+            </button>
+        </div>
+    </div>
+
+    <!-- Providers Table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 providers-table">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-base font-semibold text-gray-600 uppercase tracking-wider cursor-pointer" 
+                            (click)="sortBy('name')">
+                            <div class="flex items-center">
+                                <span>Provider Name</span>
+                                <mat-icon class="ml-1 w-4 h-4" *ngIf="sortField === 'name'" 
+                                    [svgIcon]="sortDirection === 'asc' ? 'heroicons_outline:chevron-up' : 'heroicons_outline:chevron-down'">
+                                </mat-icon>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-base font-semibold text-gray-600 uppercase tracking-wider cursor-pointer" 
+                            (click)="sortBy('type')">
+                            <div class="flex items-center">
+                                <span>Provider Type</span>
+                                <mat-icon class="ml-1 w-4 h-4" *ngIf="sortField === 'type'" 
+                                    [svgIcon]="sortDirection === 'asc' ? 'heroicons_outline:chevron-up' : 'heroicons_outline:chevron-down'">
+                                </mat-icon>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-base font-semibold text-gray-600 uppercase tracking-wider cursor-pointer" 
+                            (click)="sortBy('id')">
+                            <div class="flex items-center">
+                                <span>Provider ID</span>
+                                <mat-icon class="ml-1 w-4 h-4" *ngIf="sortField === 'id'" 
+                                    [svgIcon]="sortDirection === 'asc' ? 'heroicons_outline:chevron-up' : 'heroicons_outline:chevron-down'">
+                                </mat-icon>
+                            </div>
+                        </th>
+                        <th class="px-6 py-3 text-left text-base font-semibold text-gray-600 uppercase tracking-wider">
+                            Color
+                        </th>
+                        <th class="px-6 py-3 text-right text-base font-semibold text-gray-600 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let provider of filteredProviders; trackBy: trackByFn" 
+                        class="hover:bg-gray-50 transition-colors duration-200">
+                        
+                        <!-- Provider Name with Avatar -->
+                        <td class="px-6 py-4 whitespace-nowrap w-64 provider-name-cell">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0">
+                                    <img class="h-11 w-11 rounded-full object-cover border-2 border-gray-200 provider-avatar" 
+                                         [src]="getProviderAvatar(provider)" 
+                                         [alt]="provider.name"
+                                         (error)="$event.target.src='images/avatars/male-01.jpg'; $event.target.onerror=null;">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-base font-medium text-gray-900 truncate">
+                                        {{ provider.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Provider Type -->
+                        <td class="px-6 py-4 whitespace-nowrap text-base text-gray-900 w-40">
+                            {{ getProviderType(provider) }}
+                        </td>
+
+                        <!-- Provider ID -->
+                        <td class="px-6 py-4 whitespace-nowrap text-base text-gray-900 w-32">
+                            {{ getProviderId(provider) }}
+                        </td>
+
+                        <!-- Color -->
+                        <td class="px-6 py-4 whitespace-nowrap w-20">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-200" 
+                                 [style.background-color]="provider.color || '#3B82F6'">
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-base font-medium w-40">
+                            <div class="flex items-center justify-end space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium edit-details-btn text-base" 
+                                        (click)="createOrUpdate(provider)">
+                                    Edit Details
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 transition-colors duration-200 font-medium remove-btn text-base" 
+                                        (click)="deleteData(provider.id)">
+                                    Remove
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex justify-center items-center py-12">
+                <mat-progress-spinner diameter="40"></mat-progress-spinner>
+                <span class="ml-4 text-gray-600">Loading providers...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && filteredProviders.length === 0" class="text-center py-12">
+                <div class="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mx-auto mb-6">
+                    <mat-icon class="w-10 h-10 text-gray-400" [svgIcon]="'heroicons_solid:user-group'"></mat-icon>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No providers found</h3>
+                <p class="text-base text-gray-500 mb-6">
+                    <span *ngIf="searchQuery">
+                        No providers match your search criteria. Try adjusting your search or 
+                    </span>
+                    <button class="text-blue-600 hover:text-blue-800 font-medium text-base" (click)="createOrUpdate('add')">
+                        add a new provider
+                    </button>
+                </p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error" class="text-center py-12">
+                <div class="flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mx-auto mb-6">
+                    <mat-icon class="w-10 h-10 text-red-500" [svgIcon]="'heroicons_solid:exclamation-triangle'"></mat-icon>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Error Loading Providers</h3>
+                <p class="text-red-600 mb-6 text-base">{{ error }}</p>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 text-base" 
+                        (click)="getData()">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</section> 

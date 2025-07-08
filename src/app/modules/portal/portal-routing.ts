@@ -4,6 +4,7 @@ import { LayoutComponent } from 'app/layout/layout.component';
 import { PortalComponent } from './portal.component';
 import { PortalService } from './portal.service';
 import { InsuranceComponent } from './insurance/insurance.component';
+import { ProvidersComponent } from './providers/providers.component';
 
 export const routes: Routes = [
 
@@ -51,6 +52,11 @@ export const routes: Routes = [
             {
                 path: 'staff',
                 loadChildren: () => import('./staff/staff.module').then(m => m.StaffModule),
+            },
+
+            {
+                path: 'providers',
+                component: ProvidersComponent,
             },
 
             {

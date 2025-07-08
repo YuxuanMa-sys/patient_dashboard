@@ -1,0 +1,167 @@
+/* Providers Component Styles */
+
+/* Custom input styling to match the design */
+.rounded-input {
+  transition: all 0.2s ease-in-out;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+  }
+}
+
+/* Table styling improvements */
+.providers-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Avatar styling */
+.provider-avatar {
+  transition: transform 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Name cell styling */
+.provider-name-cell {
+  max-width: 250px;
+}
+
+/* Button styling improvements */
+.add-provider-btn {
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+.edit-details-btn, .remove-btn {
+  transition: all 0.2s ease-in-out;
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+  &:hover {
+    text-decoration: underline;
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+}
+
+.remove-btn:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Loading state styling */
+.mat-progress-spinner {
+  ::ng-deep .mat-progress-spinner-circle {
+    stroke: #3b82f6;
+  }
+}
+
+/* Table hover effects */
+tbody tr {
+  &:hover {
+    background-color: rgba(59, 130, 246, 0.02);
+  }
+}
+
+/* Color circle styling */
+.color-circle {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+/* Header styling */
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f9fafb;
+  
+  &:hover {
+    background-color: #f3f4f6;
+  }
+}
+
+/* Sort icon styling */
+.sort-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .provider-name-cell {
+    max-width: 200px;
+  }
+  
+  .providers-table {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .provider-name-cell {
+    max-width: 150px;
+  }
+  
+  .provider-avatar {
+    height: 2rem !important;
+    width: 2rem !important;
+  }
+  
+  .add-provider-btn {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+  
+  .flex-wrap .flex-1 {
+    min-width: auto;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Animation for table rows */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+tbody tr {
+  animation: fadeInUp 0.3s ease-out;
+} 

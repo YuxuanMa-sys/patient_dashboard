@@ -24,7 +24,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Timestamp } from 'firebase/firestore';
-
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector: 'staff',
@@ -42,6 +42,7 @@ import { Timestamp } from 'firebase/firestore';
         MatOptionModule,
         MatRadioModule,
         MatDatepickerModule, MatDividerModule, DatePipe, CommonModule,
+        MatProgressSpinnerModule
     ],
     providers: [DatePipe]
 })
@@ -85,13 +86,13 @@ export class StaffModalComponent implements OnInit, OnDestroy {
             bio: [null],
             email: [null, [Validators.required, Validators.email]],
             profileImage: [null],
-            role: [null, Validators.required],
-            status: [null, Validators.required],
-            specialization: [null],
+            role: ['Provider', Validators.required], // Default to Provider
+            status: ['Active', Validators.required], // Default to Active
+            specialization: [null, Validators.required],
             wort_at: [null],
             since: [null],
             password: [null, Validators.required],
-            color: ['#000000', Validators.required],
+            color: ['#3B82F6', Validators.required], // Default blue color
             createdAt: new Date(),
         });
 
@@ -103,26 +104,120 @@ export class StaffModalComponent implements OnInit, OnDestroy {
             this.single.createdAt = this.single.createdAt && this.single.createdAt.seconds
                 ? new Date(this.single.createdAt.seconds * 1000)
                 : null;
-                this.single.since = this.single.since && this.single.since.seconds ? new Date(this.single.since.seconds * 1000) : null;
+            this.single.since = this.single.since && this.single.since.seconds 
+                ? new Date(this.single.since.seconds * 1000) 
+                : null;
             this.form.patchValue(this.single);
+        } else {
+            // Set default values for new provider
+            this.form.patchValue({
+                email: this.generateTempEmail(),
+                phone: this.generateTempPhone(),
+                password: this.generateTempPassword(),
+                role: 'Provider',
+                status: 'Active'
+            });
         }
     }
 
-    onImageSelect(event: Event): void {
-        const fileInput = event.target as HTMLInputElement;
-        this.selectedImage = fileInput.files ? fileInput.files[0] : null;
+    /**
+     * Generate year range for Professional Since dropdown
+     */
+    getYearRange(): number[] {
+        const currentYear = new Date().getFullYear();
+        const startYear = 1980;
+        const years = [];
+        
+        for (let year = currentYear; year >= startYear; year--) {
+            years.push(year);
+        }
+        
+        return years;
+    }
 
-        if (this.selectedImage) {
-            // Generate a preview of the selected image
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.imagePreviewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string);
-                this.cdr.detectChanges();
-            };
-            reader.readAsDataURL(this.selectedImage);
+    /**
+     * Generate temporary email for system use
+     */
+    generateTempEmail(): string {
+        const timestamp = Date.now();
+        return `provider.${timestamp}@temp.clinic`;
+    }
 
-            // Immediately upload the image and patch the form
-            this.uploadImageAndPatchForm();
+    /**
+     * Generate temporary phone for system use
+     */
+    generateTempPhone(): string {
+        return `+1${Math.floor(Math.random() * 9000000000) + 1000000000}`;
+    }
+
+    /**
+     * Generate temporary password for system use
+     */
+    generateTempPassword(): string {
+        return Math.random().toString(36).slice(-8);
+    }
+
+    /**
+     * Handle drag over event
+     */
+    onDragOver(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    /**
+     * Handle drag leave event
+     */
+    onDragLeave(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    /**
+     * Handle drop event
+     */
+    onDrop(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const files = event.dataTransfer?.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                this.handleImageFile(file);
+            }
+        }
+    }
+
+    /**
+     * Remove uploaded image
+     */
+    removeImage(): void {
+        this.selectedImage = null;
+        this.imagePreviewUrl = null;
+        this.form.patchValue({ profileImage: null });
+        this.cdr.detectChanges();
+    }
+
+    /**
+     * Handle image file selection
+     */
+    handleImageFile(file: File): void {
+        this.selectedImage = file;
+        
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.imagePreviewUrl = this.sanitizer.bypassSecurityTrustUrl(e.target?.result as string);
+            this.cdr.detectChanges();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    onImageSelect(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            this.handleImageFile(file);
         }
     }
 
@@ -149,13 +244,20 @@ export class StaffModalComponent implements OnInit, OnDestroy {
 
         if (this.form.valid) {
             this.loading = true;
+            this.error = '';
+
+            // Upload image first if selected
+            if (this.selectedImage) {
+                await this.uploadImageAndPatchForm();
+            }
 
             const formData = {
                 ...this.form.value,
             };
 
-            if (formData.since) {
-                formData.since = Timestamp.fromDate(new Date(formData.since));
+            // Convert since to timestamp if it's a year number
+            if (formData.since && typeof formData.since === 'number') {
+                formData.since = Timestamp.fromDate(new Date(formData.since, 0, 1));
             }
 
             if (this.single === 'add') {
@@ -174,7 +276,7 @@ export class StaffModalComponent implements OnInit, OnDestroy {
                     this._matDialogRef.close({ ...res, id: res.id });
                 } catch (error) {
                     console.error('Error creating staff or auth user:', error);
-                    this.error = 'Failed to create staff. Please try again.';
+                    this.error = 'Failed to create provider. Please try again.';
                 } finally {
                     this.loading = false;
                 }
@@ -186,14 +288,13 @@ export class StaffModalComponent implements OnInit, OnDestroy {
                     console.log('Staff updated successfully!');
                 } catch (error) {
                     console.error('Error updating staff:', error);
-                    this.error = 'Failed to update staff. Please try again.';
+                    this.error = 'Failed to update provider. Please try again.';
                 } finally {
                     this.loading = false;
                 }
             }
         }
     }
-
 
     close() {
         this._matDialogRef.close();
