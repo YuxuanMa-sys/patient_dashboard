@@ -1,85 +1,86 @@
-<section id="upcoming" class="w-full max-w-screen-xl mx-auto">
-
-    <div class="flex items-center justify-between w-full py-3 px-2">
-        <div>
-            <h2 class="text-2xl font-medium tracking-normal leading-8 text-dark">Notifications
-            </h2>
-        </div>
-
-        <div class="mt-4 sm:mt-0">
-            <!-- Upload button -->
-            <!-- <button mat-flat-button [color]="'primary'">
-                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                <span class="ml-2 mr-1">Add Announcements </span>
-            </button> -->
-        </div>
+<section class="w-full max-w-full mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900">Notifications</h1>
     </div>
 
-    <div class="grid grid-cols-1  gap-6 w-full mt-2">
+    <!-- Notifications List -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <ng-container *ngIf="!loading && notifications.length > 0; else noData">
+            <div class="divide-y divide-gray-100">
+                <div *ngFor="let notification of notifications; let first = first" 
+                     class="group p-4 hover:bg-gray-50 transition-colors duration-200"
+                     [ngClass]="{'border-l-4 border-blue-500 bg-blue-50': first}">
+                    
+                    <div class="flex items-start space-x-4">
+                        <!-- User Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full overflow-hidden">
+                                <img class="w-full h-full object-cover" 
+                                     [src]="getUserAvatar(notification)" 
+                                     [alt]="getUserName(notification)"
+                                     (error)="$event.target.src='images/avatars/brian-hughes.jpg'">
+                            </div>
+                        </div>
 
-        <div class="flex flex-col flex-auto sm:mb-10 bg-card shadow rounded-sm overflow-hidden sm:overflow-y-auto p-5">
-            <div class="overflow-x-auto">
-                <ng-container>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-                        <div class="filter-article relative flex w-full flex-col bg-white shadow-lg rounded-lg p-6" *ngFor="let item of notifications">
-                            <!-- Delete Icon (Top-Right) -->
-                            <button (click)="deleteNotification(item.id)" class="absolute top-3 right-3 text-red-500 hover:text-red-700">
-                                <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
-                            </button>
-
-                            <!-- Title Section -->
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="text-lg font-medium leading-tight text-gray-800">
-                                    {{ item?.title }}
+                        <!-- Notification Content -->
+                        <div class="flex-1 min-w-0">
+                            <!-- Brief Message with Timestamp -->
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <!-- Main message with larger font -->
+                                    <p class="text-base font-medium text-gray-900 leading-tight">
+                                        {{ getBriefMessage(notification) }}
+                                    </p>
+                                    
+                                    <!-- Relative time on second line -->
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        {{ getTimeAgo(notification?.createdAt || notification?.timestamp || notification?.time) }}
+                                    </p>
+                                    
+                                    <!-- Expanded Full Message (only for this specific notification) -->
+                                    <div *ngIf="isNotificationExpanded(notification.id)" 
+                                         class="mt-3 p-3 bg-gray-50 rounded-lg border-l-2 border-blue-400">
+                                        <p class="text-sm text-gray-700 leading-relaxed mb-2">
+                                            {{ getFullMessage(notification) }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 font-medium">
+                                            Exact time: {{ getExactTimestamp(notification) }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <!-- Timestamp -->
-                                <div class="text-sm text-gray-500">
-                                    {{ item.createdAt?.toDate() | date: "medium" }}
+
+                                <!-- See Details & Actions -->
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <button (click)="toggleNotificationDetails(notification.id)" 
+                                            class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors whitespace-nowrap">
+                                        {{ isNotificationExpanded(notification.id) ? 'Hide Details' : 'See Details' }}
+                                    </button>
+                                    
+                                    <button (click)="deleteNotification(notification.id)" 
+                                            class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all">
+                                        <mat-icon class="w-4 h-4">close</mat-icon>
+                                    </button>
                                 </div>
-                            </div>
-
-                            <!-- Description Section -->
-                            <div class="text-gray-600 mb-4">
-                                {{ item?.desc }}
-                            </div>
-
-                            <!-- Announcement Description -->
-                            <div class="text-gray-700 font-normal">
-                                {{ item?.announcement_desc }}
-                            </div>
-
-                            <!-- Optional: Action buttons or icons for notifications -->
-                            <div class="mt-4 flex justify-end">
-                                <button class="text-sm text-blue-500 hover:text-blue-700">
-                                    View Details
-                                </button>
                             </div>
                         </div>
                     </div>
-
-                </ng-container>
-
-
-                <ng-container *ngIf="!loading && notifications.length > 0; else noData">
-                </ng-container>
-
-                <ng-template #noData>
-                    <div class="flex flex-col flex-auto w-full">
-                        <div class="m-auto px-4"> <img class="w-80" [alt]="'transaction thumbnail image'"
-                                src="icons/magnifying-glass.svg"></div>
-
-                        <div
-                            class="p-8 pt-0 sm:pt-0 sm:p-16 text-2xl font-normal tracking-tight text-center max-w-md align-center m-auto">
-                            You don't have any notifications
-                        </div>
-                    </div>
-                </ng-template>
+                </div>
             </div>
+        </ng-container>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex justify-center items-center py-12">
+            <mat-spinner diameter="40"></mat-spinner>
         </div>
 
-
+        <!-- Empty State -->
+        <ng-template #noData>
+            <div class="flex flex-col items-center justify-center py-12">
+                <img class="w-32 h-32 opacity-50 mb-4" src="icons/notification.svg" alt="No notifications">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+                <p class="text-sm text-gray-500">You're all caught up! No new notifications to display.</p>
+            </div>
+        </ng-template>
     </div>
-
-
 </section>

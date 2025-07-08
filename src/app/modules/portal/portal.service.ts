@@ -942,7 +942,16 @@ export class PortalService {
     getNotifications(): Observable<any> {
         const notificationsRef = doc(this.firestore, 'notifications/ClinicAll');
         return from(getDoc(notificationsRef)).pipe(
-            map((snapshot) => snapshot.exists() ? snapshot.data() : null)
+            switchMap((snapshot) => {
+                if (snapshot.exists() && snapshot.data()?.notifications) {
+                    return of(snapshot.data());
+                } else {
+                    // Fallback to mock API if no Firebase data
+                    return this._httpClient.get<any[]>('api/common/notifications').pipe(
+                        map((notifications) => ({ notifications }))
+                    );
+                }
+            })
         );
     }
 

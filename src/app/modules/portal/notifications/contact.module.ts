@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe, NgClass } from '@angular/common';
+import { CommonModule, DatePipe, NgClass, NgIf, NgFor } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 import {  ContactRouting, routes } from './contact-routing';
 import { ContactComponent } from './contact.component';
@@ -23,9 +23,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
-
-
-
 @NgModule({
   declarations: [
     ContactComponent,
@@ -38,13 +35,23 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     RouterLink,
     MatIconModule,
     MatStepperModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatOptionModule, MatButtonModule, MatCheckboxModule, MatRadioModule,
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatSelectModule,
+    MatOptionModule, 
+    MatButtonModule, 
+    MatCheckboxModule, 
+    MatRadioModule,
     MatDatepickerModule,
     MatProgressSpinnerModule,
-    MatMenuModule, MatDividerModule,
-    NgClass, MatTableModule,
-    MatSortModule, DatePipe,
+    MatMenuModule, 
+    MatDividerModule,
+    NgClass, 
+    NgIf,
+    NgFor,
+    MatTableModule,
+    MatSortModule, 
+    DatePipe,
   ]
 })
 export class ContactModule { }

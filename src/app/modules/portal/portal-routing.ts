@@ -69,6 +69,8 @@ export const routes: Routes = [
 
             { path: 'clinic-details', loadChildren: () => import('./account/account.routes') },
 
+            { path: 'clinic-gallery', loadChildren: () => import('./account/account.routes') },
+
             {
                 path: 'chat',
                 loadChildren: () => import('./chat/chat.routes')
