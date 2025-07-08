@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Route, RouterModule } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
@@ -14,32 +14,21 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatOptionModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ListComponent } from './list/list.component';
-import { RequestsComponent } from './requests.component';
 import { AppointmentRequestDetailModalComponent } from './appointment-request-detail-modal/appointment-request-detail-modal.component';
-
-const routes: Route[] = [
-    {
-        path: '',
-        component: RequestsComponent,
-        children: [
-            {
-                path: '',
-                component: ListComponent
-            }
-        ]
-    }
-];
+import { RequestsService } from './requests.service';
+import { routes } from './requests-routing';
 
 @NgModule({
     declarations: [
         ListComponent,
-        RequestsComponent,
         AppointmentRequestDetailModalComponent
     ],
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         RouterModule.forChild(routes),
         MatTableModule,
         MatPaginatorModule,
@@ -52,7 +41,12 @@ const routes: Route[] = [
         MatMenuModule,
         MatTooltipModule,
         MatDialogModule,
-        MatOptionModule
+        MatOptionModule,
+        MatDatepickerModule
+    ],
+    providers: [
+        DatePipe,
+        RequestsService
     ]
 })
 export class RequestsModule {

@@ -12,3 +12,11 @@
 .fuse-vertical-navigation-item-img {
     max-width: 18px;
 }
+
+/* Line clamp utilities for text truncation */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

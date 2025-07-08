@@ -1,7 +1,106 @@
 <div class="flex flex-col flex-auto w-full">
-    <div class="flex flex-wrap w-full max-w-screen-xl mx-auto py-6 px-3 ">
+    <div class="flex flex-wrap w-full max-w-screen-xl mx-auto py-6 px-3">
+        <section class="w-full max-w-full mx-auto px-6 py-8">
+            <!-- Header with Search and Filters -->
+            <div class="mb-8">
+                <!-- Search and Filter Bar -->
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <!-- Search Input -->
+                    <div class="flex-1 min-w-80">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                            </div>
+                            <input type="text" 
+                                   placeholder="Search" 
+                                   [(ngModel)]="searchQuery" 
+                                   (ngModelChange)="onSearchChange()"
+                                   class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-input">
+                        </div>
+                    </div>
 
-        <router-outlet></router-outlet>
+                    <!-- Date Filter -->
+                    <div class="relative min-w-36">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:calendar-days"></mat-icon>
+                        </div>
+                        <input type="text" 
+                               placeholder="Date" 
+                               [matDatepicker]="datePicker" 
+                               [(ngModel)]="dateFilter" 
+                               (ngModelChange)="onFilterChange()"
+                               readonly
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer rounded-input">
+                        <mat-datepicker-toggle class="absolute inset-y-0 right-0 pr-3 flex items-center" [for]="datePicker">
+                            <mat-icon matDatepickerToggleIcon class="h-4 w-4 text-gray-400" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                        </mat-datepicker-toggle>
+                        <mat-datepicker #datePicker></mat-datepicker>
+                    </div>
 
+                    <!-- Doctor Filter -->
+                    <div class="relative min-w-36">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:user-circle"></mat-icon>
+                        </div>
+                        <select [(ngModel)]="doctorFilter" 
+                                (ngModelChange)="onFilterChange()"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer rounded-input"
+                                style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;">
+                            <option value="">Doctor</option>
+                            <option *ngFor="let doctor of availableDoctors" [value]="doctor.name">
+                                {{ doctor.name }}
+                            </option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <mat-icon class="h-4 w-4 text-gray-400" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Type Filter -->
+                    <div class="relative min-w-48">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:calendar"></mat-icon>
+                        </div>
+                        <select [(ngModel)]="appointmentTypeFilter" 
+                                (ngModelChange)="onFilterChange()"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer rounded-input"
+                                style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;">
+                            <option value="">Appointment Type</option>
+                            <option value="General Checkup">General Checkup</option>
+                            <option value="Cavity Fillings">Cavity Fillings</option>
+                            <option value="Consultation">Consultation</option>
+                            <option value="Emergency">Emergency</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <mat-icon class="h-4 w-4 text-gray-400" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Tabs -->
+            <div class="mb-6">
+                <nav class="flex space-x-8 border-b border-gray-200">
+                    <a routerLink="active" 
+                       routerLinkActive="text-blue-600 border-blue-600" 
+                       class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                        Active
+                    </a>
+                    <a routerLink="cancelled" 
+                       routerLinkActive="text-blue-600 border-blue-600" 
+                       class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                        Cancelled
+                    </a>
+                    <a routerLink="completed" 
+                       routerLinkActive="text-blue-600 border-blue-600" 
+                       class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                        Completed
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Content Area -->
+            <router-outlet></router-outlet>
+        </section>
     </div>
 </div>

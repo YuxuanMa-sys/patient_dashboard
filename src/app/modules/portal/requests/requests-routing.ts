@@ -1,27 +1,32 @@
-import { inject, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ListComponent } from './list/list.component';
 import { RequestsComponent } from './requests.component';
 
-
-
 export const routes: Routes = [
-  // { path: '', redirectTo: '/doctor-portal/appointments-list/upcoming', pathMatch: 'full' },
   {
     path: '',
     component: RequestsComponent,
-
     children: [
+      { path: '', redirectTo: 'active', pathMatch: 'full' },
       {
-        path: '',
+        path: 'active',
         component: ListComponent,
+        data: { status: 'active' }
       },
-
+      {
+        path: 'cancelled',
+        component: ListComponent,
+        data: { status: 'cancelled' }
+      },
+      {
+        path: 'completed',
+        component: ListComponent,
+        data: { status: 'completed' }
+      }
     ]
   }
-]
-
-
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
