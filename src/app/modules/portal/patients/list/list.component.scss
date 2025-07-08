@@ -1,19 +1,73 @@
-/* Define specific column widths as needed */
-// .mat-column-name,
-// .mat-column-date {
-//   flex: 1;
-// }
+/* Patient List Component Styles */
 
-// .mat-column-type,
-// .mat-column-status,
-// .mat-column-action {
-//   flex: 0.8; /* Adjust the width as needed */
-// }
-
-.custom-name-column {
-    flex: 4; /* Adjust the width as needed */
+/* Custom input styling to match the design */
+.rounded-input {
+  transition: all 0.2s ease-in-out;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
   }
+}
 
-  .custom-reason-column {
-    flex: 3; /* Adjust the width as needed */
+/* Table styling improvements */
+.patient-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Avatar styling */
+.patient-avatar {
+  transition: transform 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.05);
   }
+}
+
+/* Name cell styling */
+.patient-name-cell {
+  max-width: 250px;
+}
+
+/* Button styling improvements */
+.add-patient-btn {
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+.see-details-btn {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Custom date picker styling */
+.mat-datepicker-toggle {
+  color: #9ca3af !important;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 1024px) {
+  .patient-name-cell {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .patient-name-cell {
+    max-width: 150px;
+  }
+  
+  .patient-avatar {
+    height: 2rem !important;
+    width: 2rem !important;
+  }
+}

@@ -21,6 +21,10 @@ export const routes: Routes = [
         //   // data: () => inject(PatientsService).getData(),
         // }
       },
+      {
+        path: ':id/details',
+        loadChildren: () => import('./details/details.routes')
+      },
     ]
   }
 ]

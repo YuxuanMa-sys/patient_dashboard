@@ -1,0 +1,172 @@
+.new-patient-details {
+    .loading-spinner {
+        @apply animate-spin rounded-full border-b-2 border-blue-600;
+    }
+
+    .status-badge {
+        &.pending {
+            @apply bg-yellow-100 text-yellow-800;
+        }
+        
+        &.active {
+            @apply bg-green-100 text-green-800;
+        }
+        
+        &.rejected {
+            @apply bg-red-100 text-red-800;
+        }
+    }
+
+    .info-card {
+        @apply bg-gray-50 rounded-lg p-4;
+        
+        .label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        
+        .value {
+            @apply text-sm text-gray-900;
+        }
+    }
+
+    .action-buttons {
+        .approve-btn {
+            @apply flex-1 bg-green-600 hover:bg-green-700 text-white;
+        }
+        
+        .reject-btn {
+            @apply flex-1 border-red-600 text-red-600 hover:bg-red-50;
+        }
+    }
+
+    .patient-avatar {
+        @apply w-full h-full object-cover rounded-full;
+        
+        &:hover {
+            @apply transform scale-105 transition-transform duration-200;
+        }
+    }
+
+    .section-card {
+        @apply bg-white rounded-lg shadow-sm p-6;
+        
+        .section-title {
+            @apply text-xl font-semibold text-gray-900 mb-4;
+        }
+    }
+
+    .medical-info {
+        .medication-list {
+            .medication-item {
+                @apply text-sm text-gray-900 flex items-start;
+                
+                &::before {
+                    content: "•";
+                    @apply mr-2 text-blue-600;
+                }
+            }
+        }
+    }
+
+    .emergency-contact {
+        .contact-name {
+            @apply font-medium text-gray-900;
+        }
+        
+        .contact-relation {
+            @apply text-gray-600;
+        }
+        
+        .contact-phone {
+            @apply text-blue-600;
+        }
+    }
+
+    .back-button {
+        @apply text-gray-600 hover:text-gray-800 transition-colors duration-200;
+    }
+
+    .status-message {
+        .status-icon {
+            @apply text-4xl mb-2;
+            
+            &.success {
+                @apply text-green-600;
+            }
+            
+            &.error {
+                @apply text-red-600;
+            }
+        }
+    }
+}
+
+// Material Design Overrides
+.mat-mdc-button {
+    &.approve-button {
+        background-color: #10b981 !important;
+        
+        &:hover {
+            background-color: #059669 !important;
+        }
+    }
+    
+    &.reject-button {
+        border-color: #ef4444 !important;
+        color: #ef4444 !important;
+        
+        &:hover {
+            background-color: #fef2f2 !important;
+        }
+    }
+}
+
+.mat-mdc-icon-button {
+    &.back-button {
+        color: #6b7280;
+        
+        &:hover {
+            color: #374151;
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .new-patient-details {
+        .action-buttons {
+            flex-direction: column;
+            
+            .approve-btn,
+            .reject-btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+// Animation for status changes
+.status-transition {
+    transition: all 0.3s ease-in-out;
+}
+
+// Loading state animations
+.loading-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+} 

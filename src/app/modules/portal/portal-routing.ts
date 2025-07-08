@@ -29,10 +29,10 @@ export const routes: Routes = [
                 path: 'patients',
                 loadChildren: () => import('./patients/patients.module').then(m => m.PatientsModule),
             },
-            // {
-            //     path: 'new-patients',
-            //     loadChildren: () => import('./patients-new/patients.module').then(m => m.PatientsModule),
-            // },
+            {
+                path: 'new-patients',
+                loadChildren: () => import('./patients-new/patients.module').then(m => m.PatientsModule),
+            },
 
             {
                 path: 'requests',

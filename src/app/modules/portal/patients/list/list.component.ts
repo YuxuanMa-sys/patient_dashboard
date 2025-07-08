@@ -245,6 +245,53 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
+     * Get patient avatar URL with fallback
+     */
+    getPatientAvatar(patient: any): string {
+        if (patient?.profilePictureUrl) {
+            return patient.profilePictureUrl;
+        }
+        
+        // Use different default avatars based on gender or randomly
+        const defaultAvatars = [
+            'images/avatars/male-01.jpg',
+            'images/avatars/female-01.jpg',
+            'images/avatars/male-02.jpg',
+            'images/avatars/female-02.jpg',
+            'images/avatars/male-03.jpg',
+            'images/avatars/female-03.jpg'
+        ];
+        
+        // Use patient ID to consistently assign the same default avatar
+        const index = patient?.id ? patient.id.length % defaultAvatars.length : 0;
+        return defaultAvatars[index];
+    }
+
+    /**
+     * Get patient full name
+     */
+    getPatientFullName(patient: any): string {
+        const firstName = patient?.fname || '';
+        const lastName = patient?.lname || '';
+        return `${firstName} ${lastName}`.trim() || 'Unknown Patient';
+    }
+
+    /**
+     * Get patient phone number with fallback
+     */
+    getPatientPhone(patient: any): string {
+        return patient?.number || patient?.phone || '+1 863-836-5624';
+    }
+
+    /**
+     * Handle image loading errors
+     */
+    onImageError(event: any): void {
+        // Fallback to a default avatar if image fails to load
+        event.target.src = 'images/avatars/male-01.jpg';
+    }
+
+    /**
      * On destroy
      */
     ngOnDestroy(): void {

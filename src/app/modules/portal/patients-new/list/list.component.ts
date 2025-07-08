@@ -44,10 +44,21 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     phonePattern: RegExp =
       /^[+]{1}[1]{1}[\s]*((\([0-9]{3}\))|[0-9]{3})[\s\-]?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[0-9]{4}$/;
 
+    data: any[] = []; // Initialize data as an empty array
+    loading: boolean = true;
+    error: string | null = null;
 
-      data: any[] = []; // Initialize data as an empty array
-      loading: boolean = true;
-      error: string | null = null;
+    // Filter properties
+    filteredPatients: any[] = [];
+    searchTerm: string = '';
+    dateFilter: string = '';
+    firstNameFilter: string = '';
+    lastNameFilter: string = '';
+    statusFilter: string = '';
+
+    // Sorting properties (matching patients page)
+    sortField: string = '';
+    sortDirection: 'asc' | 'desc' = 'asc';
   /**
    * Constructor
    */
@@ -103,6 +114,7 @@ this.getPatients();
 
         // Save a copy of sorted data for future use
         this.sortedData = this.patients.slice();
+        this.filteredPatients = this.patients.slice(); // Initialize filtered patients
         this.loading = false; // Stop loading indicator
         this.cdr.detectChanges(); // Ensure the view is updated with new data
         console.log('Patients:', this.patients);
@@ -136,6 +148,180 @@ this.getPatients();
 
   trackByFn(index: number, item: any): any {
     return item.id || index;
+  }
+
+  /**
+   * Approve patient request and convert to active patient
+   */
+  approvePatientRequest(patient: any): void {
+    if (confirm(`Are you sure you want to approve ${patient.fname} ${patient.lname}'s patient request?`)) {
+      const updateData = {
+        status: ClinicStatus.ACTIVE,
+        approvedAt: new Date(),
+        approvedBy: 'Current Doctor' // In real app, get from auth service
+      };
+
+      this._portalService.updatePatient(patient.id, updateData)
+        .then(() => {
+          console.log('Patient request approved successfully');
+          // Refresh the patients list
+          this.getPatients();
+        })
+        .catch((error) => {
+          console.error('Error approving patient request:', error);
+          alert('Error approving patient request. Please try again.');
+        });
+    }
+  }
+
+  /**
+   * Get patient avatar URL with fallback
+   */
+  getPatientAvatar(patient: any): string {
+    if (patient?.profilePictureUrl) {
+      return patient.profilePictureUrl;
+    }
+    
+    // Use default avatars based on gender
+    const defaultAvatars = [
+      'images/avatars/male-01.jpg',
+      'images/avatars/female-01.jpg',
+      'images/avatars/male-02.jpg',
+      'images/avatars/female-02.jpg'
+    ];
+    
+    const index = patient?.id ? patient.id.length % defaultAvatars.length : 0;
+    return defaultAvatars[index];
+  }
+
+  /**
+   * Get patient full name
+   */
+  getPatientFullName(patient: any): string {
+    const firstName = patient?.fname || '';
+    const lastName = patient?.lname || '';
+    return `${firstName} ${lastName}`.trim() || 'N/A';
+  }
+
+  /**
+   * Handle image loading errors
+   */
+  onImageError(event: any): void {
+    event.target.src = 'images/avatars/male-01.jpg';
+  }
+
+  /**
+   * Handle filter changes
+   */
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  /**
+   * Apply all filters
+   */
+  applyFilters(): void {
+    let filtered = [...this.patients];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const query = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(patient => 
+        this.getPatientFullName(patient).toLowerCase().includes(query) ||
+        patient.fname?.toLowerCase().includes(query) ||
+        patient.lname?.toLowerCase().includes(query) ||
+        patient.email?.toLowerCase().includes(query) ||
+        patient.number?.toLowerCase().includes(query) ||
+        patient.phone?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply first name filter
+    if (this.firstNameFilter.trim()) {
+      const query = this.firstNameFilter.toLowerCase().trim();
+      filtered = filtered.filter(patient => 
+        patient.fname?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply last name filter
+    if (this.lastNameFilter.trim()) {
+      const query = this.lastNameFilter.toLowerCase().trim();
+      filtered = filtered.filter(patient => 
+        patient.lname?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply status filter
+    if (this.statusFilter) {
+      filtered = filtered.filter(patient => 
+        patient.status === this.statusFilter
+      );
+    }
+
+    // Apply date filter (simple contains check)
+    if (this.dateFilter.trim()) {
+      const query = this.dateFilter.toLowerCase().trim();
+      filtered = filtered.filter(patient => {
+        const dateStr = patient.createdAt?.toDate?.()?.toLocaleDateString()?.toLowerCase() || '';
+        return dateStr.includes(query);
+      });
+    }
+
+    this.filteredPatients = filtered;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Sort data by field
+   */
+  sortBy(field: string): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+
+    this.filteredPatients.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (field) {
+        case 'name':
+          aValue = this.getPatientFullName(a).toLowerCase();
+          bValue = this.getPatientFullName(b).toLowerCase();
+          break;
+        case 'phone':
+          aValue = a?.number || a?.phone || '';
+          bValue = b?.number || b?.phone || '';
+          break;
+        case 'gender':
+          aValue = a?.gender || '';
+          bValue = b?.gender || '';
+          break;
+        case 'status':
+          aValue = a?.status || 'Pending';
+          bValue = b?.status || 'Pending';
+          break;
+        case 'date':
+          aValue = a?.createdAt?.toDate?.() || new Date(0);
+          bValue = b?.createdAt?.toDate?.() || new Date(0);
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    this.cdr.detectChanges();
   }
 
   /**

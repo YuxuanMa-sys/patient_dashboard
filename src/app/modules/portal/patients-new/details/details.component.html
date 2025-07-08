@@ -1,0 +1,260 @@
+<div class="w-full max-w-full mx-auto px-6 py-8">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex items-center justify-center h-64">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading patient request details...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <mat-icon class="text-red-600 text-4xl mb-2">error</mat-icon>
+        <h3 class="text-lg font-medium text-red-800 mb-2">Error Loading Request</h3>
+        <p class="text-red-600">{{ error }}</p>
+        <button mat-stroked-button (click)="goBack()" class="mt-4">
+            <mat-icon>arrow_back</mat-icon>
+            Back to List
+        </button>
+    </div>
+
+    <!-- Patient Request Detail Layout -->
+    <div *ngIf="patientRequest && !loading" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Header with Back Button -->
+        <div class="lg:col-span-2 flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                <button mat-icon-button (click)="goBack()" class="text-gray-600 hover:text-gray-800">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">New Patient Request</h1>
+                    <p class="text-gray-600">Review and approve patient registration</p>
+                </div>
+            </div>
+            
+            <!-- Status Badge -->
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-800': patientRequest.status === 'Pending',
+                    'bg-green-100 text-green-800': patientRequest.status === 'Active',
+                    'bg-red-100 text-red-800': patientRequest.status === 'Rejected'
+                  }">
+                {{ patientRequest.status || 'Pending' }}
+            </span>
+        </div>
+
+        <!-- Left Column - Patient Information -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Patient Information</h2>
+            
+            <div class="space-y-6">
+                <!-- Patient Avatar and Name -->
+                <div class="flex flex-col items-center">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mb-4">
+                        <img class="w-full h-full object-cover" 
+                             [src]="getPatientAvatar(patientRequest)" 
+                             [alt]="patientRequest?.fname + ' ' + patientRequest?.lname"
+                             (error)="onImageError($event)">
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">
+                        {{ patientRequest.fname }} {{ patientRequest.lname }}
+                    </h3>
+                </div>
+
+                <!-- Basic Information Grid -->
+                <div class="space-y-4">
+                    <!-- Request Date -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Request Date</label>
+                        <div class="text-sm text-gray-900">
+                            {{ patientRequest.createdAt?.toDate() | date: 'MMM dd, yyyy' }}
+                        </div>
+                    </div>
+
+                    <!-- Two Column Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Age -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                            <div class="text-sm text-gray-900">
+                                {{ getPatientAge(patientRequest.dob) }} years
+                            </div>
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                            <div class="text-sm text-gray-900">
+                                {{ patientRequest.gender || 'Not specified' }}
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                            <div class="text-sm text-gray-900">
+                                {{ patientRequest.number || patientRequest.phone || 'Not provided' }}
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <div class="text-sm text-gray-900">
+                                {{ patientRequest.email || 'Not provided' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <div class="text-sm text-gray-900">
+                            {{ patientRequest.address || 'Not provided' }}
+                        </div>
+                    </div>
+
+                    <!-- Languages -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Languages</label>
+                        <div class="text-sm text-gray-900">
+                            {{ patientRequest.languages || 'English' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Medical & Request Information -->
+        <div class="space-y-6">
+            <!-- Medical Information -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Medical Information</h2>
+                
+                <div class="space-y-4">
+                    <!-- Insurance -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Insurance</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.insurance.provider }} - {{ requestDetails.insurance.policyNumber }}
+                        </div>
+                    </div>
+
+                    <!-- Allergies -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Known Allergies</label>
+                        <div class="text-sm text-gray-900">
+                            <span *ngFor="let allergy of requestDetails.allergies; let last = last">
+                                {{ allergy }}<span *ngIf="!last">, </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Current Medications -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Medications</label>
+                        <div class="text-sm text-gray-900 space-y-1">
+                            <div *ngFor="let medication of requestDetails.medications">
+                                • {{ medication }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical History -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Medical History</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.medicalHistory }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Request Details</h2>
+                
+                <div class="space-y-4">
+                    <!-- Reason for Joining -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Joining</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.reasonForJoining }}
+                        </div>
+                    </div>
+
+                    <!-- Preferred Appointment Time -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Appointment Time</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.preferredAppointmentTime }}
+                        </div>
+                    </div>
+
+                    <!-- Previous Doctor -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Previous Healthcare Provider</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.previousDoctor }}
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact</label>
+                        <div class="text-sm text-gray-900">
+                            {{ requestDetails.emergencyContact.name }} ({{ requestDetails.emergencyContact.relation }})
+                            <br>{{ requestDetails.emergencyContact.phone }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="patientRequest.status === 'Pending'">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
+                
+                <div class="flex space-x-4">
+                    <button mat-flat-button color="primary" 
+                            (click)="approvePatientRequest()"
+                            class="flex-1">
+                        <mat-icon class="mr-2">check_circle</mat-icon>
+                        Approve Request
+                    </button>
+                    
+                    <button mat-stroked-button color="warn" 
+                            (click)="rejectPatientRequest()"
+                            class="flex-1">
+                        <mat-icon class="mr-2">cancel</mat-icon>
+                        Reject Request
+                    </button>
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-2 text-center">
+                    Approving will convert this request to an active patient
+                </p>
+            </div>
+
+            <!-- Status Message for Non-Pending Requests -->
+            <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="patientRequest.status !== 'Pending'">
+                <div class="text-center">
+                    <mat-icon class="text-4xl mb-2" 
+                              [ngClass]="{
+                                'text-green-600': patientRequest.status === 'Active',
+                                'text-red-600': patientRequest.status === 'Rejected'
+                              }">
+                        {{ patientRequest.status === 'Active' ? 'check_circle' : 'cancel' }}
+                    </mat-icon>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Request {{ patientRequest.status }}
+                    </h3>
+                    <p class="text-gray-600">
+                        This patient request has already been 
+                        {{ patientRequest.status === 'Active' ? 'approved' : 'rejected' }}.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

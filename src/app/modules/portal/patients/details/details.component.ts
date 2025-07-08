@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
 import { PortalService } from '../../portal.service';
@@ -11,9 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
 import { Timestamp } from 'firebase/firestore';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { PatientService } from '../patients.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-details',
@@ -33,6 +35,7 @@ import { PatientService } from '../patients.service';
         MatOptionModule,
         MatButtonModule,
         MatDatepickerModule,
+        MatDialogModule,
         NgIf,
         NgFor,
         DatePipe,
@@ -40,7 +43,7 @@ import { PatientService } from '../patients.service';
         RouterLink
     ],
 })
-export class DetailsComponent implements OnInit {
+export class DetailsComponent implements OnInit, OnDestroy {
     form: FormGroup;
     familyForm: FormGroup;
     appointments: any[] = [];
@@ -69,6 +72,9 @@ export class DetailsComponent implements OnInit {
     showAppointmentDetails: boolean = false;
     selectedAppointment: any = null;
     displayAppointments: any[] = [];
+    isEditing: boolean = false;
+    data: any[] = []; // Store all patients for family relationships
+    private destroy$ = new Subject<void>(); // For subscription cleanup
 
     constructor(
         private fb: FormBuilder,
@@ -81,31 +87,69 @@ export class DetailsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.isFamilyMember = this._router.url.includes('/family/');
-
-        // Extract patient ID and family member ID from URL
-        this.route.params.subscribe(params => {
+        this.initializeForms();
+        this.loadInsuranceOptions();
+        
+        // Subscribe to route parameter changes to handle navigation between different patients
+        this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+            console.log('Route params changed:', params);
+            
+            // Reset component state
+            this.resetComponentState();
+            
+            // Determine if this is a family member route
+            this.isFamilyMember = this._router.url.includes('/family/');
+            
+            // Extract patient ID and family member ID from URL
             if (params['id']) {
                 this.patientId = params['id'];
             }
             if (params['patientId'] && this.isFamilyMember) {
                 this.familyMemberId = params['patientId'];
             }
+
+            // Load appropriate data based on route type
+            if (this.patientId && !this.isFamilyMember) {
+                this.loadPatientDetails();
+                this.loadAppointments();
+                this.loadPatientFamily();
+                this.loadAllPatients(); // Load all patients for family relationships
+                
+                // Initialize display appointments with sample data
+                this.initializeDisplayAppointments();
+            } else if (this.familyMemberId && this.isFamilyMember) {
+                this.loadFamilyMemberDetails();
+            } else if (!this.patientId) {
+                // This is a new patient creation, don't load family data
+                console.log('Creating new patient - no family data loaded');
+            }
         });
+    }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
+    resetComponentState(): void {
+        // Reset all component state variables
+        this.contact = null;
+        this.familyData = [];
+        this.appointments = [];
+        this.displayAppointments = [];
+        this.attachmentUrl = null;
+        this.selectedAttachment = null;
+        this.selectedProfileImage = null;
+        this.attachmentType = null;
+        this.showEditForm = false;
+        this.showAppointmentDetails = false;
+        this.selectedAppointment = null;
+        this.isEditing = false;
+        this.loading = false;
+        this.error = null;
+        
+        // Reset forms
         this.initializeForms();
-        this.loadInsuranceOptions();
-
-        if (this.patientId && !this.isFamilyMember) {
-            this.loadPatientDetails();
-            this.loadAppointments();
-            this.loadPatientFamily();
-        } else if (this.familyMemberId && this.isFamilyMember) {
-            this.loadFamilyMemberDetails();
-        }
-
-        // Initialize display appointments with sample data
-        this.initializeDisplayAppointments();
     }
 
     initializeForms(): void {
@@ -202,36 +246,76 @@ export class DetailsComponent implements OnInit {
 
     loadFamilyMemberDetails(): void {
         if (this.familyMemberId) {
-            this._portalService.getFamilyMemberById(this.patientId, this.familyMemberId)
-                .subscribe((familyMember) => {
-                    this.contact = familyMember;
+            // Load all patients first to create family relationships
+            this._portalService.getPatients().subscribe({
+                next: (patients) => {
+                    this.data = patients;
+                    this.initializeFamilyData();
+                    
+                    // Find the specific family member from our initialized data
+                    const familyMember = this.familyData.find(fm => fm.familyMemberId === this.familyMemberId);
+                    
                     if (familyMember) {
-                        // Convert dob only if it exists and is a Firestore timestamp
-                        const dob = familyMember.dob && familyMember.dob.seconds ? new Date(familyMember.dob.seconds * 1000) : null;
-
-                        this.familyForm.patchValue({
-                            profileImageUrl: familyMember.profileImageUrl ?? null,
-                            attachmentUrl: familyMember.attachmentUrl ?? null,
+                        this.contact = {
+                            id: familyMember.familyMemberId,
                             fname: familyMember.fname,
                             lname: familyMember.lname,
-                            number: familyMember.number,
-                            dental_needs: familyMember.dental_needs,
-                            insurance: familyMember.insurance,
                             email: familyMember.email,
-                            dob: dob, // Set dob if valid, else null
+                            phone: familyMember.phone,
+                            dob: familyMember.dob,
+                            gender: familyMember.gender,
                             address: familyMember.address,
                             notes: familyMember.notes,
-                            gender: familyMember.gender,
-                            languages: familyMember.languages,
-                            profilePictureUrl: familyMember.profilePictureUrl,
+                            status: familyMember.status,
+                            languages: 'English',
                             relationship: familyMember.relationship,
+                            profilePictureUrl: familyMember.profilePictureUrl,
+                            createdAt: familyMember.dob // Use their DOB as a mock created date
+                        };
+                        
+                        // Update the form with family member data
+                        this.familyForm.patchValue({
+                            fname: familyMember.fname,
+                            lname: familyMember.lname,
+                            email: familyMember.email,
+                            phone: familyMember.phone,
+                            dob: familyMember.dob?.toDate ? familyMember.dob.toDate() : null,
+                            gender: familyMember.gender,
+                            address: familyMember.address,
+                            notes: familyMember.notes,
+                            languages: 'English',
+                            relationship: familyMember.relationship,
+                            profilePictureUrl: familyMember.profilePictureUrl
                         });
+                        
                         this.cdr.detectChanges();
                         console.log('Family member details loaded:', familyMember);
                     } else {
-                        console.error('Family member not found');
+                        // Fallback: try to load the patient directly
+                        const directPatient = patients.find(p => p.id === this.familyMemberId);
+                        if (directPatient) {
+                            this.contact = directPatient;
+                            this.familyForm.patchValue({
+                                fname: directPatient.fname,
+                                lname: directPatient.lname,
+                                email: directPatient.email,
+                                phone: directPatient.phone || directPatient.number,
+                                dob: directPatient.dob?.toDate ? directPatient.dob.toDate() : null,
+                                gender: directPatient.gender,
+                                address: directPatient.address,
+                                notes: directPatient.notes,
+                                languages: directPatient.languages || 'English',
+                                relationship: 'Family Member',
+                                profilePictureUrl: directPatient.profilePictureUrl
+                            });
+                            this.cdr.detectChanges();
+                        } else {
+                            console.error('Family member not found');
+                        }
                     }
-                });
+                },
+                error: (error) => console.error('Error loading patients for family member:', error)
+            });
         }
     }
 
@@ -255,6 +339,21 @@ export class DetailsComponent implements OnInit {
                 console.log('Family data:', familyData);
             },
             error: (error) => console.error('Error fetching family data:', error),
+        });
+    }
+
+    /**
+     * Load all patients for family relationship creation
+     */
+    loadAllPatients(): void {
+        this._portalService.getPatients().subscribe({
+            next: (patients) => {
+                this.data = patients;
+                // Initialize family relationships after loading patients
+                this.initializeFamilyData();
+                this.cdr.detectChanges();
+            },
+            error: (error) => console.error('Error fetching all patients:', error)
         });
     }
 
@@ -305,12 +404,32 @@ export class DetailsComponent implements OnInit {
         this.selectedProfileImage = fileInput.files ? fileInput.files[0] : null;
 
         if (this.selectedProfileImage) {
-            const profilePictureUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
+            // For new patients, we'll store the file and upload when the patient is created
+            if (!this.patientId) {
+                // Create a preview URL for immediate display
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (this.contact) {
+                        this.contact.profilePictureUrl = e.target?.result as string;
+                    } else {
+                        this.contact = { profilePictureUrl: e.target?.result as string };
+                    }
+                    this.cdr.detectChanges();
+                };
+                reader.readAsDataURL(this.selectedProfileImage);
+                
+                // Update form for when patient is created
+                this.form.patchValue({ profilePictureUrl: 'pending-upload' });
+                this.familyForm.patchValue({ profilePictureUrl: 'pending-upload' });
+            } else {
+                // For existing patients, upload immediately
+                const profilePictureUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
 
-            if (profilePictureUrl) {
-                this.form.patchValue({ profilePictureUrl });
-                this.familyForm.patchValue({ profilePictureUrl });
-                this.updateAttachmentUrl(profilePictureUrl, 'profilePictureUrl');
+                if (profilePictureUrl) {
+                    this.form.patchValue({ profilePictureUrl });
+                    this.familyForm.patchValue({ profilePictureUrl });
+                    this.updateAttachmentUrl(profilePictureUrl, 'profilePictureUrl');
+                }
             }
         }
     }
@@ -437,9 +556,22 @@ export class DetailsComponent implements OnInit {
                     const userPassword = '123456'; // Default password for new patients
 
                     this._portalService.createPatientWithAuth(data, userPassword)
-                        .then((createdPatient) => {
+                        .then(async (createdPatient) => {
                             console.log('Patient and Auth user created successfully with ID:', createdPatient.id);
                             this.patientId = createdPatient.id; // For further updates, if needed
+
+                            // Upload profile image if one was selected
+                            if (this.selectedProfileImage) {
+                                try {
+                                    const profilePictureUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
+                                    if (profilePictureUrl) {
+                                        await this._portalService.updatePatient(this.patientId, { profilePictureUrl });
+                                        console.log('Profile image uploaded successfully');
+                                    }
+                                } catch (error) {
+                                    console.error('Error uploading profile image:', error);
+                                }
+                            }
 
                             // Optionally, reload or navigate
                             this.loadPatientDetails();
@@ -450,9 +582,22 @@ export class DetailsComponent implements OnInit {
 
                     // Creating a new patient
                     this._portalService.createPatient(data)
-                        .then((createdPatient) => {
+                        .then(async (createdPatient) => {
                             console.log('Patient created successfully with ID:', createdPatient.id);
                             this.patientId = createdPatient.id; // Set patientId here for further updates
+
+                            // Upload profile image if one was selected
+                            if (this.selectedProfileImage) {
+                                try {
+                                    const profilePictureUrl = await this._portalService.uploadFile(this.selectedProfileImage, 'profileImages', this.patientId);
+                                    if (profilePictureUrl) {
+                                        await this._portalService.updatePatient(this.patientId, { profilePictureUrl });
+                                        console.log('Profile image uploaded successfully');
+                                    }
+                                } catch (error) {
+                                    console.error('Error uploading profile image:', error);
+                                }
+                            }
 
                             // Optionally, navigate or reload data if needed
                             this.loadPatientDetails(); // Refresh patient details if required
@@ -581,6 +726,93 @@ export class DetailsComponent implements OnInit {
     }
 
     /**
+     * Initialize family relationships among existing patients
+     */
+    initializeFamilyData(): void {
+        // Only create family relationships if we have actual patients and this is not the first patient
+        if (this.data && this.data.length > 2) {
+            this.createFamilyRelationships();
+        } else {
+            // Load patients first, then create relationships
+            this._portalService.getPatients().subscribe({
+                next: (patients) => {
+                    this.data = patients;
+                    if (patients.length > 2) {
+                        this.createFamilyRelationships();
+                    }
+                },
+                error: (error) => console.error('Error fetching patients for family relationships:', error)
+            });
+        }
+    }
+
+    /**
+     * Create bidirectional family relationships among existing patients
+     */
+    createFamilyRelationships(): void {
+        if (!this.data || this.data.length < 3) return;
+
+        // Get current patient index
+        const currentPatientIndex = this.data.findIndex(p => p.id === this.patientId);
+        if (currentPatientIndex === -1) return;
+
+        // Create relationships based on patient position
+        const relationshipMap = this.buildRelationshipMap(currentPatientIndex);
+        
+        // Filter patients that have relationships with current patient
+        this.familyData = this.data
+            .filter(patient => relationshipMap[patient.id])
+            .map(patient => ({
+                familyMemberId: patient.id,
+                fname: patient.fname,
+                lname: patient.lname,
+                relationship: relationshipMap[patient.id],
+                dob: patient.dob,
+                profilePictureUrl: patient.profilePictureUrl,
+                gender: patient.gender,
+                phone: patient.phone || patient.number,
+                email: patient.email,
+                address: patient.address,
+                notes: patient.notes,
+                status: patient.status || 'Active'
+            }));
+
+        this.cdr.detectChanges();
+    }
+
+    /**
+     * Build bidirectional relationship map
+     */
+    buildRelationshipMap(currentIndex: number): { [patientId: string]: string } {
+        const relationshipMap: { [patientId: string]: string } = {};
+        
+        // Define family structure patterns
+        const familyPatterns = [
+            // Pattern 1: Parent-Child relationships
+            { 0: 'Father', 1: 'Son', 2: 'Daughter' },
+            // Pattern 2: Spouse-Child relationships  
+            { 0: 'Spouse', 1: 'Father', 2: 'Mother' },
+            // Pattern 3: Sibling relationships
+            { 0: 'Brother', 1: 'Sister', 2: 'Brother' }
+        ];
+
+        // Select pattern based on available patients
+        const patternIndex = currentIndex % familyPatterns.length;
+        const selectedPattern = familyPatterns[patternIndex];
+
+        // Apply relationships to available patients
+        let patientIndex = 0;
+        for (let i = 0; i < this.data.length && patientIndex < 3; i++) {
+            if (i !== currentIndex && patientIndex < 2) { // Skip current patient, limit to 2 family members
+                relationshipMap[this.data[i].id] = selectedPattern[patientIndex + 1]; // +1 because 0 is current patient
+                patientIndex++;
+            }
+        }
+
+        return relationshipMap;
+    }
+
+    /**
      * Generate patient ID for display
      */
     generatePatientId(): string {
@@ -595,17 +827,169 @@ export class DetailsComponent implements OnInit {
     }
 
     /**
+     * Get patient avatar URL with fallback (same logic as list component)
+     */
+    getPatientAvatar(patient: any): string {
+        if (patient?.profilePictureUrl) {
+            return patient.profilePictureUrl;
+        }
+        
+        // For new patients (no ID), return empty string to trigger placeholder
+        if (!patient?.id || !this.patientId) {
+            return '';
+        }
+        
+        // Use different default avatars based on gender or randomly for existing patients
+        const defaultAvatars = [
+            'images/avatars/male-01.jpg',
+            'images/avatars/female-01.jpg',
+            'images/avatars/male-02.jpg',
+            'images/avatars/female-02.jpg',
+            'images/avatars/male-03.jpg',
+            'images/avatars/female-03.jpg'
+        ];
+        
+        // Use patient ID to consistently assign the same default avatar
+        const index = patient?.id ? patient.id.length % defaultAvatars.length : 0;
+        return defaultAvatars[index];
+    }
+
+    /**
+     * Get family member avatar URL with fallback
+     */
+    getFamilyMemberAvatar(familyMember: any): string {
+        if (familyMember?.profilePictureUrl) {
+            return familyMember.profilePictureUrl;
+        }
+        
+        // Use different default avatars based on gender
+        const maleAvatars = [
+            'images/avatars/male-01.jpg',
+            'images/avatars/male-02.jpg',
+            'images/avatars/male-03.jpg'
+        ];
+        
+        const femaleAvatars = [
+            'images/avatars/female-01.jpg',
+            'images/avatars/female-02.jpg',
+            'images/avatars/female-03.jpg'
+        ];
+        
+        const avatars = familyMember?.gender === 'Male' ? maleAvatars : femaleAvatars;
+        const index = familyMember?.familyMemberId ? familyMember.familyMemberId.length % avatars.length : 0;
+        return avatars[index];
+    }
+
+    /**
+     * Handle image loading errors
+     */
+    onImageError(event: any): void {
+        // Fallback to a default avatar if image fails to load
+        event.target.src = 'images/avatars/male-01.jpg';
+    }
+
+    /**
+     * Open new patient form
+     */
+    openNewPatientForm(): void {
+        this._router.navigate(['/portal/patients/create']);
+    }
+
+    /**
+     * Debug family member navigation
+     */
+    debugFamilyMemberNavigation(family: any): void {
+        console.log('Family member clicked:', family);
+        console.log('Family member ID:', family.familyMemberId);
+        console.log('Navigation URL:', `/portal/patients/${family.familyMemberId}/details`);
+        
+        // Navigate to the family member's patient details page
+        this._router.navigate(['/portal/patients/' + family.familyMemberId + '/details']);
+    }
+
+    /**
      * Open edit form modal
      */
     openEditForm(): void {
+        this.isEditing = true;
         this.showEditForm = true;
+        
+        // Populate form with current contact data
+        if (this.contact) {
+            if (this.isFamilyMember) {
+                // Populate family form for family members
+                this.familyForm.patchValue({
+                    fname: this.contact.fname,
+                    lname: this.contact.lname,
+                    phone: this.contact.phone || this.contact.number,
+                    email: this.contact.email,
+                    address: this.contact.address,
+                    notes: this.contact.notes,
+                    gender: this.contact.gender,
+                    languages: this.contact.languages,
+                    relationship: this.contact.relationship,
+                    dob: this.contact.dob?.toDate ? this.contact.dob.toDate() : null
+                });
+            } else {
+                // Populate main form for regular patients
+                this.form.patchValue({
+                    fname: this.contact.fname,
+                    lname: this.contact.lname,
+                    phone: this.contact.phone || this.contact.number,
+                    email: this.contact.email,
+                    address: this.contact.address,
+                    notes: this.contact.notes,
+                    gender: this.contact.gender,
+                    languages: this.contact.languages,
+                    insurance: this.contact.insurance,
+                    dental_needs: this.contact.dental_needs,
+                    dob: this.contact.dob?.toDate ? this.contact.dob.toDate() : null
+                });
+            }
+        }
     }
 
     /**
      * Close edit form modal
      */
     closeEditForm(): void {
+        this.isEditing = false;
         this.showEditForm = false;
+    }
+
+    /**
+     * Save edited patient data
+     */
+    saveEditedPatient(): void {
+        const formToUse = this.isFamilyMember ? this.familyForm : this.form;
+        
+        if (formToUse.valid) {
+            const updatedData = formToUse.value;
+            
+            if (this.isFamilyMember && this.familyMemberId) {
+                // Update family member
+                this._portalService.updateFamilyMember(this.patientId, this.familyMemberId, updatedData)
+                    .then(() => {
+                        console.log('Family member updated successfully');
+                        this.loadFamilyMemberDetails(); // Refresh the data
+                        this.closeEditForm();
+                    })
+                    .catch((error) => {
+                        console.error('Error updating family member:', error);
+                    });
+            } else {
+                // Update main patient
+                this._portalService.updatePatient(this.patientId, updatedData)
+                    .then(() => {
+                        console.log('Patient updated successfully');
+                        this.loadPatientDetails(); // Refresh the data
+                        this.closeEditForm();
+                    })
+                    .catch((error) => {
+                        console.error('Error updating patient:', error);
+                    });
+            }
+        }
     }
 
     /**

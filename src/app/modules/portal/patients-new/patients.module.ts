@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import {  PatientsRouting, routes } from './patients-routing';
 import { PatientsComponent } from './patients.component';
 import { SharedModule } from 'app/shared/shared.module';
@@ -36,6 +37,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     SharedModule,
     RouterModule.forChild(routes),
     RouterLink,
+    FormsModule,
     MatIconModule,
     MatStepperModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,

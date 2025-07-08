@@ -8,11 +8,49 @@
             <div class="space-y-6">
                 <!-- Patient Avatar and Name -->
                 <div class="flex flex-col items-center">
-                    <div class="w-24 h-24 rounded-full overflow-hidden mb-4">
-                        <img class="w-full h-full object-cover" 
-                             [src]="contact?.profilePictureUrl || 'images/avatars/male-01.jpg'" 
-                             [alt]="contact?.fname + ' ' + contact?.lname">
+                    <div class="w-24 h-24 rounded-full overflow-hidden mb-4 relative">
+                        <!-- Show image if available -->
+                        <img *ngIf="getPatientAvatar(contact)" 
+                             class="w-full h-full object-cover" 
+                             [src]="getPatientAvatar(contact)" 
+                             [alt]="contact?.fname + ' ' + contact?.lname"
+                             (error)="onImageError($event)">
+                        
+                        <!-- Show placeholder for new patients -->
+                        <div *ngIf="!getPatientAvatar(contact)" 
+                             class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <mat-icon class="text-gray-400 text-4xl">person</mat-icon>
+                        </div>
+                        
+                        <!-- Upload button overlay -->
+                        <div *ngIf="!patientId || !contact?.profilePictureUrl" 
+                             class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full hover:bg-opacity-70 transition-all cursor-pointer"
+                             (click)="profileImageInput.click()">
+                            <mat-icon class="text-white">camera_alt</mat-icon>
+                        </div>
                     </div>
+                    
+                    <!-- Edit Profile Picture button for existing patients -->
+                    <button *ngIf="patientId && contact?.profilePictureUrl" 
+                            type="button" 
+                            mat-stroked-button 
+                            (click)="profileImageInput.click()"
+                            class="mt-2 text-xs">
+                        Change Photo
+                    </button>
+                    
+                    <!-- Hidden file input for profile image -->
+                    <input type="file" 
+                           #profileImageInput 
+                           accept="image/*" 
+                           (change)="onProfileImageSelect($event)"
+                           class="hidden">
+                    
+                    <!-- Upload instruction for new patients -->
+                    <p *ngIf="!patientId || !contact?.profilePictureUrl" 
+                       class="text-xs text-gray-500 mt-2 text-center">
+                        Click to upload profile picture
+                    </p>
                 </div>
 
                 <!-- Patient Details Grid -->
@@ -128,7 +166,7 @@
                 <h2 class="text-xl font-semibold text-gray-900 mb-6">Appointment Summary</h2>
                 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200 appointment-table">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -168,18 +206,19 @@
             </div>
 
             <!-- Family Members -->
-            <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!isFamilyMember">
+            <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!isFamilyMember && patientId && familyData.length > 0">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-semibold text-gray-900">Family Members</h2>
                 </div>
 
                 <div class="space-y-4">
-                    <div *ngFor="let family of familyData" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div *ngFor="let family of familyData" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg family-member-card">
                         <div class="flex items-center space-x-4">
                             <div class="w-10 h-10 rounded-full overflow-hidden">
-                                <img class="w-full h-full object-cover" 
-                                     [src]="family?.profilePictureUrl || 'images/avatars/female-01.jpg'" 
-                                     [alt]="family?.fname + ' ' + family?.lname">
+                                <img class="w-full h-full object-cover patient-avatar" 
+                                     [src]="getFamilyMemberAvatar(family)" 
+                                     [alt]="family?.fname + ' ' + family?.lname"
+                                     (error)="onImageError($event)">
                             </div>
                             <div>
                                 <div class="text-sm font-medium text-gray-900">
@@ -195,7 +234,7 @@
                                 {{ family?.dob?.toDate() | date: 'dd.MM.yyyy' }}
                             </div>
                             <button class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                    [routerLink]="['/portal/patients/' + patientId + '/family/' + family.familyMemberId + '/details']">
+                                    (click)="debugFamilyMemberNavigation(family)">
                                 See Details
                             </button>
                         </div>
@@ -214,10 +253,200 @@
                 </div>
                 
                 <div class="mt-4">
-                    <button mat-flat-button color="primary">
+                    <button mat-flat-button color="primary" (click)="openNewPatientForm()">
                         New Patient Form
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Details Modal -->
+<div *ngIf="showEditForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden modal-content">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 gradient-header">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-white">Edit Patient Details</h2>
+                <button (click)="closeEditForm()" class="text-blue-100 hover:text-white transition-colors">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Form Content -->
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+            <form [formGroup]="isFamilyMember ? familyForm : form" (ngSubmit)="saveEditedPatient()">
+                <!-- Profile Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-blue-600">person</mat-icon>
+                        Personal Information
+                    </h3>
+                    
+                    <!-- Name Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <mat-form-field appearance="outline">
+                            <mat-label>First Name</mat-label>
+                            <input matInput formControlName="fname" required>
+                            <mat-icon matPrefix>person</mat-icon>
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline">
+                            <mat-label>Last Name</mat-label>
+                            <input matInput formControlName="lname" required>
+                            <mat-icon matPrefix>person</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Email and Phone -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Email</mat-label>
+                            <input matInput formControlName="email" type="email">
+                            <mat-icon matPrefix>email</mat-icon>
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline">
+                            <mat-label>Phone</mat-label>
+                            <input matInput formControlName="phone">
+                            <mat-icon matPrefix>phone</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Date of Birth and Gender -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Date of Birth</mat-label>
+                            <input matInput [matDatepicker]="dobPicker" formControlName="dob" readonly>
+                            <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #dobPicker></mat-datepicker>
+                            <mat-icon matPrefix>calendar_today</mat-icon>
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline">
+                            <mat-label>Gender</mat-label>
+                            <mat-select formControlName="gender">
+                                <mat-option value="Male">Male</mat-option>
+                                <mat-option value="Female">Female</mat-option>
+                            </mat-select>
+                            <mat-icon matPrefix>wc</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Languages -->
+                    <mat-form-field appearance="outline" class="w-full mb-4">
+                        <mat-label>Languages</mat-label>
+                        <mat-select formControlName="languages">
+                            <mat-option *ngFor="let lang of languagesList" [value]="lang">{{ lang }}</mat-option>
+                        </mat-select>
+                        <mat-icon matPrefix>language</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Relationship (only for family members) -->
+                    <mat-form-field appearance="outline" class="w-full mb-4" *ngIf="isFamilyMember">
+                        <mat-label>Relationship</mat-label>
+                        <mat-select formControlName="relationship">
+                            <mat-option *ngFor="let rel of relationshipOptions" [value]="rel">{{ rel }}</mat-option>
+                        </mat-select>
+                        <mat-icon matPrefix>family_restroom</mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <!-- Address & Notes Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <mat-icon class="mr-2 text-blue-600">location_on</mat-icon>
+                        Additional Information
+                    </h3>
+                    
+                    <!-- Address -->
+                    <mat-form-field appearance="outline" class="w-full mb-4">
+                        <mat-label>Address</mat-label>
+                        <textarea matInput formControlName="address" rows="3"></textarea>
+                        <mat-icon matPrefix>home</mat-icon>
+                    </mat-form-field>
+
+                    <!-- Notes -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Notes</mat-label>
+                        <textarea matInput formControlName="notes" rows="3"></textarea>
+                        <mat-icon matPrefix>note</mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button type="button" mat-stroked-button (click)="closeEditForm()" class="px-6">
+                        Cancel
+                    </button>
+                    <button type="submit" mat-flat-button color="primary" [disabled]="!(isFamilyMember ? familyForm.valid : form.valid)" class="px-6">
+                        <mat-icon class="mr-2">save</mat-icon>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div *ngIf="showAppointmentDetails" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden modal-content">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 gradient-header">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-white">Appointment Information</h2>
+                <button (click)="closeAppointmentDetails()" class="text-blue-100 hover:text-white transition-colors">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-6" *ngIf="selectedAppointment">
+            <!-- Patient Name -->
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-500 mb-1">Patient Name</div>
+                <div class="text-lg font-semibold text-gray-900">{{ contact?.fname }} {{ contact?.lname }}</div>
+            </div>
+            
+            <!-- Doctor -->
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-500 mb-1">Doctor</div>
+                <div class="text-base font-medium text-gray-900">{{ selectedAppointment.doctor }}</div>
+            </div>
+            
+            <!-- Appointment Type -->
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-500 mb-1">Appointment Type</div>
+                <div class="text-base text-gray-900">{{ selectedAppointment.type }}</div>
+            </div>
+            
+            <!-- Date -->
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-500 mb-1">Date</div>
+                <div class="text-base text-gray-900">{{ selectedAppointment.date }}</div>
+            </div>
+            
+            <!-- Time -->
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-500 mb-1">Time</div>
+                <div class="text-base text-gray-900">{{ selectedAppointment.time }}</div>
+            </div>
+            
+            <!-- Reason for Visit -->
+            <div class="mb-6">
+                <div class="text-sm font-medium text-gray-500 mb-1">Reason for Visit</div>
+                <div class="text-base text-gray-900 bg-gray-50 p-3 rounded-lg">{{ selectedAppointment.reason }}</div>
+            </div>
+
+            <!-- Close Button -->
+            <div class="flex justify-center pt-4 border-t border-gray-200">
+                <button mat-flat-button color="primary" (click)="closeAppointmentDetails()" class="px-8">
+                    Close
+                </button>
             </div>
         </div>
     </div>
