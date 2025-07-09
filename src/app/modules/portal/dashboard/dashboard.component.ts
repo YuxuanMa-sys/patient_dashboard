@@ -57,7 +57,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     selectedProject: string = 'ACME Corp. Backend App';
     selectedDate: Date = new Date();
     currentDate: Date = new Date();
+    currentTime: string = '';
+    currentDateString: string = '';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    private _clockInterval: any;
 
     // Real healthcare data properties
     totalPatients: number = 0;
@@ -125,6 +128,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
             },
         };
+        this._startClock();
     }
 
     /**
@@ -134,6 +138,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+        if (this._clockInterval) {
+            clearInterval(this._clockInterval);
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -531,5 +538,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
             },
         };
+    }
+
+    private _startClock(): void {
+        this._updateClock();
+        this._clockInterval = setInterval(() => {
+            this._updateClock();
+        }, 1000);
+    }
+    private _updateClock(): void {
+        const now = new Date();
+        // 24-hour time, e.g. 14:05:09
+        this.currentTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        // Date string, e.g. Wednesday, July 9, 2025
+        this.currentDateString = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        this._cdr.markForCheck();
     }
 }

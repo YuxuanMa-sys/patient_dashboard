@@ -1,4 +1,4 @@
-<div class="flex min-w-0 flex-auto flex-col bg-gray-50 min-h-screen">
+<div class="flex min-w-0 flex-auto flex-col min-h-screen">
     <!-- Simplified Header -->
 
     <!-- Main Content -->
@@ -336,10 +336,20 @@
                 <div class="space-y-8">
                     <!-- Calendar Widget -->
                     <div class="bg-white shadow rounded-lg">
-                        <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
+                            <mat-icon class="icon-size-5 text-blue-600" [svgIcon]="'heroicons_solid:calendar-days'"></mat-icon>
                             <h3 class="text-lg font-medium text-gray-900">Calendar</h3>
                         </div>
                         <div class="p-2">
+                            <!-- Time & Date Display -->
+                            <div class="dashboard-clock flex flex-col items-center justify-center py-4">
+                                <div class="dashboard-clock__time text-3xl font-mono font-bold text-blue-700" data-testid="dashboard-clock-time">
+                                    {{ currentTime }}
+                                </div>
+                                <div class="dashboard-clock__date text-sm text-gray-500 mt-1" data-testid="dashboard-clock-date">
+                                    {{ currentDateString }}
+                                </div>
+                            </div>
                             <!-- Angular Material Calendar -->
                             <mat-calendar 
                                 [(selected)]="selectedDate"
