@@ -41,53 +41,44 @@
         <!-- Create Button -->
         <button mat-flat-button color="primary" (click)="createOrUpdate('add')" 
                 class="h-12 px-6 rounded-full font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors whitespace-nowrap">
-            <span>+ Create Announcement</span>
+            <span>
+              + Create {{ activeTab === 'promotions' ? 'Promotion' : 'Announcement' }}
+            </span>
         </button>
+    </div>
+
+    <!-- Tabs for Clinic Updates -->
+    <div class="flex gap-4 mb-6">
+      <button class="tab-btn" [class.active]="activeTab === 'announcements'" (click)="activeTab = 'announcements'">Announcements</button>
+      <button class="tab-btn" [class.active]="activeTab === 'promotions'" (click)="activeTab = 'promotions'">Promotions</button>
     </div>
 
     <!-- Announcements Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6">
-        <div *ngFor="let item of filteredAnnouncements" 
-             class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer relative flex flex-col"
+        <div *ngFor="let item of visibleCards" 
+             class="announcement-card bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col p-6 relative"
              (click)="createOrUpdate(item)">
-            <!-- Image Section -->
-            <div class="relative">
-                <img class="w-full h-48 object-cover" 
-                     [src]="item?.image || 'images/cards/01-320x200.jpg'" 
-                     [alt]="item.title">
-            </div>
-
-            <!-- Content Section -->
-            <div class="p-6 flex-1 flex flex-col">
-                <!-- Title -->
-                <h3 class="text-xl font-semibold text-gray-900 mb-3">
-                    {{ item.title }}
-                </h3>
-
-                <!-- Description -->
-                <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-1">
-                    {{ item.description }}
-                </p>
-
-                <!-- Bottom Section with Date and Action Buttons -->
-                <div class="flex items-center justify-between mt-auto">
-                    <!-- Date added -->
-                    <span class="text-sm text-blue-600 font-medium">
-                        Date added
-                    </span>
-
-                    <!-- Action buttons -->
-                    <div class="flex items-center space-x-2">
-                        <button mat-icon-button (click)="$event.stopPropagation(); createOrUpdate(item)" 
-                                class="w-6 h-6 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full">
-                            <mat-icon class="text-xs" svgIcon="heroicons_outline:pencil"></mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="$event.stopPropagation(); deleteData(item.id)" 
-                                class="w-6 h-6 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full">
-                            <mat-icon class="text-xs" svgIcon="heroicons_outline:trash"></mat-icon>
-                        </button>
-                    </div>
+            <div class="flex items-center gap-3 mb-4">
+                <img *ngIf="item?.image" [src]="item.image" alt="Announcement" class="w-12 h-12 rounded-lg object-cover bg-gray-100" />
+                <div *ngIf="!item?.image" class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-50">
+                    <mat-icon class="text-blue-600 text-2xl" svgIcon="heroicons_solid:megaphone"></mat-icon>
                 </div>
+                <div class="flex-1"></div>
+                <div class="text-xs text-gray-400 font-medium text-right whitespace-nowrap">{{ item.createdAt.toDate() | date: 'MMM d, yyyy' }}</div>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+                <span *ngIf="activeTab === 'promotions'" class="badge badge-promotion">Promotion</span>
+                <span *ngIf="activeTab !== 'promotions'" class="badge badge-announcement">Announcement</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate">{{ item.title }}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">{{ item.description }}</p>
+            <div class="flex items-center gap-2 mt-auto justify-end">
+                <button mat-icon-button (click)="$event.stopPropagation(); createOrUpdate(item)" matTooltip="Edit" class="text-gray-500 hover:text-blue-600">
+                    <mat-icon svgIcon="heroicons_outline:pencil"></mat-icon>
+                </button>
+                <button mat-icon-button (click)="$event.stopPropagation(); deleteData(item.id)" matTooltip="Delete" class="text-gray-500 hover:text-red-600">
+                    <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                </button>
             </div>
         </div>
     </div>

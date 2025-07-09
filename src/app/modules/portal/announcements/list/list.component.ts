@@ -56,6 +56,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     filteredAnnouncements: any[] = [];
     loading: boolean = true;
     error: string | null = null;
+    promotions: any[] = [];
+    filteredPromotions: any[] = [];
 
     // Month options
     months = [
@@ -74,6 +76,12 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         { value: '11', label: 'December' }
     ];
 
+    activeTab: 'announcements' | 'promotions' = 'announcements';
+
+    get visibleCards() {
+      return this.activeTab === 'announcements' ? this.filteredAnnouncements : this.filteredPromotions;
+    }
+
     /**
      * Constructor
      */
@@ -85,7 +93,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.getAllPromotion();
+        this.getAllAnnouncements();
+        this.getAllPromotions();
     }
 
     /**
@@ -95,31 +104,33 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-    getAllPromotion(): void {
+    getAllAnnouncements(): void {
         this._portalService.getAnnouncements().subscribe({
             next: (res) => {
-                this.announcements = res.map((e: any) => {
-                    return {
-                        id: e.id,  // Adjusted id mapping for Firestore documents
-                        ...e,
-                    };
-                })
-                // .filter(announcement => announcement.announcement_type === AnnoucementType.INFO && announcement.createdAt);  // Filter Promo type
-
-                // Sort by createdAt in descending order
+                this.announcements = res.map((e: any) => ({ id: e.id, ...e }));
                 this.announcements.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
-                
-                // Initialize filtered announcements
                 this.filteredAnnouncements = [...this.announcements];
-                console.log(this.announcements);
-
                 this.loading = false;
-                this.cdr.detectChanges();  // Trigger change detection if necessary
+                this.cdr.detectChanges();
             },
             error: (err) => {
-                console.error('Error fetching announcements:', err);
                 this.loading = false;
                 this.error = 'Failed to load announcements';
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    getAllPromotions(): void {
+        this._portalService.getPromotion().subscribe({
+            next: (res) => {
+                this.promotions = res.map((e: any) => ({ id: e.id, ...e }));
+                this.promotions.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+                this.filteredPromotions = [...this.promotions];
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                this.error = 'Failed to load promotions';
                 this.cdr.detectChanges();
             }
         });
@@ -143,23 +154,35 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
      * Apply search and month filters
      */
     applyFilters(): void {
-        let filtered = [...this.announcements];
-
+        let filteredA = [...this.announcements];
+        let filteredP = [...this.promotions];
         // Apply search filter
         if (this.searchQuery.trim()) {
             const query = this.searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(item => 
+            filteredA = filteredA.filter(item => 
+                item.title?.toLowerCase().includes(query) ||
+                item.description?.toLowerCase().includes(query) ||
+                item.type?.toLowerCase().includes(query) ||
+                item.for?.toLowerCase().includes(query)
+            );
+            filteredP = filteredP.filter(item => 
                 item.title?.toLowerCase().includes(query) ||
                 item.description?.toLowerCase().includes(query) ||
                 item.type?.toLowerCase().includes(query) ||
                 item.for?.toLowerCase().includes(query)
             );
         }
-
         // Apply month filter
         if (this.selectedMonth !== '') {
             const monthNumber = parseInt(this.selectedMonth);
-            filtered = filtered.filter(item => {
+            filteredA = filteredA.filter(item => {
+                if (item.createdAt?.toDate) {
+                    const itemMonth = item.createdAt.toDate().getMonth();
+                    return itemMonth === monthNumber;
+                }
+                return false;
+            });
+            filteredP = filteredP.filter(item => {
                 if (item.createdAt?.toDate) {
                     const itemMonth = item.createdAt.toDate().getMonth();
                     return itemMonth === monthNumber;
@@ -167,8 +190,8 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
                 return false;
             });
         }
-
-        this.filteredAnnouncements = filtered;
+        this.filteredAnnouncements = filteredA;
+        this.filteredPromotions = filteredP;
         this.cdr.detectChanges();
     }
 
@@ -182,19 +205,32 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.getAllPromotion();
+                if (this.activeTab === 'announcements') {
+                    this.getAllAnnouncements();
+                } else {
+                    this.getAllPromotions();
+                }
             }
         });
     }
 
     deleteData(id: string): void {
-        if (confirm('Are you sure you want to delete this announcement?')) {
-            this._portalService.deleteAnnouncements(id)
-                .then(() => {
-                    console.log('Announcement deleted successfully!');
-                    this.getAllPromotion();
-                })
-                .catch((error) => console.error('Error deleting announcement:', error));
+        if (this.activeTab === 'announcements') {
+            if (confirm('Are you sure you want to delete this announcement?')) {
+                this._portalService.deleteAnnouncements(id)
+                    .then(() => {
+                        this.getAllAnnouncements();
+                    })
+                    .catch((error) => console.error('Error deleting announcement:', error));
+            }
+        } else {
+            if (confirm('Are you sure you want to delete this promotion?')) {
+                this._portalService.deletePromotion(id)
+                    .then(() => {
+                        this.getAllPromotions();
+                    })
+                    .catch((error) => console.error('Error deleting promotion:', error));
+            }
         }
     }
 

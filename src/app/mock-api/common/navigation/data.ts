@@ -43,17 +43,10 @@ export const defaultNavigation: FuseNavigationItem[] = [
     },
     {
         id   : 'announcements',
-        title: 'Announcements',
+        title: 'Clinic Updates',
         type : 'basic',
         image: 'icons/announcement.png',
         link : '/portal/announcements'
-    },
-    {
-        id   : 'promotions',
-        title: 'Promotions',
-        type : 'basic',
-        image: 'icons/promotion.png',
-        link : '/portal/promotion'
     },
     {
         id   : 'inbox',

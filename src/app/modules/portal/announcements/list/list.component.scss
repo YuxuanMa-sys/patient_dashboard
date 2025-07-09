@@ -38,3 +38,32 @@ input.filter-active * {
 .filter-active-parent .absolute img {
     filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
 }
+
+.tab-btn {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  background: #f3f4f6;
+  color: #374151;
+  transition: background 0.2s, color 0.2s;
+  &.active {
+    background: #2563eb;
+    color: #fff;
+  }
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.7rem;
+  &-promotion {
+    background: #e0f7fa;
+    color: #00796b;
+  }
+  &-announcement {
+    background: #f3f4f6;
+    color: #64748b;
+  }
+}
