@@ -1,3 +1,0 @@
-id,patient_id,patient_fname,patient_lname,patient_profilePictureUrl,doctor_name,appointmentType,status,appointmentFor,date,selectedSlot,appointmentReason
-"1","pat_1","Tony","Lanister","images/avatars/male-01.jpg","Dr. Jamie Garcia","General Checkup","Active","Teledentistry","2021-07-03","08:00 AM","Routine dental examination"
-"2","pat_2","Ammy","Anderson","images/avatars/female-01.jpg","Dr. Olivia Wilde","Cavity Fillings","Active","In-Person","2021-07-03","09:00 AM","Tooth pain and cavity treatment"

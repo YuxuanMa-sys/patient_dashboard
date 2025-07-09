@@ -18,15 +18,16 @@
             </div>
 
             <!-- Date Filter -->
-            <div class="relative min-w-36">
+            <div class="relative min-w-36" [ngClass]="{'filter-active-parent': dateFilter}">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:calendar-days"></mat-icon>
+                    <img src="/icons/calender_filter.png" alt="Calendar" class="h-5 w-5" />
                 </div>
                 <input type="text" 
                        placeholder="Date" 
                        [matDatepicker]="datePicker" 
                        [(ngModel)]="dateFilter" 
                        (ngModelChange)="onFilterChange()"
+                       [ngClass]="{'filter-active': dateFilter}"
                        readonly
                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer rounded-input">
                 <mat-datepicker-toggle class="absolute inset-y-0 right-0 pr-3 flex items-center" [for]="datePicker">
@@ -36,26 +37,28 @@
             </div>
 
             <!-- First Name Filter -->
-            <div class="relative min-w-36">
+            <div class="relative min-w-36" [ngClass]="{'filter-active-parent': firstNameFilter}">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:user"></mat-icon>
+                    <img src="/icons/Group.png" alt="Group" class="h-5 w-5" />
                 </div>
                 <input type="text" 
                        placeholder="First Name" 
                        [(ngModel)]="firstNameFilter" 
                        (ngModelChange)="onFilterChange()"
+                       [ngClass]="{'filter-active': firstNameFilter}"
                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-input">
             </div>
 
             <!-- Last Name Filter -->
-            <div class="relative min-w-36">
+            <div class="relative min-w-36" [ngClass]="{'filter-active-parent': lastNameFilter}">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:user"></mat-icon>
+                    <img src="/icons/Group.png" alt="Group" class="h-5 w-5" />
                 </div>
                 <input type="text" 
                        placeholder="Last Name" 
                        [(ngModel)]="lastNameFilter" 
                        (ngModelChange)="onFilterChange()"
+                       [ngClass]="{'filter-active': lastNameFilter}"
                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-input">
             </div>
 

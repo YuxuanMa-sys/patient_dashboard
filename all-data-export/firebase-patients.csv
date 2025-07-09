@@ -1,2 +1,0 @@
-id,fname,lname,email,phone,profilePictureUrl,languages,dental_needs,uid,createdAt,address,dateOfBirth,emergencyContact_name,emergencyContact_phone,emergencyContact_relationship
-"pat_001","John","Doe","john.doe@example.com","+1234567890","images/avatars/male-01.jpg",[""English"",""Spanish""],[""General Checkup"",""Cleaning""],"firebase_uid_001","2021-01-15T10:30:00Z","123 Main St, City, State 12345","1985-03-15","Jane Doe","+1234567891","Spouse"

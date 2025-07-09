@@ -1,2 +1,0 @@
-id,name,specialization,email,phone,avatar,chatUid,availability_days,availability_hours
-"staff_001","Dr. Jamie Garcia","General Dentistry","dr.garcia@clinic.com","+1234567894","images/avatars/female-02.jpg","cometchat_001",[""Monday"",""Tuesday"",""Wednesday"",""Thursday"",""Friday""],[""09:00"",""17:00""]

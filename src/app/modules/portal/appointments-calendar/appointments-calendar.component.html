@@ -20,15 +20,16 @@
           </div>
 
           <!-- Date Filter -->
-          <div class="relative min-w-36">
+          <div class="relative min-w-36" [ngClass]="{'filter-active-parent': dateFilter}">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:calendar-days"></mat-icon>
+              <img src="/icons/calender_filter.png" alt="Calendar" class="h-5 w-5" />
             </div>
             <input type="text" 
                    placeholder="Date" 
                    [matDatepicker]="datePicker" 
                    [(ngModel)]="dateFilter" 
                    (ngModelChange)="onFilterChange()"
+                   [ngClass]="{'filter-active': dateFilter}"
                    readonly
                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer rounded-input">
             <mat-datepicker-toggle class="absolute inset-y-0 right-0 pr-3 flex items-center" [for]="datePicker">
@@ -38,12 +39,13 @@
           </div>
 
           <!-- Doctor Filter -->
-          <div class="relative min-w-36">
+          <div class="relative min-w-36" [ngClass]="{'filter-active-parent': doctorFilter}">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:user-circle"></mat-icon>
+              <img src="/icons/doctor_filter.png" alt="Doctor" class="h-5 w-5" />
             </div>
             <select [(ngModel)]="doctorFilter" 
                     (ngModelChange)="onFilterChange()"
+                    [ngClass]="{'filter-active': doctorFilter}"
                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer rounded-input"
                     style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;">
               <option value="">Doctor</option>
@@ -57,38 +59,39 @@
           </div>
 
           <!-- Appointment Type Filter -->
-          <div class="relative min-w-48">
+          <div class="relative min-w-48" [ngClass]="{'filter-active-parent': appointmentTypeFilter}">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_outline:calendar"></mat-icon>
+              <mat-icon class="h-5 w-5 text-gray-400" svgIcon="heroicons_solid:clipboard-document-list"></mat-icon>
             </div>
             <select [(ngModel)]="appointmentTypeFilter" 
                     (ngModelChange)="onFilterChange()"
+                    [ngClass]="{'filter-active': appointmentTypeFilter}"
                     class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer rounded-input"
                     style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;">
-              <option value="">Appointment Type</option>
-              <option value="General Meeting">General Meeting</option>
-              <option value="Cavity Filling">Cavity Filling</option>
-              <option value="Consultation">Consultation</option>
-              <option value="Emergency">Emergency</option>
+                <option value="">Appointment Type</option>
+                <option value="General Meeting">General Meeting</option>
+                <option value="Cavity Filling">Cavity Filling</option>
+                <option value="Consultation">Consultation</option>
+                <option value="Emergency">Emergency</option>
             </select>
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <mat-icon class="h-4 w-4 text-gray-400" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+                <mat-icon class="h-4 w-4 text-gray-400" svgIcon="heroicons_outline:chevron-down"></mat-icon>
             </div>
           </div>
 
           <!-- Add New Button -->
           <button (click)="openAddAppointmentModal()" 
                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 flex items-center">
-            <mat-icon class="h-5 w-5 mr-2 text-white" svgIcon="heroicons_solid:plus"></mat-icon>
+            <img src="/icons/new_appointment.png" alt="Add New" class="h-5 w-5 mr-2" />
             Add New
           </button>
 
-          <!-- Table View Button -->
+          <!-- Table/Calendar View Button -->
           <button (click)="goToTableView()" 
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 flex items-center">
-            <mat-icon class="h-5 w-5 mr-2 text-white" svgIcon="heroicons_solid:table-cells"></mat-icon>
-            Table View
-          </button>
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium transition-colors duration-200 flex items-center">
+    <img src="/icons/table_view.png" alt="Table View" class="h-5 w-5 mr-2" />
+    Table View
+</button>
         </div>
       </div>
 

@@ -1,3 +1,0 @@
-id,name,description,price,discount,discountedPrice,tag,isActive
-"service_001","General Checkup","Comprehensive dental examination and cleaning","$100","$0","$100","Popular","true"
-"service_002","Cavity Filling","Treatment for dental cavities","$150","$20","$130","Popular","true"

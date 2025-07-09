@@ -71,3 +71,24 @@
     width: 2rem !important;
   }
 }
+
+.filter-active,
+select.filter-active,
+input.filter-active {
+    background: #FFB91D !important;
+    border-color: #FFB91D !important;
+    color: #111 !important;
+}
+.filter-active *,
+select.filter-active *,
+input.filter-active * {
+    color: #111 !important;
+    fill: #111 !important;
+}
+.filter-active-parent .absolute mat-icon {
+    color: #111 !important;
+    fill: #111 !important;
+}
+.filter-active-parent .absolute img {
+    filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
+}
