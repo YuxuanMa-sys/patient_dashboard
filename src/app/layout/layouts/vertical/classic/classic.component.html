@@ -3,31 +3,44 @@
 
 <!-- Top Bar - Full Width (overlays sidebar) -->
 <div
-    class="bg-card fixed top-0 left-0 z-[60] flex h-16 w-full flex-0 items-center shadow dark:border-b dark:bg-transparent dark:shadow-none print:hidden"
+    class="fixed top-0 left-0 z-[60] flex h-[77px] w-full flex-0 items-center bg-white shadow-[0px_4px_4px_rgba(0,0,0,0.05)] print:hidden"
 >
     <!-- Navigation toggle button -->
     <button mat-icon-button (click)="toggleNavigation('mainNavigation')" class="ml-4">
         <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
     </button>
     
-    <!-- Components -->
-    <div class="ml-auto flex items-center space-x-0.5 pl-2 pr-4 sm:space-x-2 md:pr-6">
-        <!-- <languages></languages>
-        <fuse-fullscreen class="hidden md:block"></fuse-fullscreen> -->
-        <search [appearance]="'bar'"></search>
-        <!-- <shortcuts></shortcuts> -->
-        <messages></messages>
+    <!-- 3DEX Logo -->
+    <div class="absolute left-[2.42%] top-[35.06%] bottom-[37.66%]">
+        <img 
+            src="images/logo/3DEX 1.png" 
+            alt="3DEX Logo" 
+            class="h-full w-auto"
+        />
+    </div>
+    
+    <!-- Right side components -->
+    <div class="absolute right-[1.56%] top-[31.17%] bottom-[31.17%] flex items-center space-x-3">
+        
+        <!-- Notifications icon only, no background or extra dot -->
         <notifications></notifications>
-        <!-- <button
-            class="lg:hidden"
-            mat-icon-button
-            (click)="quickChat.toggle()"
-        >
-            <mat-icon
-                [svgIcon]="'heroicons_outline:chat-bubble-left-right'"
-            ></mat-icon>
-        </button> -->
-        <user></user>
+        
+        <!-- User Profile -->
+        <div class="flex items-center space-x-3">
+            <!-- User Name -->
+            <span class="text-black text-[14px] font-normal leading-[17px] text-right font-['Product_Sans']">
+                {{ user?.name || 'Kate Vasquez' }}
+            </span>
+            
+            <!-- User Avatar -->
+            <div class="w-[32px] h-[32px] rounded-[16px] overflow-hidden">
+                <img 
+                    [src]="user?.avatar || 'images/avatars/female-01.jpg'" 
+                    [alt]="user?.name || 'Kate Vasquez'" 
+                    class="w-full h-full object-cover"
+                />
+            </div>
+        </div>
     </div>
 </div>
 
@@ -45,15 +58,15 @@
         <div class="flex h-10 items-center justify-center px-2 py-2 mt-4">
             <img
                 class="h-6 w-auto"
-                src="images/logo.png"
-                alt="Logo"
+                src="images/logo/3DEX 1.png"
+                alt="3DEX Logo"
             />
         </div>
     </ng-container>
 </fuse-vertical-navigation>
 
 <!-- Wrapper -->
-<div class="flex w-full min-w-0 flex-auto flex-col pt-16">
+<div class="flex w-full min-w-0 flex-auto flex-col pt-[77px]">
     <!-- Content -->
     <div class="flex flex-auto flex-col">
         <!-- *ngIf="true" hack is required here for router-outlet to work correctly.

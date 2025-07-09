@@ -1,0 +1,265 @@
+{
+  "api": {
+    "upcoming-appointments": [
+      {
+        "id": 1,
+        "patient": {
+          "id": "pat_1",
+          "fname": "Tony",
+          "lname": "Lanister",
+          "profilePictureUrl": "images/avatars/male-01.jpg"
+        },
+        "doctor": {
+          "name": "Dr. Jamie Garcia"
+        },
+        "appointmentType": "General Checkup",
+        "status": "Active",
+        "appointmentFor": "Teledentistry",
+        "date": "2021-07-03",
+        "selectedSlot": "08:00 AM",
+        "appointmentReason": "Routine dental examination"
+      },
+      {
+        "id": 2,
+        "patient": {
+          "id": "pat_2",
+          "fname": "Ammy",
+          "lname": "Anderson",
+          "profilePictureUrl": "images/avatars/female-01.jpg"
+        },
+        "doctor": {
+          "name": "Dr. Olivia Wilde"
+        },
+        "appointmentType": "Cavity Fillings",
+        "status": "Active",
+        "appointmentFor": "In-Person",
+        "date": "2021-07-03",
+        "selectedSlot": "09:00 AM",
+        "appointmentReason": "Tooth pain and cavity treatment"
+      }
+    ],
+    "past-appointments": [
+      {
+        "id": 3,
+        "patient": {
+          "id": "pat_3",
+          "fname": "Emily",
+          "lname": "Davis",
+          "profilePictureUrl": "images/avatars/female-04.jpg"
+        },
+        "doctor": {
+          "name": "Dr. Jamie Garcia"
+        },
+        "appointmentType": "General Checkup",
+        "status": "Completed",
+        "appointmentFor": "In-Person",
+        "date": "2021-06-30",
+        "selectedSlot": "10:00 AM",
+        "appointmentReason": "Routine dental examination - completed successfully"
+      }
+    ],
+    "today-appointments": [],
+    "cancelled-appointments": [],
+    "categories": [
+      {
+        "id": 1,
+        "name": "General Dentistry",
+        "description": "Basic dental care and checkups",
+        "price": "$100",
+        "isActive": true
+      },
+      {
+        "id": 2,
+        "name": "Orthodontics",
+        "description": "Braces and alignment treatments",
+        "price": "$2000",
+        "isActive": true
+      },
+      {
+        "id": 3,
+        "name": "Oral Surgery",
+        "description": "Surgical dental procedures",
+        "price": "$500",
+        "isActive": true
+      }
+    ],
+    "patients": [
+      {
+        "id": "pat_1",
+        "fname": "Tony",
+        "lname": "Lanister",
+        "email": "tony@example.com",
+        "phone": "+1234567890",
+        "profilePictureUrl": "images/avatars/male-01.jpg",
+        "createdAt": "2021-01-15"
+      },
+      {
+        "id": "pat_2",
+        "fname": "Ammy",
+        "lname": "Anderson",
+        "email": "ammy@example.com",
+        "phone": "+1234567891",
+        "profilePictureUrl": "images/avatars/female-01.jpg",
+        "createdAt": "2021-02-20"
+      }
+    ],
+    "patient-requests": []
+  },
+  "firebase": {
+    "firebase-patients": [
+      {
+        "id": "pat_001",
+        "fname": "John",
+        "lname": "Doe",
+        "email": "john.doe@example.com",
+        "phone": "+1234567890",
+        "profilePictureUrl": "images/avatars/male-01.jpg",
+        "languages": [
+          "English",
+          "Spanish"
+        ],
+        "dental_needs": [
+          "General Checkup",
+          "Cleaning"
+        ],
+        "uid": "firebase_uid_001",
+        "createdAt": "2021-01-15T10:30:00Z",
+        "address": "123 Main St, City, State 12345",
+        "dateOfBirth": "1985-03-15",
+        "emergencyContact": {
+          "name": "Jane Doe",
+          "phone": "+1234567891",
+          "relationship": "Spouse"
+        }
+      }
+    ],
+    "firebase-staff": [
+      {
+        "id": "staff_001",
+        "name": "Dr. Jamie Garcia",
+        "specialization": "General Dentistry",
+        "email": "dr.garcia@clinic.com",
+        "phone": "+1234567894",
+        "avatar": "images/avatars/female-02.jpg",
+        "chatUid": "cometchat_001",
+        "availability": {
+          "days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+          ],
+          "hours": [
+            "09:00",
+            "17:00"
+          ]
+        }
+      }
+    ],
+    "firebase-appointments": [
+      {
+        "id": "apt_001",
+        "patientId": "pat_001",
+        "doctorId": "staff_001",
+        "appointmentType": "General Checkup",
+        "status": "Upcoming",
+        "appointmentFor": "In-Person",
+        "date": "2024-01-15T10:00:00Z",
+        "selectedSlot": "10:00 AM",
+        "appointmentReason": "Routine dental examination",
+        "confirmed_date": "2024-01-15T10:00:00Z",
+        "patient": {
+          "id": "pat_001",
+          "fname": "John",
+          "lname": "Doe",
+          "profilePictureUrl": "images/avatars/male-01.jpg"
+        },
+        "doctor": {
+          "id": "staff_001",
+          "name": "Dr. Jamie Garcia",
+          "specialization": "General Dentistry"
+        }
+      }
+    ],
+    "firebase-services": [
+      {
+        "id": "service_001",
+        "name": "General Checkup",
+        "description": "Comprehensive dental examination and cleaning",
+        "price": "$100",
+        "discount": "$0",
+        "discountedPrice": "$100",
+        "tag": "Popular",
+        "isActive": true
+      },
+      {
+        "id": "service_002",
+        "name": "Cavity Filling",
+        "description": "Treatment for dental cavities",
+        "price": "$150",
+        "discount": "$20",
+        "discountedPrice": "$130",
+        "tag": "Popular",
+        "isActive": true
+      }
+    ],
+    "firebase-announcements": [
+      {
+        "id": "ann_001",
+        "title": "Holiday Schedule",
+        "message": "Clinic will be closed on December 25th for Christmas",
+        "type": "general",
+        "createdAt": "2023-12-20T09:00:00Z",
+        "isActive": true
+      }
+    ],
+    "firebase-clinic-details": [
+      {
+        "id": "details",
+        "name": "4Smile Dental Clinic",
+        "address": "123 Dental Street, Medical District, City, State 12345",
+        "phone": "+1-555-123-4567",
+        "email": "info@4smile.com",
+        "operatingHours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00",
+            "closed": false
+          },
+          "tuesday": {
+            "open": "09:00",
+            "close": "17:00",
+            "closed": false
+          },
+          "wednesday": {
+            "open": "09:00",
+            "close": "17:00",
+            "closed": false
+          },
+          "thursday": {
+            "open": "09:00",
+            "close": "17:00",
+            "closed": false
+          },
+          "friday": {
+            "open": "09:00",
+            "close": "17:00",
+            "closed": false
+          },
+          "saturday": {
+            "open": "09:00",
+            "close": "15:00",
+            "closed": false
+          },
+          "sunday": {
+            "open": "00:00",
+            "close": "00:00",
+            "closed": true
+          }
+        },
+        "status": "active"
+      }
+    ]
+  }
+}

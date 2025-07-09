@@ -18,7 +18,7 @@ import { DocumentReference, getDoc } from 'firebase/firestore';
 import { AvailabilityModalComponent } from 'app/modules/landing/common/availability/availability.component';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NgFor, NgClass, NgIf, DatePipe } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -27,6 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { AppointmentsListService } from 'app/modules/portal/appointments-list/appointments-list.service';
 
 @Component({
     selector: 'app-completed-appointments',
@@ -93,40 +94,38 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     // Image loading state management
     imageLoadingStates: Map<string, boolean> = new Map();
 
+    // Filter properties
+    searchQuery: string = '';
+    dateFilter: Date | null = null;
+    doctorFilter: string = '';
+    appointmentTypeFilter: string = '';
+    
+    // Data properties
+    filteredAppointments: any[] = [];
+
     // Sample data for completed appointments
     sampleCompletedAppointments = [
         {
             id: 1,
-            patient: { id: 'pat_8', fname: 'Emma', lname: 'Watson', profilePictureUrl: 'images/avatars/female-04.jpg' },
+            patient: { id: 'pat_8', fname: 'Emily', lname: 'Davis', profilePictureUrl: 'images/avatars/female-04.jpg' },
             doctor: { name: 'Dr. Jamie Garcia' },
             appointmentType: 'General Checkup',
             status: 'Completed',
-            appointmentFor: 'Teledentistry',
+            appointmentFor: 'In-Person',
             date: new Date('2021-06-30'),
-            selectedSlot: '09:00 AM',
+            selectedSlot: '10:00 AM',
             appointmentReason: 'Routine dental examination - completed successfully'
         },
         {
             id: 2,
-            patient: { id: 'pat_9', fname: 'John', lname: 'Smith', profilePictureUrl: 'images/avatars/male-05.jpg' },
+            patient: { id: 'pat_9', fname: 'David', lname: 'Wilson', profilePictureUrl: 'images/avatars/male-05.jpg' },
             doctor: { name: 'Dr. Olivia Wilde' },
             appointmentType: 'Cavity Fillings',
             status: 'Completed',
             appointmentFor: 'In-Person',
             date: new Date('2021-06-29'),
             selectedSlot: '02:00 PM',
-            appointmentReason: 'Cavity treatment - completed successfully'
-        },
-        {
-            id: 3,
-            patient: { id: 'pat_10', fname: 'Lisa', lname: 'Anderson', profilePictureUrl: 'images/avatars/female-05.jpg' },
-            doctor: { name: 'Dr. Anderson Phillips' },
-            appointmentType: 'Consultation',
-            status: 'Completed',
-            appointmentFor: 'Teledentistry',
-            date: new Date('2021-06-28'),
-            selectedSlot: '11:00 AM',
-            appointmentReason: 'Dental consultation - completed successfully'
+            appointmentReason: 'Cavity treatment - successfully completed'
         }
     ];
 
@@ -137,13 +136,51 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         private _matDialog: MatDialog,
         private route: ActivatedRoute,
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private fb: FormBuilder,
+        private _appointmentsListService: AppointmentsListService
     ) {
+        this.initializeForms();
     }
 
     ngOnInit(): void {
         this.getAppointments();
         this.initializeTable();
+        this.subscribeToFilters();
+    }
+
+    private subscribeToFilters(): void {
+        this._appointmentsListService.filters$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(filters => {
+                this.searchQuery = filters.searchQuery;
+                this.dateFilter = filters.dateFilter;
+                this.doctorFilter = filters.doctorFilter;
+                this.appointmentTypeFilter = filters.appointmentTypeFilter;
+                this.filterAppointments();
+            });
+    }
+
+    // Filtering methods
+    filterAppointments(): void {
+        if (!this.appointments || this.appointments.length === 0) {
+            return;
+        }
+        
+        this.filteredAppointments = this.appointments.filter(appointment => {
+            const matchesSearch = this.searchQuery ? this.getPatientFullName(appointment.patient).toLowerCase().includes(this.searchQuery.toLowerCase()) : true;
+            const matchesDate = this.dateFilter ? this.isSameDay(new Date(appointment.date), this.dateFilter) : true;
+            const matchesDoctor = this.doctorFilter ? appointment.doctor?.name?.toLowerCase().includes(this.doctorFilter.toLowerCase()) : true;
+            const matchesType = this.appointmentTypeFilter ? appointment.appointmentType?.toLowerCase().includes(this.appointmentTypeFilter.toLowerCase()) : true;
+            return matchesSearch && matchesDate && matchesDoctor && matchesType;
+        });
+        
+        this.dataSource.data = this.filteredAppointments;
+        this.cdr.detectChanges();
+    }
+
+    private isSameDay(date1: Date, date2: Date): boolean {
+        return date1.toDateString() === date2.toDateString();
     }
 
     getAppointments(): void {
@@ -151,7 +188,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // Filter sample data to show only completed appointments
         this.appointments = this.sampleCompletedAppointments.filter(app => app.status === 'Completed');
-        this.dataSource.data = this.appointments;
+        this.filteredAppointments = [...this.appointments]; // Initialize filtered appointments
+        this.filterAppointments(); // Apply any existing filters
         this.loading = false;
         this.initializeImageLoadingStates();
         this.cdr.detectChanges();
@@ -264,6 +302,13 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.sort) {
             this.dataSource.sort = this.sort;
         }
+    }
+
+    private initializeForms(): void {
+        this.changeAppointmentForm = this.fb.group({
+            category: ['Virtual', Validators.required],
+            rescheduleMessage: ['Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta']
+        });
     }
 
     // Image loading state management

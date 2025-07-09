@@ -252,11 +252,12 @@ this.getPatients();
       );
     }
 
-    // Apply status filter
+    // Apply status filter - Fixed to handle patients without status
     if (this.statusFilter) {
-      filtered = filtered.filter(patient => 
-        patient.status === this.statusFilter
-      );
+      filtered = filtered.filter(patient => {
+        const patientStatus = patient.status || 'Pending'; // Default to 'Pending' if no status
+        return patientStatus === this.statusFilter;
+      });
     }
 
     // Apply date filter (simple contains check)

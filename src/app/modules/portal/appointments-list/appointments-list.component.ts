@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatOptionModule } from '@angular/material/core';
+import { AppointmentsListService } from './appointments-list.service';
 
 @Component({
   selector: 'app-appointments-list',
@@ -60,7 +61,8 @@ export class AppointmentsListComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private appointmentsListService: AppointmentsListService
   ) {
     this.initializeForm();
   }
@@ -90,13 +92,12 @@ export class AppointmentsListComponent implements OnInit {
   }
 
   private applyFilters(): void {
-    // Emit filter changes to child components
-    // This will be handled by the individual appointment components
-    console.log('Applying filters:', {
-      search: this.searchQuery,
-      date: this.dateFilter,
-      doctor: this.doctorFilter,
-      appointmentType: this.appointmentTypeFilter
+    // Update filters via service to communicate with child components
+    this.appointmentsListService.updateFilters({
+      searchQuery: this.searchQuery,
+      dateFilter: this.dateFilter,
+      doctorFilter: this.doctorFilter,
+      appointmentTypeFilter: this.appointmentTypeFilter
     });
   }
 

@@ -221,11 +221,14 @@ fuse-vertical-navigation {
                 align-items: center;
                 justify-content: flex-start;
                 padding: 8px 16px;
-                font-size: 13px;
+                font-family: 'Product Sans Medium', 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-style: normal;
                 font-weight: 500;
-                line-height: 20px;
+                font-size: 14px;
+                line-height: 17px;
                 text-decoration: none;
                 border-radius: 6px;
+                color: #344153;
 
                 /* Disabled state */
                 &.fuse-vertical-navigation-item-disabled {
@@ -237,7 +240,36 @@ fuse-vertical-navigation {
                     margin-right: 16px;
                 }
 
+                /* Custom styling for navigation item images */
+                .fuse-vertical-navigation-item-img {
+                    margin-right: 16px;
+                    opacity: 1 !important;
+                    filter: brightness(0) saturate(100%);
+                    width: 20px;
+                    height: 20px;
+                    object-fit: contain;
+                    display: flex;
+                    align-items: center;
+                }
+
+                /* Special handling for new patient icon to preserve white plus */
+                .fuse-vertical-navigation-item-img[src*="new_patient"] {
+                    filter: none !important;
+                    /* Keep original colors to show white plus */
+                }
+
+                /* Remove special patients icon handling to maintain consistency */
+
                 .fuse-vertical-navigation-item-title-wrapper {
+                    .fuse-vertical-navigation-item-title {
+                        font-family: 'Product Sans Medium', 'Product Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-style: normal;
+                        font-weight: 500;
+                        font-size: 14px;
+                        line-height: 17px;
+                        color: #344153;
+                    }
+
                     .fuse-vertical-navigation-item-subtitle {
                         font-size: 11px;
                         line-height: 1.5;
@@ -255,6 +287,32 @@ fuse-vertical-navigation {
                         font-weight: 600;
                         white-space: nowrap;
                         height: 20px;
+                        
+                        /* Badge styling to match Figma */
+                        &.w-2 {
+                            position: absolute;
+                            width: 8px !important;
+                            height: 8px !important;
+                            min-width: 8px;
+                            min-height: 8px;
+                            border-radius: 50%;
+                            border: 1px solid #FFFFFF;
+                            box-sizing: border-box;
+                        }
+                        
+                        /* Red dot for appointment requests */
+                        &.w-2.bg-red-500 {
+                            top: 18px;
+                            left: 45px;
+                            background: #EB5757 !important;
+                        }
+                        
+                        /* Blue dot for notifications */
+                        &.w-2.bg-blue-500 {
+                            top: 18px;
+                            left: 42px;
+                            background: #0056FB !important;
+                        }
                     }
                 }
             }
@@ -452,15 +510,21 @@ fuse-vertical-navigation-collapsable-item,
 fuse-vertical-navigation-group-item {
     .fuse-vertical-navigation-item-wrapper {
         .fuse-vertical-navigation-item {
-            color: currentColor;
+            color: #344153;
 
             .fuse-vertical-navigation-item-icon {
-                @apply text-current opacity-60;
+                opacity: 1;
+            }
+
+            .fuse-vertical-navigation-item-img {
+                opacity: 1 !important;
+                filter: brightness(0) saturate(100%);
             }
 
             .fuse-vertical-navigation-item-title-wrapper {
                 .fuse-vertical-navigation-item-title {
-                    @apply text-current opacity-80;
+                    color: #344153;
+                    opacity: 1;
                 }
 
                 .fuse-vertical-navigation-item-subtitle {
@@ -481,18 +545,41 @@ fuse-vertical-navigation-collapsable-item {
             &:not(.fuse-vertical-navigation-item-disabled) {
                 &.fuse-vertical-navigation-item-active,
                 &.fuse-vertical-navigation-item-active-forced {
-                    @apply bg-gray-800 bg-opacity-5 dark:bg-white dark:bg-opacity-12;
+                    background: #0056FB !important;
+                    border-radius: 6px;
 
                     .fuse-vertical-navigation-item-icon {
-                        @apply opacity-100;
+                        opacity: 1;
                     }
 
-                    .fuse-vertical-navigation-item-title {
-                        @apply opacity-100;
+                    .fuse-vertical-navigation-item-img {
+                        opacity: 1 !important;
+                        filter: brightness(0) saturate(100%) invert(1);
+                    }
+
+                    /* Special handling for new patient icon in active state */
+                    .fuse-vertical-navigation-item-img[src*="new_patient"] {
+                        filter: brightness(0) saturate(100%) invert(1) !important;
+                        /* Apply same invert filter as other icons in active state */
+                    }
+
+                    .fuse-vertical-navigation-item-title-wrapper {
+                        .fuse-vertical-navigation-item-title {
+                            color: #FFFFFF !important;
+                            opacity: 1;
+                        }
                     }
 
                     .fuse-vertical-navigation-item-subtitle {
-                        @apply opacity-100;
+                        color: #FFFFFF !important;
+                        opacity: 1;
+                    }
+
+                    /* Blue badge turns white in active state */
+                    .fuse-vertical-navigation-item-badge {
+                        .fuse-vertical-navigation-item-badge-content.w-2.bg-blue-500 {
+                            background: #FFFFFF !important;
+                        }
                     }
                 }
             }

@@ -27,6 +27,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AppointmentsListService } from 'app/modules/portal/appointments-list/appointments-list.service';
 
 @Component({
     selector: 'app-past-appointments',
@@ -74,6 +76,20 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     sortedData: any[];
 
     loading: boolean = true;
+    
+    // Filter properties
+    searchQuery: string = '';
+    dateFilter: Date | null = null;
+    doctorFilter: string = '';
+    appointmentTypeFilter: string = '';
+    
+    // Data properties
+    filteredAppointments: any[] = [];
+
+    // Add missing properties
+    dataSource: MatTableDataSource<any> = new MatTableDataSource();
+    changeAppointmentForm: FormGroup;
+
     /**
      * Constructor
      */
@@ -81,31 +97,65 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         private _matDialog: MatDialog,
         private route: ActivatedRoute,
         private _portalService: PortalService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private fb: FormBuilder,
+        private _appointmentsListService: AppointmentsListService
     ) {
+        this.initializeForms();
     }
 
     ngOnInit(): void {
-
         this.getAppointments();
-
+        this.initializeTable();
+        this.subscribeToFilters();
     }
 
-    getAppointments(): void {
-        this._portalService.getPastAppointments().subscribe({
-            next: (res) => {
-                this.appointments = res; // Contains enriched appointments with patient and doctor data
-                this.loading = false;
-                this.cdr.detectChanges();
-                console.log('Enriched Appointments:', this.appointments);
-            },
-            error: (err) => {
-                console.error('Error fetching appointments:', err);
-            }
+    private subscribeToFilters(): void {
+        this._appointmentsListService.filters$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(filters => {
+                this.searchQuery = filters.searchQuery;
+                this.dateFilter = filters.dateFilter;
+                this.doctorFilter = filters.doctorFilter;
+                this.appointmentTypeFilter = filters.appointmentTypeFilter;
+                this.filterAppointments();
+            });
+    }
+
+    // Filtering methods
+    filterAppointments(): void {
+        if (!this.appointments || this.appointments.length === 0) {
+            return;
+        }
+        
+        this.filteredAppointments = this.appointments.filter(appointment => {
+            const matchesSearch = this.searchQuery ? this.getPatientFullName(appointment.patient).toLowerCase().includes(this.searchQuery.toLowerCase()) : true;
+            const matchesDate = this.dateFilter ? this.isSameDay(new Date(appointment.date), this.dateFilter) : true;
+            const matchesDoctor = this.doctorFilter ? appointment.doctor?.name?.toLowerCase().includes(this.doctorFilter.toLowerCase()) : true;
+            const matchesType = this.appointmentTypeFilter ? appointment.appointmentType?.toLowerCase().includes(this.appointmentTypeFilter.toLowerCase()) : true;
+            return matchesSearch && matchesDate && matchesDoctor && matchesType;
         });
+        
+        this.dataSource.data = this.filteredAppointments;
+        this.cdr.detectChanges();
     }
 
+    private isSameDay(date1: Date, date2: Date): boolean {
+        return date1.toDateString() === date2.toDateString();
+    }
 
+    // Update getAppointments method
+    getAppointments(): void {
+        this.loading = true;
+        
+        // Use sample data or service call here
+        this.appointments = []; // Initialize with appropriate data
+        this.filteredAppointments = [...this.appointments]; // Initialize filtered appointments
+        this.filterAppointments(); // Apply any existing filters
+        this.loading = false;
+        this.cdr.detectChanges();
+        console.log('Past appointments loaded:', this.appointments);
+    }
 
     sortData(sort: Sort) {
         const data = this.appointments.slice();
@@ -136,7 +186,6 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     compare(a: number | string, b: number | string, isAsc: boolean) {
         return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
     }
-
 
     openApptDetailDialog(data: any): void {
         const dialogRef = this._matDialog.open(AppointmentDetailModalComponent, {
@@ -194,7 +243,6 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
-
     trackByFn(index: number, item: any): any {
         return item.id || index;
     }
@@ -206,5 +254,26 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+    }
+
+    // Add missing helper methods
+    private initializeForms(): void {
+        this.changeAppointmentForm = this.fb.group({
+            category: ['Virtual', Validators.required],
+            rescheduleMessage: ['Lorem ipsum dolor sit amet del partidos de algao fil madr filhaail mje bilkul nhi pta']
+        });
+    }
+
+    private initializeTable(): void {
+        this.dataSource = new MatTableDataSource(this.appointments);
+    }
+
+    getPatientFullName(patient: any): string {
+        if (!patient) return 'Unknown Patient';
+        
+        const firstName = patient.fname || patient.firstName || '';
+        const lastName = patient.lname || patient.lastName || '';
+        
+        return `${firstName} ${lastName}`.trim() || 'Unknown Patient';
     }
 }

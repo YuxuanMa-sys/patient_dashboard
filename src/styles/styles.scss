@@ -3,6 +3,10 @@
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
 
+body, html {
+  background: #F2F5F9 !important;
+}
+
 .fuse-vertical-navigation-item-active  {
     img {
         -webkit-filter: invert(100%); /* Safari/Chrome */

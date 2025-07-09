@@ -11,6 +11,8 @@ import {
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { NavigationService } from 'app/core/navigation/navigation.service';
 import { Navigation } from 'app/core/navigation/navigation.types';
+import { UserService } from 'app/core/user/user.service';
+import { User } from 'app/core/user/user.types';
 import { LanguagesComponent } from 'app/layout/common/languages/languages.component';
 import { MessagesComponent } from 'app/layout/common/messages/messages.component';
 import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
@@ -47,12 +49,34 @@ export class ClassicLayoutComponent implements OnInit, OnDestroy {
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
+     * Always get the latest user from localStorage
+     */
+    get user(): User {
+        try {
+            return this._userService.user ? JSON.parse(this._userService.user) : {
+                id: '1',
+                name: 'Kate Vasquez',
+                email: 'kate.vasquez@example.com',
+                avatar: 'images/avatars/female-01.jpg'
+            };
+        } catch {
+            return {
+                id: '1',
+                name: 'Kate Vasquez',
+                email: 'kate.vasquez@example.com',
+                avatar: 'images/avatars/female-01.jpg'
+            };
+        }
+    }
+
+    /**
      * Constructor
      */
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _router: Router,
         private _navigationService: NavigationService,
+        private _userService: UserService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService
     ) {}

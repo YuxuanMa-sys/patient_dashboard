@@ -2,6 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, filter, map, of, switchMap, take, tap, throwError } from 'rxjs';
 import { environment as env } from 'environments/environment';
+
+export interface AppointmentFilters {
+    searchQuery: string;
+    dateFilter: Date | null;
+    doctorFilter: string;
+    appointmentTypeFilter: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AppointmentsListService {
     private _data: BehaviorSubject<any> = new BehaviorSubject(null);
@@ -11,6 +19,14 @@ export class AppointmentsListService {
     private _past: BehaviorSubject<any[] | null> = new BehaviorSubject(null);
     private _today: BehaviorSubject<any[] | null> = new BehaviorSubject(null);
     private _cancelled: BehaviorSubject<any[] | null> = new BehaviorSubject(null);
+    private _filters = new BehaviorSubject<AppointmentFilters>({
+        searchQuery: '',
+        dateFilter: null,
+        doctorFilter: '',
+        appointmentTypeFilter: ''
+    });
+
+    public filters$ = this._filters.asObservable();
 
     /**
      * Constructor
@@ -46,8 +62,8 @@ export class AppointmentsListService {
     }
 
     /**
- * Getter for contact
- */
+     * Getter for contact
+     */
     get contact$(): Observable<any> {
         return this._contact.asObservable();
     }
@@ -114,8 +130,8 @@ export class AppointmentsListService {
     }
 
     /**
- * Get contacts
- */
+     * Get contacts
+     */
     getAll(): Observable<any[]> {
         return this._httpClient.get<any[]>(`${env.apiUrl}categories`).pipe(
             // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -184,11 +200,11 @@ export class AppointmentsListService {
     }
 
     /**
- * Update contact
- *
- * @param id
- * @param contact
- */
+     * Update contact
+     *
+     * @param id
+     * @param contact
+     */
     updateContact(id: string, contact: any): Observable<any> {
         return this.contacts$.pipe(
             take(1),
@@ -218,5 +234,14 @@ export class AppointmentsListService {
                 ))
             ))
         );
+    }
+
+    updateFilters(filters: Partial<AppointmentFilters>): void {
+        const currentFilters = this._filters.value;
+        this._filters.next({ ...currentFilters, ...filters });
+    }
+
+    getCurrentFilters(): AppointmentFilters {
+        return this._filters.value;
     }
 }

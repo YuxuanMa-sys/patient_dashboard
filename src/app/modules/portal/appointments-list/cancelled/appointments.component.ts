@@ -81,6 +81,15 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     // Form properties
     changeAppointmentForm: FormGroup;
 
+    // Filter properties
+    searchQuery: string = '';
+    dateFilter: Date | null = null;
+    doctorFilter: string = '';
+    appointmentTypeFilter: string = '';
+    
+    // Data properties
+    filteredAppointments: any[] = [];
+
     /**
      * Constructor
      */
@@ -89,7 +98,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         private route: ActivatedRoute,
         private _portalService: PortalService,
         private cdr: ChangeDetectorRef,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private _appointmentsListService: AppointmentsListService
     ) {
         this.initializeForms();
     }
@@ -97,6 +107,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     ngOnInit(): void {
         this.getAppointments();
         this.initializeTable();
+        this.subscribeToFilters();
     }
 
     // Sample data for cancelled appointments
@@ -366,7 +377,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // Filter sample data to show only cancelled appointments
         this.appointments = this.sampleCancelledAppointments.filter(app => app.status === 'Cancelled');
-        this.dataSource.data = this.appointments;
+        this.filteredAppointments = [...this.appointments]; // Initialize filtered appointments
+        this.filterAppointments(); // Apply any existing filters
         this.loading = false;
         this.initializeImageLoadingStates();
         this.cdr.detectChanges();
@@ -394,5 +406,39 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     onImageError(patientId: string): void {
         this.imageLoadingStates.set(patientId, false);
         this.cdr.detectChanges();
+    }
+
+    private subscribeToFilters(): void {
+        this._appointmentsListService.filters$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(filters => {
+                this.searchQuery = filters.searchQuery;
+                this.dateFilter = filters.dateFilter;
+                this.doctorFilter = filters.doctorFilter;
+                this.appointmentTypeFilter = filters.appointmentTypeFilter;
+                this.filterAppointments();
+            });
+    }
+
+    // Filtering methods
+    filterAppointments(): void {
+        if (!this.appointments || this.appointments.length === 0) {
+            return;
+        }
+        
+        this.filteredAppointments = this.appointments.filter(appointment => {
+            const matchesSearch = this.searchQuery ? this.getPatientFullName(appointment.patient).toLowerCase().includes(this.searchQuery.toLowerCase()) : true;
+            const matchesDate = this.dateFilter ? this.isSameDay(new Date(appointment.date), this.dateFilter) : true;
+            const matchesDoctor = this.doctorFilter ? appointment.doctor?.name?.toLowerCase().includes(this.doctorFilter.toLowerCase()) : true;
+            const matchesType = this.appointmentTypeFilter ? appointment.appointmentType?.toLowerCase().includes(this.appointmentTypeFilter.toLowerCase()) : true;
+            return matchesSearch && matchesDate && matchesDoctor && matchesType;
+        });
+        
+        this.dataSource.data = this.filteredAppointments;
+        this.cdr.detectChanges();
+    }
+
+    private isSameDay(date1: Date, date2: Date): boolean {
+        return date1.toDateString() === date2.toDateString();
     }
 }

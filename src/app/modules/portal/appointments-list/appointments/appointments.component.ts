@@ -54,6 +54,12 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('btcChartComponent') btcChartComponent: ChartComponent;
     @ViewChild(MatSort) sort: MatSort;
     
+    // Remove Input properties - now using service
+    searchQuery: string = '';
+    dateFilter: Date | null = null;
+    doctorFilter: string = '';
+    appointmentTypeFilter: string = '';
+    
     appConfig: any;
     btcOptions: ApexOptions = {};
     drawerMode: 'over' | 'side' = 'side';
@@ -68,6 +74,7 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Data properties
     appointments: any[] = [];
+    filteredAppointments: any[] = [];
     loading: boolean = true;
     
     // Modal properties
@@ -158,6 +165,9 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        // Set up filter subscription first
+        this.subscribeToFilters();
+        // Then load appointments
         this.getAppointments();
         this.initializeTable();
     }
@@ -193,7 +203,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         // For now, let's just use sample data to show the table working
         // You can uncomment the service call later when real data is available
         this.appointments = this.sampleAppointments;
-        this.dataSource.data = this.appointments;
+        this.filteredAppointments = [...this.appointments]; // Initialize filtered appointments
+        this.filterAppointments(); // Apply any existing filters
         this.loading = false;
         this.initializeImageLoadingStates();
         this.cdr.detectChanges();
@@ -204,7 +215,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._portalService.getUpcomingAppointments().subscribe({
             next: (appointments) => {
                 this.appointments = appointments;
-                this.dataSource.data = this.appointments;
+                this.filteredAppointments = [...this.appointments];
+                this.filterAppointments();
                 this.loading = false;
                 this.initializeImageLoadingStates();
                 this.cdr.detectChanges();
@@ -214,7 +226,8 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
                 console.error('Error fetching appointments:', err);
                 // Fall back to sample data on error
                 this.appointments = this.sampleAppointments;
-                this.dataSource.data = this.appointments;
+                this.filteredAppointments = [...this.appointments];
+                this.filterAppointments();
                 this.loading = false;
                 this.initializeImageLoadingStates();
                 this.cdr.detectChanges();
@@ -433,5 +446,39 @@ export class AppointmentsComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             return 0;
         });
+    }
+
+    // Filtering methods
+    filterAppointments(): void {
+        if (!this.appointments || this.appointments.length === 0) {
+            return;
+        }
+        
+        this.filteredAppointments = this.appointments.filter(appointment => {
+            const matchesSearch = this.searchQuery ? this.getPatientFullName(appointment.patient).toLowerCase().includes(this.searchQuery.toLowerCase()) : true;
+            const matchesDate = this.dateFilter ? this.isSameDay(new Date(appointment.date), this.dateFilter) : true;
+            const matchesDoctor = this.doctorFilter ? appointment.doctor?.name?.toLowerCase().includes(this.doctorFilter.toLowerCase()) : true;
+            const matchesType = this.appointmentTypeFilter ? appointment.appointmentType?.toLowerCase().includes(this.appointmentTypeFilter.toLowerCase()) : true;
+            return matchesSearch && matchesDate && matchesDoctor && matchesType;
+        });
+        
+        this.dataSource.data = this.filteredAppointments;
+        this.cdr.detectChanges();
+    }
+
+    private isSameDay(date1: Date, date2: Date): boolean {
+        return date1.toDateString() === date2.toDateString();
+    }
+
+    private subscribeToFilters(): void {
+        this._appointmentsListService.filters$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(filters => {
+                this.searchQuery = filters.searchQuery;
+                this.dateFilter = filters.dateFilter;
+                this.doctorFilter = filters.doctorFilter;
+                this.appointmentTypeFilter = filters.appointmentTypeFilter;
+                this.filterAppointments();
+            });
     }
 }

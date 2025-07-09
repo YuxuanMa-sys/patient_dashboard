@@ -1,0 +1,2 @@
+id,patientId,doctorId,appointmentType,status,appointmentFor,date,selectedSlot,appointmentReason,confirmed_date,patient_id,patient_fname,patient_lname,patient_profilePictureUrl,doctor_id,doctor_name,doctor_specialization
+"apt_001","pat_001","staff_001","General Checkup","Upcoming","In-Person","2024-01-15T10:00:00Z","10:00 AM","Routine dental examination","2024-01-15T10:00:00Z","pat_001","John","Doe","images/avatars/male-01.jpg","staff_001","Dr. Jamie Garcia","General Dentistry"

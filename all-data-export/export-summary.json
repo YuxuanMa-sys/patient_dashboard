@@ -1,0 +1,67 @@
+{
+  "exportDate": "2025-07-08T22:43:23.228Z",
+  "authentication": {
+    "accessToken": "Failed",
+    "method": "None"
+  },
+  "apiEndpoints": 7,
+  "firebaseCollections": 6,
+  "dataSummary": {
+    "api": {
+      "upcoming-appointments": {
+        "recordCount": 2,
+        "dataType": "Array"
+      },
+      "past-appointments": {
+        "recordCount": 1,
+        "dataType": "Array"
+      },
+      "today-appointments": {
+        "recordCount": 0,
+        "dataType": "Array"
+      },
+      "cancelled-appointments": {
+        "recordCount": 0,
+        "dataType": "Array"
+      },
+      "categories": {
+        "recordCount": 3,
+        "dataType": "Array"
+      },
+      "patients": {
+        "recordCount": 2,
+        "dataType": "Array"
+      },
+      "patient-requests": {
+        "recordCount": 0,
+        "dataType": "Array"
+      }
+    },
+    "firebase": {
+      "firebase-patients": {
+        "recordCount": 1,
+        "dataType": "Array"
+      },
+      "firebase-staff": {
+        "recordCount": 1,
+        "dataType": "Array"
+      },
+      "firebase-appointments": {
+        "recordCount": 1,
+        "dataType": "Array"
+      },
+      "firebase-services": {
+        "recordCount": 2,
+        "dataType": "Array"
+      },
+      "firebase-announcements": {
+        "recordCount": 1,
+        "dataType": "Array"
+      },
+      "firebase-clinic-details": {
+        "recordCount": 1,
+        "dataType": "Array"
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+id,patient_id,patient_fname,patient_lname,patient_profilePictureUrl,doctor_name,appointmentType,status,appointmentFor,date,selectedSlot,appointmentReason
+"3","pat_3","Emily","Davis","images/avatars/female-04.jpg","Dr. Jamie Garcia","General Checkup","Completed","In-Person","2021-06-30","10:00 AM","Routine dental examination - completed successfully"

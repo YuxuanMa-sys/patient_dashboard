@@ -10,7 +10,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "export-data": "node data-export.js",
+    "export-firebase": "node firebase-data-export.js",
+    "export-all": "node export-all-data.js"
   },
   "dependencies": {
     "@angular/animations": "18.0.1",
@@ -33,6 +36,7 @@
     "@cometchat/uikit-shared": "^4.3.24",
     "@ngneat/transloco": "6.0.4",
     "apexcharts": "3.49.1",
+    "axios": "^1.10.0",
     "crypto-js": "4.2.0",
     "firebase": "^10.14.0",
     "highlight.js": "11.9.0",

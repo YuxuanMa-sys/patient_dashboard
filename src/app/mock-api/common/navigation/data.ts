@@ -6,91 +6,99 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id   : 'dashboard',
         title: 'Overview',
         type : 'basic',
-        icon : 'mat_solid:dashboard',
+        image: 'icons/overview.png',
         link : '/portal/dashboard'
     },
     {
         id   : 'patients',
         title: 'Patients',
         type : 'basic',
-        icon : 'mat_solid:people',
+        image: 'icons/patients.png',
         link : '/portal/patients'
     },
     {
         id   : 'new-patient-requests',
         title: 'New Patient Requests',
         type : 'basic',
-        icon : 'mat_solid:person_add',
+        image: 'icons/new_patient.png',
         link : '/portal/new-patients'
     },
     {
         id   : 'appointments',
         title: 'Appointments',
         type : 'basic',
-        icon : 'mat_solid:schedule',
+        image: 'icons/appointment.png',
         link : '/portal/appointments-list'
     },
     {
         id   : 'appointment-requests',
         title: 'Appointment Requests',
         type : 'basic',
-        icon : 'mat_solid:event_note',
-        link : '/portal/requests'
+        image: 'icons/appointment_request.png',
+        link : '/portal/requests',
+        badge: {
+            title: '',
+            classes: 'w-2 h-2 bg-red-500 text-red-500 rounded-full'
+        }
     },
     {
         id   : 'announcements',
         title: 'Announcements',
         type : 'basic',
-        icon : 'mat_solid:campaign',
+        image: 'icons/announcement.png',
         link : '/portal/announcements'
     },
     {
         id   : 'promotions',
         title: 'Promotions',
         type : 'basic',
-        icon : 'mat_solid:card_giftcard',
+        image: 'icons/promotion.png',
         link : '/portal/promotion'
     },
     {
         id   : 'inbox',
         title: 'Inbox',
         type : 'basic',
-        icon : 'mat_solid:inbox',
+        image: 'icons/inbox.png',
         link : '#'
     },
     {
         id   : 'notifications',
         title: 'Notifications',
         type : 'basic',
-        icon : 'mat_solid:notifications',
-        link : '/portal/notifications'
+        image: 'icons/notification.png',
+        link : '/portal/notifications',
+        badge: {
+            title: '',
+            classes: 'w-2 h-2 bg-blue-500 text-blue-500 rounded-full'
+        }
     },
     {
         id   : 'clinic-settings',
         title: 'Clinic Settings',
         type : 'basic',
-        icon : 'mat_solid:settings',
+        image: 'icons/setting.png',
         link : '/portal/settings'
     },
     {
         id   : 'clinic-gallery',
         title: 'Clinic Gallery',
         type : 'basic',
-        icon : 'mat_solid:photo_library',
+        image: 'icons/gallery.png',
         link : '/portal/clinic-gallery'
     },
     {
         id   : 'providers',
         title: 'Providers',
         type : 'basic',
-        icon : 'mat_solid:medical_services',
+        image: 'icons/provider.png',
         link : '/portal/providers'
     },
     {
         id   : 'logout',
         title: 'Logout',
         type : 'basic',
-        icon : 'mat_solid:logout',
+        image: 'icons/logout.png',
         link : '/sign-out'
     }
 ];
@@ -100,28 +108,28 @@ export const compactNavigation: FuseNavigationItem[] = [
         id   : 'dashboard',
         title: 'Overview',
         type : 'basic',
-        icon : 'mat_solid:dashboard',
+        image: 'icons/overview.png',
         link : '/portal/dashboard'
     },
     {
         id   : 'patients',
         title: 'Patients',
         type : 'basic',
-        icon : 'mat_solid:people',
+        image: 'icons/patients.png',
         link : '/portal/patients'
     },
     {
         id   : 'appointments',
         title: 'Appointments',
         type : 'basic',
-        icon : 'mat_solid:schedule',
+        image: 'icons/appointment.png',
         link : '/portal/appointments-list'
     },
     {
         id   : 'settings',
         title: 'Settings',
         type : 'basic',
-        icon : 'mat_solid:settings',
+        image: 'icons/setting.png',
         link : '/portal/settings'
     }
 ];
@@ -131,7 +139,7 @@ export const futuristicNavigation: FuseNavigationItem[] = [
         id   : 'dashboard',
         title: 'Overview',
         type : 'basic',
-        icon : 'mat_solid:dashboard',
+        image: 'icons/overview.png',
         link : '/portal/dashboard'
     }
 ];
@@ -141,7 +149,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         id   : 'dashboard',
         title: 'Overview',
         type : 'basic',
-        icon : 'mat_solid:dashboard',
+        image: 'icons/overview.png',
         link : '/portal/dashboard'
     }
 ];
