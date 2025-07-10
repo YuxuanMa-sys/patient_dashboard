@@ -1,171 +1,282 @@
-<div class="w-full max-w-3xl">
-    <!-- Form -->
-    <form [formGroup]="planBillingForm">
-        <!-- Section -->
-        <div class="w-full">
-            <div class="text-xl">Change your plan</div>
-            <div class="text-secondary">
-                Upgrade or downgrade your current plan.
-            </div>
-        </div>
-        <div class="mt-8 grid w-full gap-6 sm:grid-cols-3">
-            <!-- Plan -->
-            <div class="sm:col-span-3">
-                <fuse-alert [appearance]="'outline'" [type]="'info'">
-                    Changing the plan will take effect immediately. You will be
-                    charged for the rest of the current month.
-                </fuse-alert>
-            </div>
-            <mat-radio-group
-                class="pointer-events-none invisible absolute h-0 w-0"
-                [formControlName]="'plan'"
-                #planRadioGroup="matRadioGroup"
-            >
-                @for (plan of plans; track trackByFn($index, plan)) {
-                    <mat-radio-button [value]="plan.value"></mat-radio-button>
-                }
-            </mat-radio-group>
-            @for (plan of plans; track trackByFn($index, plan)) {
-                <div
-                    class="bg-card relative flex cursor-pointer flex-col items-start justify-start rounded-md p-6 shadow"
-                    [ngClass]="{
-                        'ring ring-inset ring-primary':
-                            planRadioGroup.value === plan.value,
-                    }"
-                    (click)="planRadioGroup.value = plan.value"
-                >
-                    @if (planRadioGroup.value === plan.value) {
-                        <mat-icon
-                            class="absolute right-0 top-0 mr-3 mt-3 text-primary icon-size-7"
-                            [svgIcon]="'heroicons_solid:check-circle'"
-                        ></mat-icon>
-                    }
-                    <div class="font-semibold">{{ plan.label }}</div>
-                    <div class="text-secondary mt-1 whitespace-normal">
-                        {{ plan.details }}
-                    </div>
-                    <div class="flex-auto"></div>
-                    <div class="mt-8 text-lg">
-                        <span>{{
-                            plan.price | currency: 'USD' : 'symbol' : '1.0'
-                        }}</span>
-                        <span class="text-secondary"> / month</span>
-                    </div>
-                </div>
-            }
-        </div>
+<div class="w-full max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Billing & Subscription</h1>
+        <p class="text-gray-600">Manage your dental clinic management system subscription and billing information</p>
+    </div>
 
-        <!-- Divider -->
-        <div class="mb-10 mt-12 border-t"></div>
-
-        <!-- Section -->
-        <div class="w-full">
-            <div class="text-xl">Payment Details</div>
-            <div class="text-secondary">
-                Update your billing information. Make sure to set your location
-                correctly as it could affect your tax rates.
-            </div>
-        </div>
-        <div class="mt-8 grid w-full grid-cols-4 gap-6">
-            <!-- Card holder -->
-            <div class="col-span-4">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>Card holder</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:user'"
-                        matPrefix
-                    ></mat-icon>
-                    <input [formControlName]="'cardHolder'" matInput />
-                </mat-form-field>
-            </div>
-            <!-- Card number -->
-            <div class="col-span-4 sm:col-span-2">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>Card number</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:credit-card'"
-                        matPrefix
-                    ></mat-icon>
-                    <input [formControlName]="'cardNumber'" matInput />
-                </mat-form-field>
-            </div>
-            <!-- Card expiration -->
-            <div class="col-span-2 sm:col-span-1">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>Expiration date</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:calendar'"
-                        matPrefix
-                    ></mat-icon>
-                    <input
-                        [formControlName]="'cardExpiration'"
-                        [placeholder]="'MM / YY'"
-                        matInput
-                    />
-                </mat-form-field>
-            </div>
-            <!-- Card CVC -->
-            <div class="col-span-2 sm:col-span-1">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>CVC / CVC2</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:lock-closed'"
-                        matPrefix
-                    ></mat-icon>
-                    <input [formControlName]="'cardCVC'" matInput />
-                </mat-form-field>
-            </div>
-            <!-- Country -->
-            <div class="col-span-4 sm:col-span-2">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>Country</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:map-pin'"
-                        matPrefix
-                    ></mat-icon>
-                    <mat-select [formControlName]="'country'">
-                        <mat-option [value]="'usa'">United States</mat-option>
-                        <mat-option [value]="'canada'">Canada</mat-option>
-                        <mat-option [value]="'mexico'">Mexico</mat-option>
-                        <mat-option [value]="'france'">France</mat-option>
-                        <mat-option [value]="'germany'">Germany</mat-option>
-                        <mat-option [value]="'italy'">Italy</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <!-- ZIP -->
-            <div class="col-span-4 sm:col-span-2">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>ZIP / Postal code</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:hashtag'"
-                        matPrefix
-                    ></mat-icon>
-                    <input matInput />
-                </mat-form-field>
-            </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="mb-10 mt-11 border-t"></div>
-
-        <!-- Actions -->
-        <div class="flex items-center justify-end">
-            <button mat-stroked-button type="button">Cancel</button>
-            <button
-                class="ml-4"
-                mat-flat-button
-                type="button"
-                [color]="'primary'"
-            >
-                Save
+    <!-- Billing Toggle -->
+    <div class="flex justify-end mb-8">
+        <div class="bg-gray-100 p-1 rounded-lg inline-flex">
+            <button 
+                (click)="toggleBillingCycle('monthly')"
+                [class]="billingCycle === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200">
+                Monthly
+            </button>
+            <button 
+                (click)="toggleBillingCycle('yearly')"
+                [class]="billingCycle === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                class="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200">
+                Yearly
             </button>
         </div>
-    </form>
+    </div>
+
+    <!-- Plans Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div *ngFor="let plan of plans" 
+             [class]="plan.cardStyle"
+             class="relative rounded-2xl border-2 p-8 transition-all duration-300 hover:shadow-lg cursor-pointer"
+             (click)="selectPlan(plan.id)">
+            
+            <!-- Plan Badge -->
+            <div class="absolute top-6 right-6">
+                <span [class]="plan.badgeColor" class="px-3 py-1 text-xs font-bold rounded-full">
+                    {{ plan.badge }}
+                </span>
+            </div>
+
+            <!-- Plan Name -->
+            <h3 class="text-xl font-semibold mb-2" [class]="plan.isHighlighted ? 'text-white' : 'text-gray-900'">
+                {{ plan.name }}
+            </h3>
+
+            <!-- Plan Price -->
+            <div class="mb-8">
+                <div class="flex items-baseline">
+                    <span class="text-4xl font-bold" [class]="plan.isHighlighted ? 'text-white' : 'text-gray-900'">
+                        {{ plan.isCustom ? 'Custom' : ('$' + getPlanPrice(plan)) }}
+                    </span>
+                    <span class="ml-2 text-lg" [class]="plan.isHighlighted ? 'text-gray-300' : 'text-gray-500'" *ngIf="!plan.isCustom">
+                        /{{ billingCycle === 'monthly' ? 'month' : 'year' }}
+                    </span>
+                    <span class="ml-2 text-lg" [class]="plan.isHighlighted ? 'text-gray-300' : 'text-gray-500'" *ngIf="plan.isCustom">
+                        pricing
+                    </span>
+                </div>
+                <!-- Yearly savings badge -->
+                <div *ngIf="billingCycle === 'yearly' && !plan.isCustom" class="mt-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Save {{ ((plan.monthlyPrice * 12) - plan.yearlyPrice) | currency:'USD':'symbol':'1.0' }} annually
+                    </span>
+                </div>
+            </div>
+
+            <!-- Plan Button -->
+            <button 
+                [class]="plan.buttonStyle"
+                class="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-200 mb-8"
+                [disabled]="plan.buttonText === 'Current Plan'">
+                {{ plan.buttonText }}
+            </button>
+
+            <!-- Plan Features -->
+            <ul class="space-y-4">
+                <li *ngFor="let feature of plan.features" class="flex items-start">
+                    <mat-icon class="text-sm mr-3 mt-0.5 flex-shrink-0" 
+                              [class]="plan.isHighlighted ? 'text-white' : 'text-green-500'"
+                              fontIcon="check_circle">
+                    </mat-icon>
+                    <span class="text-sm" [class]="plan.isHighlighted ? 'text-gray-300' : 'text-gray-600'">
+                        {{ feature }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Payment Information</h2>
+        
+        <form [formGroup]="paymentForm" class="space-y-6">
+            <!-- Country Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Country or region</label>
+                <mat-form-field class="w-full custom-select" appearance="outline">
+                    <mat-select formControlName="country" class="custom-select-field">
+                        <mat-option *ngFor="let country of countries" [value]="country.value">
+                            {{ country.label }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-icon matSuffix class="text-gray-400">expand_more</mat-icon>
+                </mat-form-field>
+            </div>
+
+            <!-- Address -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Address line 1</label>
+                <mat-form-field class="w-full custom-input" appearance="outline">
+                    <input matInput formControlName="address" placeholder="Enter your billing address">
+                </mat-form-field>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-4">Payment</label>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <!-- Card Payment -->
+                    <div class="payment-method-square flex-1"
+                         [class.selected]="selectedPaymentMethod === 'card'"
+                         (click)="selectPaymentMethod('card')">
+                        <div class="flex flex-col items-center justify-center w-full">
+                            <mat-icon class="payment-icon mb-2" fontIcon="credit_card"></mat-icon>
+                            <span class="payment-title">Card</span>
+                        </div>
+                    </div>
+
+                    <!-- Google Pay -->
+                    <div class="payment-method-square flex-1"
+                         [class.selected]="selectedPaymentMethod === 'google-pay'"
+                         (click)="selectPaymentMethod('google-pay')">
+                        <div class="flex flex-col items-center justify-center w-full">
+                            <div class="google-pay-icon mb-2">
+                                <span class="g-text">G</span><span class="pay-text">Pay</span>
+                            </div>
+                            <span class="payment-title">Google Pay</span>
+                        </div>
+                    </div>
+
+                    <!-- Bank Transfer -->
+                    <div class="payment-method-square flex-1"
+                         [class.selected]="selectedPaymentMethod === 'bank'"
+                         (click)="selectPaymentMethod('bank')">
+                        <div class="flex flex-col items-center justify-center w-full">
+                            <mat-icon class="payment-icon mb-2" fontIcon="account_balance"></mat-icon>
+                            <span class="payment-title">Bank</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Details (shown when card is selected) -->
+            <div *ngIf="selectedPaymentMethod === 'card'" class="space-y-4">
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Card Information</h3>
+                    
+                    <!-- Card Number -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Card number</label>
+                        <div class="relative">
+                            <mat-form-field class="w-full custom-input" appearance="outline">
+                                <input matInput formControlName="cardNumber" placeholder="1234 5678 9012 3456">
+                            </mat-form-field>
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex space-x-2">
+                                <div class="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+                                    VISA
+                                </div>
+                                <div class="w-8 h-5 bg-red-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                                    MC
+                                </div>
+                                <div class="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                                    AE
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expiry and CVC -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Expiry date</label>
+                            <mat-form-field class="w-full custom-input" appearance="outline">
+                                <input matInput formControlName="expiry" placeholder="MM/YY">
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">CVC</label>
+                            <div class="relative">
+                                <mat-form-field class="w-full custom-input" appearance="outline">
+                                    <input matInput formControlName="cvc" placeholder="123">
+                                </mat-form-field>
+                                <mat-icon class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm cursor-help" 
+                                          title="3-digit code on the back of your card">
+                                    help_outline
+                                </mat-icon>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Address Checkbox -->
+                    <div class="flex items-center space-x-3 mt-4">
+                        <mat-checkbox formControlName="billingIsSame" color="primary" class="custom-checkbox">
+                            <span class="text-sm text-gray-700">Billing address is same as above</span>
+                        </mat-checkbox>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Transfer Details (shown when bank is selected) -->
+            <div *ngIf="selectedPaymentMethod === 'bank'" class="space-y-4">
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Bank Transfer Information</h3>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <mat-icon class="text-blue-500 mr-3 mt-1">info</mat-icon>
+                            <div>
+                                <h4 class="font-medium text-blue-900">Bank Transfer Instructions</h4>
+                                <p class="text-sm text-blue-800 mt-1">
+                                    You'll receive bank transfer instructions via email after selecting this payment method. 
+                                    Processing may take 3-5 business days.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PayPal Details (shown when PayPal is selected) -->
+            <div *ngIf="selectedPaymentMethod === 'paypal'" class="space-y-4">
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">PayPal Payment</h3>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <mat-icon class="text-blue-500 mr-3 mt-1">payment</mat-icon>
+                            <div>
+                                <h4 class="font-medium text-blue-900">PayPal Integration</h4>
+                                <p class="text-sm text-blue-800 mt-1">
+                                    You'll be redirected to PayPal to complete your payment securely. 
+                                    Make sure you have a verified PayPal account.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="flex items-start">
+                    <mat-icon class="text-green-500 mr-3 mt-1">security</mat-icon>
+                    <div>
+                        <h4 class="font-medium text-gray-900">Secure Payment</h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            Your payment information is encrypted and secure. We comply with HIPAA and PCI DSS standards 
+                            to protect your sensitive data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 pt-6 border-t">
+                <button 
+                    type="button" 
+                    mat-stroked-button 
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    (click)="cancelChanges()">
+                    Cancel
+                </button>
+                <button 
+                    type="button" 
+                    mat-flat-button 
+                    color="primary"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    (click)="saveBillingSettings()">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
