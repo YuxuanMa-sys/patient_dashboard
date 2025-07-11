@@ -1,4 +1,5 @@
 import { CurrencyPipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -44,6 +45,7 @@ import { FuseAlertComponent } from '@fuse/components/alert';
         MatButtonModule,
         MatCheckboxModule,
         CurrencyPipe,
+        DatePipe,
     ],
 })
 export class SettingsPlanBillingComponent implements OnInit {
@@ -53,7 +55,17 @@ export class SettingsPlanBillingComponent implements OnInit {
     selectedPlan: string = 'professional';
     // Payment method selection
     selectedPaymentMethod: string = 'card';
-    
+
+    // Mocked subscription info for the current user
+    subscriptionInfo = {
+        plan: 'Professional',
+        status: 'Active',
+        lastBilled: new Date('2024-05-01'),
+        nextBilling: new Date('2024-06-01'),
+        billingEmail: 'user@email.com',
+        canUpgrade: true
+    };
+
     // Dental clinic management system plans
     plans = [
         {
@@ -71,8 +83,8 @@ export class SettingsPlanBillingComponent implements OnInit {
                 'Email support',
                 'Mobile app access'
             ],
-            buttonText: 'Get Started',
-            buttonStyle: 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50',
+            getButtonText: (currentPlan: string) => currentPlan === 'starter' ? 'Current Plan' : 'Downgrade to Starter',
+            getButtonStyle: (currentPlan: string) => currentPlan === 'starter' ? 'bg-gray-200 text-gray-500 border border-gray-200 cursor-not-allowed' : 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50',
             cardStyle: 'bg-white border-gray-200'
         },
         {
@@ -92,8 +104,8 @@ export class SettingsPlanBillingComponent implements OnInit {
                 'Priority support',
                 'Staff management (up to 5 users)'
             ],
-            buttonText: 'Upgrade to Professional',
-            buttonStyle: 'bg-white text-gray-900 hover:bg-gray-50',
+            getButtonText: (currentPlan: string) => currentPlan === 'professional' ? 'Current Plan' : (currentPlan === 'starter' ? 'Upgrade to Professional' : 'Downgrade to Professional'),
+            getButtonStyle: (currentPlan: string) => currentPlan === 'professional' ? 'bg-gray-200 text-gray-500 border border-gray-200 cursor-not-allowed' : 'bg-white text-gray-900 hover:bg-gray-50',
             cardStyle: 'bg-gray-900 text-white',
             isHighlighted: true
         },
@@ -115,11 +127,16 @@ export class SettingsPlanBillingComponent implements OnInit {
                 'HIPAA compliance tools',
                 'Unlimited staff users'
             ],
-            buttonText: 'Contact Sales',
-            buttonStyle: 'bg-gray-900 text-white hover:bg-gray-800',
+            getButtonText: (currentPlan: string) => currentPlan === 'enterprise' ? 'Current Plan' : 'Upgrade to Enterprise',
+            getButtonStyle: (currentPlan: string) => currentPlan === 'enterprise' ? 'bg-gray-200 text-gray-500 border border-gray-200 cursor-not-allowed' : 'bg-gray-900 text-white hover:bg-gray-800',
             cardStyle: 'bg-white border-gray-200'
         }
     ];
+
+    // Show cancel subscription button for current plan
+    showCancelSubscription(planId: string): boolean {
+        return planId === this.selectedPlan;
+    }
 
     // Payment methods data (simplified for the new design)
     paymentMethods = [
@@ -186,6 +203,15 @@ export class SettingsPlanBillingComponent implements OnInit {
     selectPlan(planId: string): void {
         this.selectedPlan = planId;
         this.planBillingForm.patchValue({ plan: planId });
+        // Update summary card info to reflect the selected plan
+        const planObj = this.plans.find(p => p.id === planId);
+        if (planObj) {
+            this.subscriptionInfo.plan = planObj.name;
+            // Optionally, update billing dates to mock a new cycle
+            const now = new Date();
+            this.subscriptionInfo.lastBilled = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+            this.subscriptionInfo.nextBilling = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 29);
+        }
     }
 
     /**

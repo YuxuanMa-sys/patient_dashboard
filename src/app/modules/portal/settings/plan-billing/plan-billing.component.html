@@ -5,6 +5,34 @@
         <p class="text-gray-600">Manage your dental clinic management system subscription and billing information</p>
     </div>
 
+    <!-- Subscription Summary Card -->
+    <div class="mb-8">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 w-full items-center">
+                <div>
+                    <div class="text-xs text-gray-500 mb-0.5">Current Plan</div>
+                    <div class="text-lg font-bold text-gray-900">{{ subscriptionInfo.plan }}</div>
+                </div>
+                <div class="md:border-l md:border-gray-200 md:pl-6">
+                    <div class="text-xs text-gray-500 mb-0.5">Status</div>
+                    <div class="text-base font-medium text-green-600">{{ subscriptionInfo.status }}</div>
+                </div>
+                <div class="md:border-l md:border-gray-200 md:pl-6">
+                    <div class="text-xs text-gray-500 mb-0.5">Last Billed</div>
+                    <div class="text-base text-gray-900">{{ subscriptionInfo.lastBilled | date:'mediumDate' }}</div>
+                </div>
+                <div class="md:border-l md:border-gray-200 md:pl-6">
+                    <div class="text-xs text-gray-500 mb-0.5">Next Billing</div>
+                    <div class="text-base text-gray-900">{{ subscriptionInfo.nextBilling | date:'mediumDate' }}</div>
+                </div>
+                <div class="md:border-l md:border-gray-200 md:pl-6">
+                    <div class="text-xs text-gray-500 mb-0.5">Billing Email</div>
+                    <div class="text-base text-gray-900">{{ subscriptionInfo.billingEmail }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Billing Toggle -->
     <div class="flex justify-end mb-8">
         <div class="bg-gray-100 p-1 rounded-lg inline-flex">
@@ -65,10 +93,14 @@
 
             <!-- Plan Button -->
             <button 
-                [class]="plan.buttonStyle"
-                class="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-200 mb-8"
-                [disabled]="plan.buttonText === 'Current Plan'">
-                {{ plan.buttonText }}
+                [ngClass]="plan.getButtonStyle(selectedPlan)"
+                class="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all duration-200 mb-2"
+                [disabled]="plan.getButtonText(selectedPlan) === 'Current Plan'">
+                {{ plan.getButtonText(selectedPlan) }}
+            </button>
+            <!-- Cancel Subscription Button (only for current plan) -->
+            <button *ngIf="showCancelSubscription(plan.id)" type="button" class="w-full mt-1 text-xs text-gray-400 hover:text-red-500 underline bg-transparent border-0 shadow-none p-0" style="font-weight: 400;">
+                Cancel Subscription
             </button>
 
             <!-- Plan Features -->
