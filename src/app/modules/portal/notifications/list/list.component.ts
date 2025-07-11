@@ -8,12 +8,23 @@ import { PortalService } from '../../portal.service';
 import { FormGroup } from '@angular/forms';
 import { ClinicStatus } from 'app/_enums/clinicStatus.enum';
 import { AnnoucementType } from 'app/_enums/annoucementType.enum';
+import { FormsModule } from '@angular/forms';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 
 @Component({
     selector: 'app-list',
     templateUrl: './list.component.html',
     styleUrls: ['./list.component.scss'],
+    animations: [
+        trigger('expandCollapse', [
+            state('void', style({ height: '0px', opacity: 0, padding: '0 0' })),
+            state('*', style({ height: '*', opacity: 1, padding: '*' })),
+            transition('void <=> *', [
+                animate('300ms cubic-bezier(0.4,0,0.2,1)')
+            ]),
+        ])
+    ]
 })
 export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -46,9 +57,16 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     notifications: any[] = []; // Initialize data as an empty array
+    filteredNotifications: any[] = []; // Filtered notifications
     loading: boolean = true;
     error: string | null = null;
-    expandedNotifications: Set<string> = new Set(); // Track which notifications are expanded
+    expandedNotifications: Set<string> = new Set();
+    
+    // Filter properties
+    searchQuery: string = '';
+    typeFilter: string = '';
+    statusFilter: string = ''; // Track which notifications are expanded
+    isUpdatingReadStatus: { [id: string]: boolean } = {};
     /**
      * Constructor
      */
@@ -80,12 +98,14 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
                     };
                 });
                 console.log('Processed notifications:', this.notifications);
+                this.filteredNotifications = [...this.notifications]; // Initialize filtered notifications
                 this.loading = false;
                 // Trigger change detection
                 this.cdr.detectChanges();
             } else {
                 console.log('No notifications found in Firebase');
                 this.notifications = [];
+                this.filteredNotifications = [];
                 this.loading = false;
                 this.cdr.detectChanges();
             }
@@ -127,6 +147,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // Remove from local array immediately for better UX
         this.notifications = this.notifications.filter(notification => notification.id !== notificationId);
+        this.applyFilters(); // Update filtered notifications
         this.cdr.detectChanges();
         
         // Call service to delete from backend (use original ID if available)
@@ -142,6 +163,32 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.getAllPromotion();
             }
         );
+    }
+
+    /**
+     * Mark notification as read (frontend only)
+     */
+    markAsRead(notificationId: string): void {
+        if (!notificationId) return;
+        const notification = this.notifications.find(n => n.id === notificationId);
+        if (notification) {
+            notification.read = true;
+            this.applyFilters();
+            this.cdr.detectChanges();
+        }
+    }
+
+    /**
+     * Mark notification as unread (frontend only)
+     */
+    markAsUnread(notificationId: string): void {
+        if (!notificationId) return;
+        const notification = this.notifications.find(n => n.id === notificationId);
+        if (notification) {
+            notification.read = false;
+            this.applyFilters();
+            this.cdr.detectChanges();
+        }
     }
 
     trackByFn(index: number, item: any): any {
@@ -254,43 +301,7 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
         return defaultAvatars[index];
     }
 
-    /**
-     * Extract brief action from notification message
-     */
-    private getBriefAction(notification: any): string {
-        const messageText = notification?.message || notification?.desc || notification?.description || '';
-        
-        // Pattern: "New user has signed up to your clinic. Welcome patient..."
-        if (messageText.includes('signed up to your clinic')) {
-            return 'has signed up to your clinic';
-        }
-        
-        // Pattern: "Patient X has scheduled a new appointment..."
-        if (messageText.includes('has scheduled')) {
-            const match = messageText.match(/has scheduled a new appointment of format ([^.]+)/i);
-            if (match && match[1]) {
-                return `has scheduled a ${match[1].toLowerCase()} appointment`;
-            }
-            return 'has scheduled an appointment';
-        }
-        
-        // Pattern: "has requested for..."
-        if (messageText.includes('has requested for')) {
-            const match = messageText.match(/has requested for a(?:n)? ([^.]+)/i);
-            if (match && match[1]) {
-                return `has requested for a ${match[1].toLowerCase()}`;
-            }
-            return 'has requested for an appointment';
-        }
-        
-        // Pattern: "has requested to cancel..."
-        if (messageText.includes('has requested to cancel')) {
-            return 'has requested to cancel an appointment';
-        }
-        
-        // Default fallback
-        return 'has a new notification';
-    }
+
 
     /**
      * Get formatted exact timestamp
@@ -375,6 +386,198 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     isNotificationExpanded(notificationId: string): boolean {
         return this.expandedNotifications.has(notificationId);
+    }
+
+    /**
+     * Get theme colors for notification type
+     */
+    getNotificationColors(notification: any): any {
+        const type = this.getNotificationType(notification);
+        
+        switch (type) {
+            case 'Sign Up':
+                return {
+                    primary: '[#0056FB]',
+                    primaryText: '[#0056FB]',
+                    light: 'blue-50',
+                    lightText: '[#0056FB]',
+                    border: 'blue-100',
+                    badge: 'blue-100',
+                    badgeText: '[#0056FB]'
+                };
+            case 'Virtual':
+            case 'In-Person':
+            case 'Scheduled':
+            case 'Appointment':
+                return {
+                    primary: 'green-500',
+                    primaryText: 'green-600',
+                    light: 'green-50',
+                    lightText: 'green-600',
+                    border: 'green-100',
+                    badge: 'green-100',
+                    badgeText: 'green-700'
+                };
+            case 'Request':
+                return {
+                    primary: 'purple-500',
+                    primaryText: 'purple-600',
+                    light: 'purple-50',
+                    lightText: 'purple-600',
+                    border: 'purple-100',
+                    badge: 'purple-100',
+                    badgeText: 'purple-700'
+                };
+            case 'Cancel':
+                return {
+                    primary: 'red-500',
+                    primaryText: 'red-600',
+                    light: 'red-50',
+                    lightText: 'red-600',
+                    border: 'red-100',
+                    badge: 'red-100',
+                    badgeText: 'red-700'
+                };
+            case 'Welcome':
+                return {
+                    primary: 'cyan-500',
+                    primaryText: 'cyan-600',
+                    light: 'cyan-50',
+                    lightText: 'cyan-600',
+                    border: 'cyan-100',
+                    badge: 'cyan-100',
+                    badgeText: 'cyan-700'
+                };
+            case 'Reminder':
+                return {
+                    primary: 'orange-500',
+                    primaryText: 'orange-600',
+                    light: 'orange-50',
+                    lightText: 'orange-600',
+                    border: 'orange-100',
+                    badge: 'orange-100',
+                    badgeText: 'orange-700'
+                };
+            default:
+                return {
+                    primary: 'gray-400',
+                    primaryText: 'gray-500',
+                    light: 'gray-50',
+                    lightText: 'gray-500',
+                    border: 'gray-100',
+                    badge: 'gray-100',
+                    badgeText: 'gray-600'
+                };
+        }
+    }
+
+    /**
+     * Apply filters to notifications
+     */
+    applyFilters(): void {
+        let filtered = [...this.notifications];
+
+        // Search filter
+        if (this.searchQuery.trim()) {
+            const query = this.searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(notification => 
+                this.getUserName(notification).toLowerCase().includes(query) ||
+                this.getFullMessage(notification).toLowerCase().includes(query) ||
+                this.getBriefMessage(notification).toLowerCase().includes(query)
+            );
+        }
+
+        // Type filter
+        if (this.typeFilter) {
+            filtered = filtered.filter(notification => 
+                this.getNotificationType(notification) === this.typeFilter
+            );
+        }
+
+        // Status filter
+        if (this.statusFilter) {
+            if (this.statusFilter === 'new') {
+                filtered = filtered.filter(notification => !notification.read);
+            } else if (this.statusFilter === 'read') {
+                filtered = filtered.filter(notification => notification.read);
+            }
+        }
+
+        this.filteredNotifications = filtered;
+        this.cdr.detectChanges();
+    }
+
+    /**
+     * Handle search input changes
+     */
+    onSearchChange(): void {
+        this.applyFilters();
+    }
+
+    /**
+     * Handle filter changes
+     */
+    onFilterChange(): void {
+        this.applyFilters();
+    }
+
+    /**
+     * Get unique notification types for filter dropdown
+     */
+    getNotificationTypes(): string[] {
+        const types = new Set<string>();
+        this.notifications.forEach(notification => {
+            types.add(this.getNotificationType(notification));
+        });
+        return Array.from(types).sort();
+    }
+
+    /**
+     * Fix grammar in brief message
+     */
+    private getBriefAction(notification: any): string {
+        const messageText = notification?.message || notification?.desc || notification?.description || '';
+        
+        // Pattern: "New user has signed up to your clinic. Welcome patient..."
+        if (messageText.includes('signed up to your clinic')) {
+            return 'has signed up to your clinic';
+        }
+        
+        // Pattern: "Patient X has scheduled a new appointment..."
+        if (messageText.includes('has scheduled')) {
+            const match = messageText.match(/has scheduled a new appointment of format ([^.]+)/i);
+            if (match && match[1]) {
+                const format = match[1].toLowerCase();
+                // Fix grammar: "a in-person" -> "an in-person"
+                if (format.startsWith('in-person')) {
+                    return `has scheduled an ${format} appointment`;
+                }
+                return `has scheduled a ${format} appointment`;
+            }
+            return 'has scheduled an appointment';
+        }
+        
+        // Pattern: "has requested for..."
+        if (messageText.includes('has requested for')) {
+            const match = messageText.match(/has requested for a(?:n)? ([^.]+)/i);
+            if (match && match[1]) {
+                const type = match[1].toLowerCase();
+                // Fix grammar: "a in-person" -> "an in-person"
+                if (type.startsWith('in-person')) {
+                    return `has requested for an ${type}`;
+                }
+                return `has requested for a ${type}`;
+            }
+            return 'has requested for an appointment';
+        }
+        
+        // Pattern: "has requested to cancel..."
+        if (messageText.includes('has requested to cancel')) {
+            return 'has requested to cancel an appointment';
+        }
+        
+        // Default fallback
+        return 'has a new notification';
     }
 
     /**

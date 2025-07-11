@@ -971,6 +971,50 @@ export class PortalService {
         return deleteDoc(notificationRef);
     }
 
+    markNotificationAsRead(id: string): Promise<void> {
+        const notificationRef = doc(this.firestore, 'notifications/' + id);
+        return updateDoc(notificationRef, { read: true });
+    }
+
+    markNotificationAsUnread(id: string): Promise<void> {
+        const notificationRef = doc(this.firestore, 'notifications/' + id);
+        return updateDoc(notificationRef, { read: false });
+    }
+
+    /**
+     * Mark notification as read in ClinicAll array
+     */
+    async markNotificationAsReadInArray(notificationId: string): Promise<void> {
+        const notificationsDocRef = doc(this.firestore, 'notifications/ClinicAll');
+        const docSnap = await getDoc(notificationsDocRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const notifications = data.notifications || [];
+            const idx = notifications.findIndex((n: any) => n.id === notificationId || n.notificationRefId === notificationId);
+            if (idx !== -1) {
+                notifications[idx].read = true;
+                await updateDoc(notificationsDocRef, { notifications });
+            }
+        }
+    }
+
+    /**
+     * Mark notification as unread in ClinicAll array
+     */
+    async markNotificationAsUnreadInArray(notificationId: string): Promise<void> {
+        const notificationsDocRef = doc(this.firestore, 'notifications/ClinicAll');
+        const docSnap = await getDoc(notificationsDocRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const notifications = data.notifications || [];
+            const idx = notifications.findIndex((n: any) => n.id === notificationId || n.notificationRefId === notificationId);
+            if (idx !== -1) {
+                notifications[idx].read = false;
+                await updateDoc(notificationsDocRef, { notifications });
+            }
+        }
+    }
+
     updateClinicOperatingHours(data): Promise<void> {
         // Reference to the specific document in Firestore
         const docRef = doc(this.firestore, 'clinic/virtualOperatingHours');

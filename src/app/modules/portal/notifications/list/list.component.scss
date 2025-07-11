@@ -1,19 +1,300 @@
-/* Define specific column widths as needed */
-// .mat-column-name,
-// .mat-column-date {
-//   flex: 1;
-// }
+/* Modern Notification Page Styles */
 
-// .mat-column-type,
-// .mat-column-status,
-// .mat-column-action {
-//   flex: 0.8; /* Adjust the width as needed */
-// }
+/* Smooth fade-in animation for expanded details */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-.custom-name-column {
-    flex: 4; /* Adjust the width as needed */
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Filter Styles - Matching Patients Page */
+.filter-active,
+select.filter-active,
+input.filter-active {
+    background: #FFB91D !important;
+    border-color: #FFB91D !important;
+    color: #111 !important;
+}
+
+.filter-active *,
+select.filter-active *,
+input.filter-active * {
+    color: #111 !important;
+    fill: #111 !important;
+}
+
+.filter-active-parent .absolute mat-icon {
+    color: #111 !important;
+    fill: #111 !important;
+}
+
+.filter-active-parent .absolute img {
+    filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
+}
+
+/* Custom input styling to match the design */
+.rounded-input {
+    transition: all 0.2s ease-in-out;
+    
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(0, 86, 251, 0.1);
+        border-color: #0056FB;
+    }
+}
+
+/* Enhanced notification cards */
+.notification-card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Badge enhancements */
+.type-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    
+    /* Icon + text badges */
+    &.with-icon {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        
+        mat-icon {
+            font-size: 0.75rem !important;
+            width: 0.75rem !important;
+            height: 0.75rem !important;
+        }
+    }
+}
+
+/* Enhanced user name styling */
+.user-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+/* Improved spacing and visual hierarchy */
+.notification-content {
+    line-height: 1.6;
+}
+
+/* Accessibility improvements */
+.notification-card:focus-within {
+    outline: 2px solid #0056FB;
+    outline-offset: 2px;
+}
+
+/* Button focus states */
+button:focus-visible {
+    outline: 2px solid #0056FB;
+    outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .notification-card {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .user-name {
+        font-size: 1rem;
+    }
+}
+
+/* Enhanced contrast for better readability */
+.text-contrast {
+    color: #1f2937;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+
+/* Uniform spacing between cards */
+.notifications-list {
+    gap: 1.5rem;
+}
+
+/* Last card bottom padding fix */
+.notification-card:last-child {
+    margin-bottom: 1.5rem;
+}
+
+/* Color indicator enhancements */
+.color-indicator {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Details card background fix */
+.details-card {
+    background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+/* Icon improvements */
+.notification-icon {
+    transition: transform 0.2s ease;
+}
+
+.notification-card:hover .notification-icon {
+    transform: scale(1.1);
+}
+
+/* Hide default browser dropdown arrow */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+    
+    &::-ms-expand {
+        display: none;
+    }
+}
+
+:host ::ng-deep .mat-tooltip {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+// Action button group
+.action-group {
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  align-items: center;
+}
+.action-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.5rem;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+.action-btn:hover, .action-btn:focus {
+  background: #f3f4f6;
+  color: #0056FB;
+  box-shadow: 0 1px 4px rgba(0,86,251,0.08);
+}
+.action-btn.delete-btn:hover {
+  color: #e11d48;
+  background: #fef2f2;
+}
+.action-btn.mark-btn:hover {
+  color: #059669;
+  background: #ecfdf5;
+}
+.action-btn .mat-icon {
+  font-size: 1.1rem !important;
+  transition: transform 0.3s;
+}
+.action-btn.view-btn .mat-icon {
+  transition: transform 0.3s;
+}
+.action-btn.view-btn .rotate-180 {
+  transform: rotate(180deg);
+}
+
+// Badge styles
+.type-badge.with-icon {
+  font-size: 11px;
+  padding: 0.1rem 0.5rem;
+  min-height: 20px;
+  mat-icon {
+    font-size: 0.9em !important;
+    margin-right: 0.2em;
   }
+}
+.new-badge {
+  font-size: 11px;
+  padding: 0.1rem 0.5rem;
+  min-height: 20px;
+}
 
-  .custom-reason-column {
-    flex: 3; /* Adjust the width as needed */
+// Expanded details card
+.details-card {
+  box-shadow: 0 6px 32px 0 rgba(0,86,251,0.08), 0 1.5px 6px 0 rgba(0,0,0,0.03);
+  background: linear-gradient(135deg, #f0f6ff 0%, #fff 100%);
+  border: 0 !important;
+  transition: box-shadow 0.3s, background 0.3s;
+}
+
+// Typography
+.user-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #1f2937;
+}
+.text-contrast {
+  color: #1f2937;
+}
+.text-muted {
+  color: #6b7280;
+}
+.details-card .text-xs, .details-card .text-gray-400 {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .notification-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 1rem;
   }
+  .action-group {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+  .user-name {
+    font-size: 1rem;
+  }
+  .details-card {
+    padding: 1rem;
+  }
+}
+
+// Animation for expand/collapse
+:host ::ng-deep .details-card {
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+// Modern look for notification card
+.notification-card {
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px 0 rgba(31,41,55,0.04);
+  background: #fff;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.notification-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(0,86,251,0.10), 0 2px 8px 0 rgba(31,41,55,0.06);
+  transform: translateY(-2px) scale(1.01);
+}
