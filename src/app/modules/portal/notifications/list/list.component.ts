@@ -376,4 +376,134 @@ export class ListComponent implements OnInit, AfterViewInit, OnDestroy {
     isNotificationExpanded(notificationId: string): boolean {
         return this.expandedNotifications.has(notificationId);
     }
+
+    /**
+     * Get notification icon based on type or content
+     */
+    getNotificationIcon(notification: any): string {
+        const messageText = notification?.message || notification?.desc || notification?.description || '';
+        
+        // Check for sign up patterns
+        if (messageText.includes('signed up to your clinic') || messageText.includes('New user has signed up')) {
+            return 'person_add';
+        }
+        
+        // Check for appointment scheduling patterns
+        if (messageText.includes('has scheduled a new appointment')) {
+            if (messageText.includes('Virtual') || messageText.includes('Teledentistry')) {
+                return 'videocam';
+            } else if (messageText.includes('In-Person') || messageText.includes('In Person')) {
+                return 'event';
+            }
+            return 'event';
+        }
+        
+        // Check for appointment request patterns
+        if (messageText.includes('has requested for')) {
+            if (messageText.includes('virtual') || messageText.includes('Virtual')) {
+                return 'videocam';
+            } else if (messageText.includes('in-person') || messageText.includes('In-Person')) {
+                return 'event';
+            }
+            return 'help_outline';
+        }
+        
+        // Check for cancellation patterns
+        if (messageText.includes('has requested to cancel') || messageText.includes('cancel')) {
+            return 'event_busy';
+        }
+        
+        // Check for welcome patterns
+        if (messageText.includes('Welcome patient')) {
+            return 'waving_hand';
+        }
+        
+        // Check for reminder patterns
+        if (messageText.includes('reminder') || messageText.includes('Reminder')) {
+            return 'schedule';
+        }
+        
+        // Fallback to old logic for backwards compatibility
+        if (notification.type === 'appointment' || notification.message?.includes('scheduled')) {
+            return 'event';
+        } else if (notification.type === 'cancellation' || notification.message?.includes('cancel')) {
+            return 'event_busy';
+        } else if (notification.type === 'welcome' || notification.message?.includes('Welcome')) {
+            return 'waving_hand';
+        } else if (notification.type === 'request' || notification.message?.includes('requested')) {
+            return 'help_outline';
+        } else if (notification.type === 'reminder' || notification.message?.includes('reminder')) {
+            return 'schedule';
+        } else {
+            return 'notifications';
+        }
+    }
+
+    /**
+     * Get notification type label (short version for badges)
+     */
+    getNotificationType(notification: any): string {
+        const messageText = notification?.message || notification?.desc || notification?.description || '';
+        
+        // Check for sign up patterns
+        if (messageText.includes('signed up to your clinic') || messageText.includes('New user has signed up')) {
+            return 'Sign Up';
+        }
+        
+        // Check for appointment scheduling patterns
+        if (messageText.includes('has scheduled a new appointment')) {
+            // Check if it's virtual or in-person
+            if (messageText.includes('Virtual') || messageText.includes('Teledentistry')) {
+                return 'Virtual';
+            } else if (messageText.includes('In-Person') || messageText.includes('In Person')) {
+                return 'In-Person';
+            }
+            return 'Scheduled';
+        }
+        
+        // Check for appointment request patterns
+        if (messageText.includes('has requested for')) {
+            if (messageText.includes('virtual') || messageText.includes('Virtual')) {
+                return 'Virtual';
+            } else if (messageText.includes('in-person') || messageText.includes('In-Person')) {
+                return 'In-Person';
+            }
+            return 'Request';
+        }
+        
+        // Check for cancellation patterns
+        if (messageText.includes('has requested to cancel') || messageText.includes('cancel')) {
+            return 'Cancel';
+        }
+        
+        // Check for welcome patterns
+        if (messageText.includes('Welcome patient')) {
+            return 'Welcome';
+        }
+        
+        // Check for reminder patterns
+        if (messageText.includes('reminder') || messageText.includes('Reminder')) {
+            return 'Reminder';
+        }
+        
+        // Check for general appointment patterns
+        if (messageText.includes('appointment') || messageText.includes('Appointment')) {
+            return 'Appointment';
+        }
+        
+        // Fallback to old logic for backwards compatibility
+        if (notification.type === 'appointment' || notification.message?.includes('scheduled')) {
+            return 'Appointment';
+        } else if (notification.type === 'cancellation' || notification.message?.includes('cancel')) {
+            return 'Cancel';
+        } else if (notification.type === 'welcome' || notification.message?.includes('Welcome')) {
+            return 'Welcome';
+        } else if (notification.type === 'request' || notification.message?.includes('requested')) {
+            return 'Request';
+        } else if (notification.type === 'reminder' || notification.message?.includes('reminder')) {
+            return 'Reminder';
+        }
+        
+        return 'General';
+    }
 }
