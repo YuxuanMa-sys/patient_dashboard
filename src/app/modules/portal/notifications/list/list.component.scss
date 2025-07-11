@@ -228,10 +228,22 @@ select {
     margin-right: 0.2em;
   }
 }
+
+/* New badge styling for notification cards */
 .new-badge {
-  font-size: 11px;
-  padding: 0.1rem 0.5rem;
-  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  background: #0056FB !important;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 9999px;
+  padding: 0.18em 0.85em;
+  margin-left: 0.5em;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0,86,251,0.10);
+  border: none;
+  vertical-align: middle;
 }
 
 // Expanded details card

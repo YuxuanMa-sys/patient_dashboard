@@ -142,25 +142,54 @@
 
                 <!-- Gallery Section -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Gallery Photos</h2>
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900">Gallery Photos</h2>
+                            <p class="text-sm text-gray-600 mt-1">Showcase your clinic's facilities and team</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">{{ accountForm.get('gallery_collection')?.value?.length || 0 }} images</span>
+                            <a routerLink="/portal/clinic-gallery" 
+                               class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                                Manage Gallery →
+                            </a>
+                        </div>
+                    </div>
+                    
                     <div class="text-center">
                         <input #galleryFileInput type="file" accept="image/*" multiple class="hidden" (change)="onGallerySelected($event)">
-                        <button mat-flat-button color="primary" (click)="galleryFileInput.click()" class="mb-6">
-                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
-                            <span class="ml-2">Select Photos</span>
+                        <button mat-stroked-button 
+                                color="primary" 
+                                (click)="galleryFileInput.click()" 
+                                class="mb-6 px-6 py-3 rounded-xl border-purple-300 text-purple-700 hover:bg-purple-50">
+                            <mat-icon svgIcon="heroicons_solid:plus" class="mr-2"></mat-icon>
+                            Upload Photos
                         </button>
                         
                         <!-- Gallery Preview -->
                         <div *ngIf="accountForm.get('gallery_collection')?.value?.length > 0" 
-                             class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
                             <div *ngFor="let img of accountForm.get('gallery_collection')?.value; let i = index" 
-                                 class="relative group">
-                                <img [src]="img" class="w-full h-24 object-cover rounded-lg border-2 border-gray-200">
-                                <button type="button" (click)="removeGalleryImage(i)"
-                                        class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <mat-icon class="icon-size-4">close</mat-icon>
-                                </button>
+                                 class="relative group aspect-square rounded-xl overflow-hidden bg-gray-100">
+                                <img [src]="img" 
+                                     class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                                    <button type="button" 
+                                            (click)="removeGalleryImage(i)"
+                                            class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600">
+                                        <mat-icon class="w-4 h-4">close</mat-icon>
+                                    </button>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div *ngIf="!accountForm.get('gallery_collection')?.value?.length" 
+                             class="text-center py-8">
+                            <div class="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                                <mat-icon class="w-8 h-8 text-gray-400" svgIcon="heroicons_solid:photo"></mat-icon>
+                            </div>
+                            <p class="text-gray-500 text-sm">No gallery images yet. Upload some photos to showcase your clinic.</p>
                         </div>
                     </div>
                 </div>

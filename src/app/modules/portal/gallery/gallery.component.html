@@ -1,0 +1,225 @@
+<div class="w-full mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl">
+                <mat-icon class="text-purple-600" svgIcon="heroicons_solid:photo"></mat-icon>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">Clinic Gallery</h2>
+                <p class="text-gray-600 mt-1">Manage your clinic's photo gallery and showcase your facilities</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <ng-container *ngIf="loading">
+        <div class="flex flex-col items-center justify-center py-20">
+            <div class="relative">
+                <mat-progress-spinner [diameter]="60" mode="indeterminate" color="primary"></mat-progress-spinner>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <mat-icon class="text-purple-600" svgIcon="heroicons_solid:photo"></mat-icon>
+                </div>
+            </div>
+            <p class="mt-6 text-gray-600 font-medium">Loading gallery...</p>
+            <p class="text-sm text-gray-500 mt-2">Please wait while we fetch your images</p>
+        </div>
+    </ng-container>
+
+    <!-- Error State -->
+    <ng-container *ngIf="error && !loading">
+        <div class="text-center py-20">
+            <div class="flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mx-auto mb-6">
+                <mat-icon class="w-12 h-12 text-red-500" svgIcon="heroicons_solid:exclamation-triangle"></mat-icon>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-3">Error Loading Gallery</h3>
+            <p class="text-red-600 mb-8 max-w-md mx-auto leading-relaxed">{{ error }}</p>
+            <button mat-stroked-button 
+                    (click)="getData()"
+                    class="px-8 py-4 border-gray-300 hover:bg-gray-50 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
+                <mat-icon svgIcon="heroicons_solid:arrow-path" class="mr-2"></mat-icon>
+                Try Again
+            </button>
+        </div>
+    </ng-container>
+
+    <!-- Main Content -->
+    <ng-container *ngIf="!loading && !error">
+        <!-- Stats and Action Bar -->
+        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-8 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex items-center space-x-8">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-purple-600 mb-1">{{ galleryImages.length }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Total Images</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-green-600 mb-1">{{ filteredImages.length }}</div>
+                        <div class="text-sm text-gray-600 font-medium">Displayed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-blue-600 mb-1">{{ uploadProgress || 0 }}%</div>
+                        <div class="text-sm text-gray-600 font-medium">Upload Progress</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input #galleryFileInput type="file" accept="image/*" multiple class="hidden" (change)="onGallerySelected($event)">
+                    <button mat-flat-button 
+                            [color]="'primary'" 
+                            (click)="galleryFileInput.click()"
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        <mat-icon svgIcon="heroicons_solid:plus" class="mr-2"></mat-icon>
+                        Upload Images
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <!-- Search -->
+                <div class="flex-1 max-w-md">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Search images</mat-label>
+                        <mat-icon matPrefix svgIcon="heroicons_solid:magnifying-glass" class="text-gray-400"></mat-icon>
+                        <input matInput [(ngModel)]="searchQuery" placeholder="Search by image name...">
+                    </mat-form-field>
+                </div>
+
+                <!-- Sort Options -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">Sort by:</span>
+                        <select [(ngModel)]="sortBy" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="date">Date</option>
+                            <option value="name">Name</option>
+                            <option value="size">Size</option>
+                        </select>
+                    </div>
+                    <button mat-stroked-button 
+                            (click)="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
+                            class="px-4 py-2 border-gray-300 hover:bg-gray-50 rounded-lg">
+                        <mat-icon [svgIcon]="sortOrder === 'asc' ? 'heroicons_solid:arrow-up' : 'heroicons_solid:arrow-down'"></mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drag and Drop Zone -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8"
+             [ngClass]="{'border-purple-300 bg-purple-50': dragOver}"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)">
+            <div class="text-center">
+                <div class="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mx-auto mb-6">
+                    <mat-icon class="w-10 h-10 text-gray-400" svgIcon="heroicons_solid:arrow-up-tray"></mat-icon>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Drag & Drop Images</h3>
+                <p class="text-gray-500 mb-6 max-w-md mx-auto">Drag and drop your images here, or click the upload button above</p>
+                <p class="text-sm text-gray-400">Supports JPEG, PNG, and WebP formats</p>
+            </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <ng-container *ngIf="filteredImages.length > 0; else noImagesTemplate">
+                <!-- Gallery Header -->
+                <div class="bg-gray-50 px-8 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Gallery Images</h3>
+                        <button mat-flat-button 
+                                color="primary" 
+                                (click)="saveGallery()"
+                                class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl font-semibold">
+                            <mat-icon svgIcon="heroicons_solid:check" class="mr-2"></mat-icon>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Grid -->
+                <div class="p-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        <div *ngFor="let image of filteredImages; trackBy: trackByFn; let i = index" 
+                             class="group relative bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:scale-105">
+                            
+                            <!-- Image -->
+                            <div class="aspect-square relative overflow-hidden">
+                                <img [src]="image" 
+                                     [alt]="'Gallery image ' + (i + 1)"
+                                     class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+                                     (click)="openImageModal(image)">
+                                
+                                <!-- Overlay -->
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        <button mat-icon-button 
+                                                class="text-white bg-black bg-opacity-50 rounded-full"
+                                                (click)="openImageModal(image)">
+                                            <mat-icon svgIcon="heroicons_solid:eye"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image Info -->
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-900">Image {{ i + 1 }}</span>
+                                    <span class="text-xs text-gray-500">{{ getImageSize(image) }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">{{ getImageDate(image) | date: 'MMM d, y' }}</span>
+                                    <button mat-icon-button 
+                                            class="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                            (click)="removeGalleryImage(i)">
+                                        <mat-icon svgIcon="heroicons_solid:trash" class="w-4 h-4"></mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- No Images Template -->
+            <ng-template #noImagesTemplate>
+                <div class="text-center py-20">
+                    <div class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mx-auto mb-6">
+                        <mat-icon class="w-12 h-12 text-gray-400" svgIcon="heroicons_solid:photo"></mat-icon>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">No Images Yet</h3>
+                    <p class="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">Start building your clinic's gallery by uploading some images. Showcase your facilities, equipment, and team to attract more patients.</p>
+                    <button mat-flat-button 
+                            [color]="'primary'" 
+                            (click)="galleryFileInput.click()"
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        <mat-icon svgIcon="heroicons_solid:plus" class="mr-2"></mat-icon>
+                        Upload Your First Image
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+    </ng-container>
+
+    <!-- Image Modal -->
+    <div *ngIf="showImageModal" 
+         class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+         (click)="closeImageModal()">
+        <div class="relative max-w-4xl max-h-full overflow-hidden rounded-2xl bg-white" (click)="$event.stopPropagation()">
+            <div class="absolute top-4 right-4 z-10">
+                <button mat-icon-button 
+                        class="text-white bg-black bg-opacity-50 rounded-full"
+                        (click)="closeImageModal()">
+                    <mat-icon svgIcon="heroicons_solid:x-mark"></mat-icon>
+                </button>
+            </div>
+            <img [src]="selectedImage" 
+                 [alt]="'Full size image'"
+                 class="w-full h-auto max-h-[80vh] object-contain">
+        </div>
+    </div>
+</div> 
