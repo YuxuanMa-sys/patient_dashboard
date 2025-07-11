@@ -54,6 +54,8 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
     loading: boolean = false;
     error: string = '';
     single: any;
+    isEdit: boolean = false;
+    isPromotion: boolean = false;
     /**
      * Constructor
      */
@@ -90,9 +92,12 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
         });
 
         this.single = this._data;
-        console.log(this.single);
+        // Determine if editing or creating
+        this.isEdit = this.single && this.single !== 'add';
+        // Determine if this is a promotion (type === 'Promo')
+        this.isPromotion = this.single && (this.single.type === 'Promo');
 
-        if (this.single !== 'add') {
+        if (this.isEdit) {
             this.imagePreviewUrl = this.single.image;
             this.selectedTarget = this.single.for === 'All' ? 'All' : 'Individual';
             this.single.createdAt = this.single.createdAt && this.single.createdAt.seconds ? new Date(this.single.createdAt.seconds * 1000) : null;
@@ -232,5 +237,21 @@ export class AnnouncementModalComponent implements OnInit, OnDestroy {
      */
     trackByFn(index: number, item: any): any {
         return item.id || index;
+    }
+
+    getModalTitle(): string {
+        if (this.isPromotion) {
+            return this.isEdit ? 'Edit Promotion' : 'Create New Promotion';
+        } else {
+            return this.isEdit ? 'Edit Announcement' : 'Create New Announcement';
+        }
+    }
+
+    getActionButtonText(): string {
+        if (this.isPromotion) {
+            return this.isEdit ? 'Save Changes' : 'Publish Promotion';
+        } else {
+            return this.isEdit ? 'Save Changes' : 'Publish Announcement';
+        }
     }
 }
