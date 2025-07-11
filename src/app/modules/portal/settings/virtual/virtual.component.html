@@ -1,86 +1,194 @@
-<div class="w-full mx-auto mt-8 flex space-x-12">
-    <!-- Left Side: Virtual Operating Hours Information (30% width) -->
-    <div class="w-1/3 p-6 bg-gray-100 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold mb-6 text-blue-600">Virtual Operating Hours</h2>
-
-        <!-- Display the existing virtual operating hours -->
-        <ng-container *ngIf="clinicOperatingHours; else noOperatingHours">
-            <div class="space-y-4 text-gray-700">
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Weekdays:</span>
-                    <p>{{ clinicOperatingHours.operatingWeekDays.join(', ') }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Number of Slots:</span>
-                    <p>{{ clinicOperatingHours.numberOfSlots }}</p>
-                </div>
-                <div *ngFor="let slot of clinicOperatingHours.slots" class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Slot {{ clinicOperatingHours.slots.indexOf(slot) + 1 }}:</span>
-                    <p>Start Time: {{ slot.startTime }}, Duration: {{ slot.duration }} mins</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Same Schedule for All Days:</span>
-                    <p>{{ clinicOperatingHours.isSameForAllDays ? 'Yes' : 'No' }}</p>
-                </div>
+<div class="w-full mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-xl">
+                <mat-icon class="text-purple-600" svgIcon="heroicons_solid:video-camera"></mat-icon>
             </div>
-        </ng-container>
-
-        <!-- Display if no virtual operating hours exist -->
-        <ng-template #noOperatingHours>
-            <p class="text-gray-500 italic text-center mt-6">No virtual operating hours have been set up yet.</p>
-        </ng-template>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">Virtual Operating Hours</h2>
+                <p class="text-gray-600 mt-1">Configure your clinic's virtual appointment schedule</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Right Side: Form for Editing Virtual Operating Hours (70% width) -->
-    <div class="w-2/3 p-4 space-y-6">
-        <!-- Weekdays buttons -->
-        <div class="flex space-x-4">
-            <ng-container *ngFor="let week of weekDays">
-                <button type="button" (click)="onWeekClick(week)"
-                    class="px-4 py-2 rounded-full text-white border bg-gray-300"
-                    [ngClass]="{
-                        'bg-blue-500': clinicOperatingHours.operatingWeekDays.includes(week),
-                        'bg-gray-300': !clinicOperatingHours.operatingWeekDays.includes(week)
-                    }">
-                    {{ week }}
-                </button>
-            </ng-container>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Side: Current Virtual Operating Hours (1/3 width) -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-fit">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center justify-center w-10 h-10 bg-purple-50 rounded-lg">
+                        <mat-icon class="text-purple-600" svgIcon="heroicons_solid:information-circle"></mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Current Virtual Schedule</h3>
+                </div>
+
+                <!-- Display the existing virtual operating hours -->
+                <ng-container *ngIf="clinicOperatingHours; else noOperatingHours">
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-medium text-gray-700">Operating Days</span>
+                                <span class="text-xs text-gray-500">{{ clinicOperatingHours.operatingWeekDays.length }} days</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                <span *ngFor="let day of clinicOperatingHours.operatingWeekDays" 
+                                      class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">
+                                    {{ day }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm font-medium text-gray-700 mb-1">Number of Slots</div>
+                            <div class="text-lg font-semibold text-gray-900">{{ clinicOperatingHours.numberOfSlots }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm font-medium text-gray-700 mb-3">Time Slots</div>
+                            <div class="space-y-2">
+                                <div *ngFor="let slot of clinicOperatingHours.slots; let i = index" 
+                                     class="bg-white rounded-lg p-3 border border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-700">Slot {{ i + 1 }}</span>
+                                        <span class="text-xs text-gray-500">{{ slot.duration }} mins</span>
+                                    </div>
+                                    <div class="text-sm font-semibold text-gray-900">{{ slot.startTime }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm font-medium text-gray-700 mb-1">Schedule Type</div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full" 
+                                     [ngClass]="clinicOperatingHours.isSameForAllDays ? 'bg-green-400' : 'bg-orange-400'"></div>
+                                <span class="text-sm text-gray-900">
+                                    {{ clinicOperatingHours.isSameForAllDays ? 'Same for all days' : 'Different per day' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Display if no virtual operating hours exist -->
+                <ng-template #noOperatingHours>
+                    <div class="text-center py-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                            <mat-icon class="w-8 h-8 text-gray-400" svgIcon="heroicons_solid:video-camera"></mat-icon>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2">No Virtual Schedule</h4>
+                        <p class="text-gray-500 text-sm">Configure your clinic's virtual operating hours to get started.</p>
+                    </div>
+                </ng-template>
+            </div>
         </div>
 
-        <!-- Form -->
-        <form [formGroup]="reqForm" class="space-y-4">
-            <!-- Toggle for Same Schedule for All Days -->
-            <mat-checkbox formControlName="isSameForAllDays">
-                Same Schedule for all active days?
-            </mat-checkbox>
-
-            <!-- Number of Slots -->
-            <mat-form-field class="w-full">
-                <mat-label>Number of Slots</mat-label>
-                <input matInput type="number" formControlName="numberOfSlots" />
-            </mat-form-field>
-
-            <!-- Dynamic Slot Rows -->
-            <div formArrayName="slotDetails" *ngFor="let slot of slotDetails.controls; let i = index">
-                <div [formGroupName]="i" class="flex space-x-4 items-center">
-                    <mat-form-field class="w-1/2">
-                        <mat-label>Start Time for Slot {{ i + 1 }}</mat-label>
-                        <input matInput type="time" formControlName="startTime" placeholder="HH:MM" />
-                    </mat-form-field>
-
-                    <mat-form-field class="w-1/2">
-                        <mat-label>Duration (minutes) for Slot {{ i + 1 }}</mat-label>
-                        <input matInput type="number" formControlName="duration" placeholder="Duration in mins" />
-                    </mat-form-field>
+        <!-- Right Side: Form for Editing Virtual Operating Hours (2/3 width) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center justify-center w-10 h-10 bg-green-50 rounded-lg">
+                        <mat-icon class="text-green-600" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Configure Virtual Schedule</h3>
                 </div>
+
+                <!-- Weekdays Selection -->
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-4">Select Operating Days</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button type="button" 
+                                *ngFor="let week of weekDays"
+                                (click)="onWeekClick(week)"
+                                class="relative px-4 py-3 rounded-xl border-2 transition-all duration-200 font-medium text-sm"
+                                [ngClass]="{
+                                    'border-purple-500 bg-purple-50 text-purple-700': clinicOperatingHours.operatingWeekDays.includes(week),
+                                    'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50': !clinicOperatingHours.operatingWeekDays.includes(week)
+                                }">
+                            {{ week }}
+                            <div *ngIf="clinicOperatingHours.operatingWeekDays.includes(week)" 
+                                 class="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                                <mat-icon class="w-3 h-3 text-white" svgIcon="heroicons_solid:check"></mat-icon>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form [formGroup]="reqForm" class="space-y-6">
+                    <!-- Schedule Configuration -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <mat-icon class="text-gray-600" svgIcon="heroicons_solid:cog"></mat-icon>
+                            <h4 class="text-lg font-semibold text-gray-900">Schedule Settings</h4>
+                        </div>
+                        
+                        <!-- Toggle for Same Schedule for All Days -->
+                        <div class="mb-6">
+                            <mat-checkbox formControlName="isSameForAllDays" class="text-gray-700">
+                                <span class="ml-2">Same schedule for all active days</span>
+                            </mat-checkbox>
+                            <p class="text-sm text-gray-500 mt-1 ml-6">Enable this to apply the same time slots across all selected days</p>
+                        </div>
+
+                        <!-- Number of Slots -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Number of Slots</mat-label>
+                            <input matInput type="number" formControlName="numberOfSlots" min="1" max="24" />
+                            <mat-icon matSuffix svgIcon="heroicons_solid:calendar"></mat-icon>
+                            <mat-hint>Maximum 24 slots per day</mat-hint>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Dynamic Slot Configuration -->
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <mat-icon class="text-gray-600" svgIcon="heroicons_solid:clock"></mat-icon>
+                            <h4 class="text-lg font-semibold text-gray-900">Time Slot Configuration</h4>
+                        </div>
+                        
+                        <!-- Dynamic Slot Rows -->
+                        <div formArrayName="slotDetails" class="space-y-4">
+                            <div *ngFor="let slot of slotDetails.controls; let i = index" 
+                                 [formGroupName]="i" 
+                                 class="bg-white rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h5 class="text-sm font-semibold text-gray-900">Slot {{ i + 1 }}</h5>
+                                    <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Start Time</mat-label>
+                                        <input matInput type="time" formControlName="startTime" placeholder="HH:MM" />
+                                        <mat-icon matSuffix svgIcon="heroicons_solid:play"></mat-icon>
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Duration (minutes)</mat-label>
+                                        <input matInput type="number" formControlName="duration" placeholder="Duration" min="5" max="480" />
+                                        <mat-icon matSuffix svgIcon="heroicons_solid:clock"></mat-icon>
+                                        <mat-hint>5-480 minutes</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="flex justify-end pt-6 border-t border-gray-200">
+                        <button mat-flat-button 
+                                color="primary" 
+                                (click)="saveClinicInfo()"
+                                class="px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                            <mat-icon svgIcon="heroicons_solid:check" class="mr-2"></mat-icon>
+                            Save Virtual Schedule
+                        </button>
+                    </div>
+                </form>
             </div>
-
-
-            <!-- Save Button -->
-            <button mat-raised-button color="primary" (click)="saveClinicInfo()">
-                Save Details
-            </button>
-        </form>
-
+        </div>
     </div>
 </div>

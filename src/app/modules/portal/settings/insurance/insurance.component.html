@@ -13,19 +13,19 @@
     </div>
 
     <!-- Stats and Action Bar -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8">
-        <div class="flex items-center justify-between">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div class="flex items-center space-x-8">
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-600">{{ insurance.length }}</div>
+                    <div class="text-4xl font-bold text-blue-600 mb-1">{{ insurance.length }}</div>
                     <div class="text-sm text-gray-600 font-medium">Total Providers</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-green-600">{{ getActiveCount() }}</div>
+                    <div class="text-4xl font-bold text-green-600 mb-1">{{ getActiveCount() }}</div>
                     <div class="text-sm text-gray-600 font-medium">Active</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-3xl font-bold text-red-600">{{ getInactiveCount() }}</div>
+                    <div class="text-4xl font-bold text-red-600 mb-1">{{ getInactiveCount() }}</div>
                     <div class="text-sm text-gray-600 font-medium">Inactive</div>
                 </div>
             </div>
@@ -33,7 +33,7 @@
             <button mat-flat-button 
                     [color]="'primary'" 
                     (click)="createOrUpdate('add')"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 <mat-icon [svgIcon]="'heroicons_solid:plus'" class="mr-2"></mat-icon>
                 Add Insurance Provider
             </button>
@@ -46,7 +46,7 @@
             <ng-container *ngIf="insurance.length > 0; else noDataTemplate">
                 
                 <!-- Table Header -->
-                <div class="bg-gray-50 px-8 py-4 border-b border-gray-200">
+                <div class="bg-gray-50 px-8 py-6 border-b border-gray-200">
                     <div class="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         <div class="col-span-4">Provider Name</div>
                         <div class="col-span-2">Status</div>
@@ -58,16 +58,16 @@
                 <!-- Table Body -->
                 <div class="divide-y divide-gray-100">
                     <div *ngFor="let item of insurance; trackBy: trackByFn" 
-                         class="px-8 py-6 hover:bg-gray-50 transition-colors duration-150">
+                         class="px-8 py-6 hover:bg-gray-50 transition-colors duration-150 group">
                         <div class="grid grid-cols-12 gap-4 items-center">
                             
                             <!-- Provider Name -->
                             <div class="col-span-4">
                                 <div class="flex items-center space-x-4">
-                                    <div class="flex items-center justify-center w-10 h-10 rounded-full"
+                                    <div class="flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200"
                                          [ngClass]="{
-                                             'bg-green-100': item.status,
-                                             'bg-red-100': !item.status
+                                             'bg-green-100 group-hover:bg-green-200': item.status,
+                                             'bg-red-100 group-hover:bg-red-200': !item.status
                                          }">
                                         <mat-icon [ngClass]="{
                                                      'text-green-600': item.status,
@@ -76,7 +76,7 @@
                                                  [svgIcon]="'heroicons_solid:shield-check'"></mat-icon>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-semibold text-gray-900">{{ item.name }}</div>
+                                        <div class="text-sm font-semibold text-gray-900 group-hover:text-gray-700 transition-colors">{{ item.name }}</div>
                                         <div class="text-xs text-gray-500">Insurance Provider</div>
                                     </div>
                                 </div>
@@ -84,12 +84,12 @@
 
                             <!-- Status -->
                             <div class="col-span-2">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
                                       [ngClass]="{
-                                          'bg-green-100 text-green-800': item.status,
-                                          'bg-red-100 text-red-800': !item.status
+                                          'bg-green-100 text-green-800 group-hover:bg-green-200': item.status,
+                                          'bg-red-100 text-red-800 group-hover:bg-red-200': !item.status
                                       }">
-                                    <span class="w-1.5 h-1.5 rounded-full mr-2"
+                                    <span class="w-2 h-2 rounded-full mr-2 transition-all duration-200"
                                           [ngClass]="{
                                               'bg-green-400': item.status,
                                               'bg-red-400': !item.status
@@ -135,24 +135,30 @@
 
         <!-- Loading Template -->
         <ng-template #loadingTemplate>
-            <div class="flex flex-col items-center justify-center py-16">
-                <mat-progress-spinner [diameter]="50" mode="indeterminate" color="primary"></mat-progress-spinner>
-                <p class="mt-4 text-gray-600 font-medium">Loading insurance providers...</p>
+            <div class="flex flex-col items-center justify-center py-20">
+                <div class="relative">
+                    <mat-progress-spinner [diameter]="60" mode="indeterminate" color="primary"></mat-progress-spinner>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <mat-icon class="text-blue-600" svgIcon="heroicons_solid:shield-check"></mat-icon>
+                    </div>
+                </div>
+                <p class="mt-6 text-gray-600 font-medium">Loading insurance providers...</p>
+                <p class="text-sm text-gray-500 mt-2">Please wait while we fetch your data</p>
             </div>
         </ng-template>
 
         <!-- No Data Template -->
         <ng-template #noDataTemplate>
-            <div class="text-center py-16">
-                <div class="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mx-auto mb-6">
-                    <mat-icon class="w-10 h-10 text-gray-400" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
+            <div class="text-center py-20">
+                <div class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mx-auto mb-6">
+                    <mat-icon class="w-12 h-12 text-gray-400" [svgIcon]="'heroicons_solid:clipboard-document-list'"></mat-icon>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Insurance Providers</h3>
-                <p class="text-gray-500 mb-8 max-w-md mx-auto">You haven't added any insurance providers yet. Get started by adding your first insurance provider to streamline your clinic's billing process.</p>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-3">No Insurance Providers</h3>
+                <p class="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">You haven't added any insurance providers yet. Get started by adding your first insurance provider to streamline your clinic's billing process.</p>
                 <button mat-flat-button 
                         [color]="'primary'" 
                         (click)="createOrUpdate('add')"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     <mat-icon [svgIcon]="'heroicons_solid:plus'" class="mr-2"></mat-icon>
                     Add Your First Provider
                 </button>
@@ -161,19 +167,39 @@
 
         <!-- Error Template -->
         <ng-container *ngIf="error">
-            <div class="text-center py-16">
-                <div class="flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mx-auto mb-6">
-                    <mat-icon class="w-10 h-10 text-red-500" [svgIcon]="'heroicons_solid:exclamation-triangle'"></mat-icon>
+            <div class="text-center py-20">
+                <div class="flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mx-auto mb-6">
+                    <mat-icon class="w-12 h-12 text-red-500" [svgIcon]="'heroicons_solid:exclamation-triangle'"></mat-icon>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h3>
-                <p class="text-red-600 mb-8 max-w-md mx-auto">{{ error }}</p>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-3">Error Loading Data</h3>
+                <p class="text-red-600 mb-8 max-w-md mx-auto leading-relaxed">{{ error }}</p>
                 <button mat-stroked-button 
                         (click)="getData()"
-                        class="px-6 py-3 border-gray-300 hover:bg-gray-50 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
+                        class="px-8 py-4 border-gray-300 hover:bg-gray-50 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
                     <mat-icon [svgIcon]="'heroicons_solid:arrow-path'" class="mr-2"></mat-icon>
                     Try Again
                 </button>
             </div>
         </ng-container>
+    </div>
+
+    <!-- Quick Actions Footer -->
+    <div class="mt-8 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-1">Need Help?</h4>
+                <p class="text-sm text-gray-600">Learn how to manage insurance providers effectively</p>
+            </div>
+            <div class="flex space-x-3">
+                <button mat-stroked-button class="px-6 py-3 rounded-xl font-medium border-gray-300 text-gray-700 hover:bg-gray-50">
+                    <mat-icon svgIcon="heroicons_solid:question-mark-circle" class="mr-2"></mat-icon>
+                    Help Guide
+                </button>
+                <button mat-stroked-button class="px-6 py-3 rounded-xl font-medium border-blue-300 text-blue-700 hover:bg-blue-50">
+                    <mat-icon svgIcon="heroicons_solid:document-text" class="mr-2"></mat-icon>
+                    Documentation
+                </button>
+            </div>
+        </div>
     </div>
 </div> 

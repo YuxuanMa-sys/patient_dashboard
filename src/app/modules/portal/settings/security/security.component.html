@@ -1,70 +1,207 @@
-<div class="w-full max-w-3xl">
-    <!-- Form -->
-    <form [formGroup]="securityForm">
-        <!-- Section -->
-        <div class="w-full">
-            <div class="text-xl">Change your password</div>
-            <div class="text-secondary">
-                You can only change your password twice within 24 hours!
+<div class="w-full mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-xl">
+                <mat-icon class="text-red-600" svgIcon="heroicons_solid:lock-closed"></mat-icon>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">Security Settings</h2>
+                <p class="text-gray-600 mt-1">Manage your account security and authentication preferences</p>
             </div>
         </div>
-        <div class="mt-8 grid w-full gap-6 sm:grid-cols-4">
-            <!-- Current password -->
-            <div class="sm:col-span-4">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>Current password</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:key'"
-                        matPrefix
-                    ></mat-icon>
-                    <input
-                        [formControlName]="'currentPassword'"
-                        type="password"
-                        matInput
-                    />
-                </mat-form-field>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto">
+        <!-- Password Change Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg">
+                    <mat-icon class="text-blue-600" svgIcon="heroicons_solid:key"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">Change Password</h3>
+                    <p class="text-sm text-gray-600 mt-1">You can only change your password twice within 24 hours</p>
+                </div>
             </div>
-            <!-- New password -->
-            <div class="sm:col-span-4">
-                <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
-                    <mat-label>New password</mat-label>
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:key'"
-                        matPrefix
-                    ></mat-icon>
-                    <input
-                        [formControlName]="'newPassword'"
-                        type="password"
-                        matInput
-                    />
-                </mat-form-field>
-                <div class="text-hint mt-1 text-md">
-                    Minimum 8 characters. Must include numbers, letters and
-                    special characters.
+
+            <!-- Form -->
+            <form [formGroup]="securityForm" class="space-y-6">
+                <!-- Current Password -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <mat-icon class="text-gray-600" svgIcon="heroicons_solid:lock-closed"></mat-icon>
+                        <h4 class="text-lg font-semibold text-gray-900">Current Password</h4>
+                    </div>
+                    
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Current password</mat-label>
+                        <mat-icon matPrefix svgIcon="heroicons_solid:key" class="text-gray-400"></mat-icon>
+                        <input [formControlName]="'currentPassword'" type="password" matInput />
+                        <mat-hint>Enter your current password to proceed</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <!-- New Password -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <mat-icon class="text-gray-600" svgIcon="heroicons_solid:key"></mat-icon>
+                        <h4 class="text-lg font-semibold text-gray-900">New Password</h4>
+                    </div>
+                    
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>New password</mat-label>
+                        <mat-icon matPrefix svgIcon="heroicons_solid:key" class="text-gray-400"></mat-icon>
+                        <input [formControlName]="'newPassword'" type="password" matInput />
+                        <mat-hint>Minimum 8 characters. Must include numbers, letters and special characters</mat-hint>
+                    </mat-form-field>
+
+                    <!-- Password Strength Indicator -->
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Password Strength</span>
+                            <span class="text-xs text-gray-500">Strong</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>8+ characters</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>Uppercase</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>Numbers</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>Special chars</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tips -->
+                <div class="bg-blue-50 rounded-xl p-6">
+                    <div class="flex items-start space-x-3">
+                        <mat-icon class="text-blue-600 mt-0.5" svgIcon="heroicons_solid:information-circle"></mat-icon>
+                        <div>
+                            <h4 class="text-sm font-semibold text-blue-900 mb-2">Security Tips</h4>
+                            <ul class="text-sm text-blue-800 space-y-1">
+                                <li>• Use a unique password that you don't use elsewhere</li>
+                                <li>• Consider using a password manager for better security</li>
+                                <li>• Enable two-factor authentication for additional protection</li>
+                                <li>• Regularly update your password every 3-6 months</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <button mat-stroked-button 
+                            type="button"
+                            class="px-6 py-3 rounded-xl font-medium border-gray-300 text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button mat-flat-button 
+                            type="button"
+                            color="primary"
+                            class="px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                        <mat-icon svgIcon="heroicons_solid:check" class="mr-2"></mat-icon>
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Two-Factor Authentication Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="flex items-center justify-center w-10 h-10 bg-green-50 rounded-lg">
+                    <mat-icon class="text-green-600" svgIcon="heroicons_solid:shield-check"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">Two-Factor Authentication</h3>
+                    <p class="text-sm text-gray-600 mt-1">Add an extra layer of security to your account</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center justify-center w-12 h-12 bg-white rounded-lg border border-gray-200">
+                            <mat-icon class="text-gray-600" svgIcon="heroicons_solid:device-phone-mobile"></mat-icon>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-900">SMS Authentication</h4>
+                            <p class="text-sm text-gray-600">Receive verification codes via SMS</p>
+                        </div>
+                    </div>
+                    <button mat-stroked-button 
+                            class="px-6 py-3 rounded-xl font-medium border-blue-300 text-blue-700 hover:bg-blue-50">
+                        Enable
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Divider -->
-        <div class="my-10 border-t"></div>
+        <!-- Login History Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="flex items-center justify-center w-10 h-10 bg-purple-50 rounded-lg">
+                    <mat-icon class="text-purple-600" svgIcon="heroicons_solid:clock"></mat-icon>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900">Recent Login Activity</h3>
+                    <p class="text-sm text-gray-600 mt-1">Monitor your account access and security</p>
+                </div>
+            </div>
 
+            <div class="space-y-4">
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg">
+                                <mat-icon class="text-green-600" svgIcon="heroicons_solid:check-circle"></mat-icon>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">Current Session</h4>
+                                <p class="text-xs text-gray-500">Chrome on Windows • 2 hours ago</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Active</span>
+                    </div>
+                </div>
 
-        <!-- Divider -->
-        <div class="my-10 border-t"></div>
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg">
+                                <mat-icon class="text-gray-600" svgIcon="heroicons_solid:computer-desktop"></mat-icon>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900">Previous Session</h4>
+                                <p class="text-xs text-gray-500">Safari on Mac • 1 day ago</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Ended</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Actions -->
-        <div class="flex items-center justify-end">
-            <button mat-stroked-button type="button">Cancel</button>
-            <button
-                class="ml-4"
-                mat-flat-button
-                type="button"
-                [color]="'primary'"
-            >
-                Save
-            </button>
+            <div class="flex justify-end pt-6 border-t border-gray-200 mt-6">
+                <button mat-stroked-button 
+                        class="px-6 py-3 rounded-xl font-medium border-gray-300 text-gray-700 hover:bg-gray-50">
+                    View All Sessions
+                </button>
+            </div>
         </div>
-    </form>
+    </div>
 </div>

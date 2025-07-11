@@ -1,132 +1,224 @@
-<div class="w-full mx-auto mt-8 flex space-x-12">
-    <!-- Left Side: Operating Hours Information (30% width) -->
-    <div class="w-1/3 p-6 bg-gray-100 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold mb-6 text-blue-600">Clinic Operating Hours</h2>
-
-        <!-- Check if operatingHours exists -->
-        <ng-container *ngIf="operatingHours; else noOperatingHours">
-            <div class="space-y-4 text-gray-700">
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Weekdays:</span>
-                    <p>{{ operatingHours.operatingWeekDays.join(', ') }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Start Time:</span>
-                    <p>{{ operatingHours.startTime }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">End Time:</span>
-                    <p>{{ operatingHours.endTime }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Mid Break Start:</span>
-                    <p>{{ operatingHours.midBreakStartTime }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Mid Break End:</span>
-                    <p>{{ operatingHours.midBreakEndTime }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Appointment Duration:</span>
-                    <p>{{ operatingHours.appointmentDuration }} mins</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Slots:</span>
-                    <p>{{ operatingHours.slots }}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="font-bold text-gray-900">Timezone:</span>
-                    <p>{{ operatingHours.timezoneName }}</p>
-                </div>
+<div class="w-full mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl">
+                <mat-icon class="text-blue-600" svgIcon="heroicons_solid:clock"></mat-icon>
             </div>
-        </ng-container>
-
-        <!-- Display if no operating hours exist -->
-        <ng-template #noOperatingHours>
-            <p class="text-gray-500 italic text-center mt-6">No operating hours have been created yet.</p>
-        </ng-template>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">Clinic Operating Hours</h2>
+                <p class="text-gray-600 mt-1">Configure your clinic's in-person appointment schedule</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Right Side: Form for Editing Operating Hours (70% width) -->
-    <div class="w-2/3 p-4 space-y-6">
-        <!-- Weekdays buttons -->
-        <div class="flex space-x-4">
-            <ng-container *ngFor="let week of weekDays">
-                <button type="button" (click)="onWeekClick(week)"
-                    class="px-4 py-2 rounded-full text-white border bg-gray-300"
-                    [ngClass]="{
-                        'bg-blue-500': clinicOperatingHours.operatingWeekDays.includes(week),
-                        'bg-gray-300': !clinicOperatingHours.operatingWeekDays.includes(week)
-                    }">
-                    {{ week }}
-                </button>
-            </ng-container>
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Side: Current Operating Hours (1/3 width) -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 h-fit">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg">
+                        <mat-icon class="text-blue-600" svgIcon="heroicons_solid:information-circle"></mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Current Schedule</h3>
+                </div>
+
+                <!-- Check if operatingHours exists -->
+                <ng-container *ngIf="operatingHours; else noOperatingHours">
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-medium text-gray-700">Operating Days</span>
+                                <span class="text-xs text-gray-500">{{ operatingHours.operatingWeekDays.length }} days</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                <span *ngFor="let day of operatingHours.operatingWeekDays" 
+                                      class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                                    {{ day }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Start Time</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ operatingHours.startTime }}</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm font-medium text-gray-700 mb-1">End Time</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ operatingHours.endTime }}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm font-medium text-gray-700 mb-1">Break Time</div>
+                            <div class="text-sm text-gray-900">
+                                {{ operatingHours.midBreakStartTime }} - {{ operatingHours.midBreakEndTime }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Duration</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ operatingHours.appointmentDuration }} mins</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Timezone</div>
+                                <div class="text-sm text-gray-900">{{ operatingHours.timezoneName }}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm font-medium text-gray-700 mb-2">Available Slots</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div *ngFor="let slot of slots" 
+                                     class="text-xs bg-white rounded px-2 py-1 text-center text-gray-700 border">
+                                    {{ slot.display }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Display if no operating hours exist -->
+                <ng-template #noOperatingHours>
+                    <div class="text-center py-8">
+                        <div class="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4">
+                            <mat-icon class="w-8 h-8 text-gray-400" svgIcon="heroicons_solid:clock"></mat-icon>
+                        </div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2">No Schedule Set</h4>
+                        <p class="text-gray-500 text-sm">Configure your clinic's operating hours to get started.</p>
+                    </div>
+                </ng-template>
+            </div>
         </div>
 
-        <!-- Form -->
-        <form [formGroup]="reqForm" class="space-y-4">
-            <div class="flex space-x-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Opening Time</mat-label>
-                    <mat-select formControlName="startTime">
-                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Closing Time</mat-label>
-                    <mat-select formControlName="endTime">
-                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-
-            <mat-form-field class="w-full">
-                <mat-label>Number of Slots</mat-label>
-                <input matInput type="number" formControlName="slots" />
-            </mat-form-field>
-
-            <mat-form-field class="w-full">
-                <mat-label>Appointment Duration</mat-label>
-                <mat-select formControlName="appointmentDuration">
-                    <mat-option *ngFor="let duration of duration" [value]="duration.value">{{ duration.name }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <div class="flex space-x-4">
-                <mat-form-field class="w-full">
-                    <mat-label>Mid-Break Start</mat-label>
-                    <mat-select formControlName="midBreakStartTime">
-                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-                <mat-form-field class="w-full">
-                    <mat-label>Mid-Break End</mat-label>
-                    <mat-select formControlName="midBreakEndTime">
-                        <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-
-            <mat-form-field class="w-full">
-                <mat-label>Timezone</mat-label>
-                <mat-select formControlName="timezoneName">
-                    <mat-option *ngFor="let timeZone of timeZones" [value]="timeZone">
-                        {{ timeZone }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <div class="grid grid-cols-4 text-center rounded mb-5 gap-5 mt-4">
-                <div *ngFor="let slot of slots" class="col-lg-2 col-md-4 col-sm-6 week text-white cursor-pointer p-3 rounded font-normal border bg-blue-400">
-                    <p>{{ slot.display }}</p>
+        <!-- Right Side: Form for Editing Operating Hours (2/3 width) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="flex items-center justify-center w-10 h-10 bg-green-50 rounded-lg">
+                        <mat-icon class="text-green-600" svgIcon="heroicons_solid:pencil-square"></mat-icon>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Configure Schedule</h3>
                 </div>
-            </div>
 
-            <button mat-raised-button color="primary" (click)="saveClinicInfo()">
-                Save Details
-            </button>
-        </form>
+                <!-- Weekdays Selection -->
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-4">Select Operating Days</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button type="button" 
+                                *ngFor="let week of weekDays"
+                                (click)="onWeekClick(week)"
+                                class="relative px-4 py-3 rounded-xl border-2 transition-all duration-200 font-medium text-sm"
+                                [ngClass]="{
+                                    'border-blue-500 bg-blue-50 text-blue-700': clinicOperatingHours.operatingWeekDays.includes(week),
+                                    'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50': !clinicOperatingHours.operatingWeekDays.includes(week)
+                                }">
+                            {{ week }}
+                            <div *ngIf="clinicOperatingHours.operatingWeekDays.includes(week)" 
+                                 class="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                <mat-icon class="w-3 h-3 text-white" svgIcon="heroicons_solid:check"></mat-icon>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form [formGroup]="reqForm" class="space-y-6">
+                    <!-- Time Configuration -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Opening Time</mat-label>
+                            <mat-select formControlName="startTime">
+                                <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix svgIcon="heroicons_solid:sun"></mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Closing Time</mat-label>
+                            <mat-select formControlName="endTime">
+                                <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix svgIcon="heroicons_solid:moon"></mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Break Configuration -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Break Start Time</mat-label>
+                            <mat-select formControlName="midBreakStartTime">
+                                <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix svgIcon="heroicons_solid:pause"></mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Break End Time</mat-label>
+                            <mat-select formControlName="midBreakEndTime">
+                                <mat-option *ngFor="let item of slotsTime" [value]="item">{{ item }}</mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix svgIcon="heroicons_solid:play"></mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Appointment Configuration -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Number of Slots</mat-label>
+                            <input matInput type="number" formControlName="slots" />
+                            <mat-icon matSuffix svgIcon="heroicons_solid:calendar"></mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Appointment Duration</mat-label>
+                            <mat-select formControlName="appointmentDuration">
+                                <mat-option *ngFor="let duration of duration" [value]="duration.value">{{ duration.name }}</mat-option>
+                            </mat-select>
+                            <mat-icon matSuffix svgIcon="heroicons_solid:clock"></mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Timezone -->
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Timezone</mat-label>
+                        <mat-select formControlName="timezoneName">
+                            <mat-option *ngFor="let timeZone of timeZones" [value]="timeZone">
+                                {{ timeZone }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-icon matSuffix svgIcon="heroicons_solid:globe-alt"></mat-icon>
+                    </mat-form-field>
+
+                    <!-- Generated Slots Preview -->
+                    <div *ngIf="slots.length > 0" class="bg-gray-50 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <mat-icon class="text-gray-600" svgIcon="heroicons_solid:calendar-days"></mat-icon>
+                            <h4 class="text-lg font-semibold text-gray-900">Generated Time Slots</h4>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            <div *ngFor="let slot of slots" 
+                                 class="bg-white rounded-lg p-3 text-center border border-gray-200">
+                                <div class="text-sm font-semibold text-gray-900">{{ slot.display }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="flex justify-end pt-6 border-t border-gray-200">
+                        <button mat-flat-button 
+                                color="primary" 
+                                (click)="saveClinicInfo()"
+                                class="px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                            <mat-icon svgIcon="heroicons_solid:check" class="mr-2"></mat-icon>
+                            Save Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
