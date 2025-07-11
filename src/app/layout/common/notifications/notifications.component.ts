@@ -23,6 +23,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'notifications',
     templateUrl: './notifications.component.html',
+    styleUrls: ['./notifications.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     exportAs: 'notifications',
@@ -44,6 +45,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
     notifications: Notification[];
     unreadCount: number = 0;
+    isPanelOpen: boolean = false;
     private _overlayRef: OverlayRef;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -116,13 +118,29 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         this._overlayRef.attach(
             new TemplatePortal(this._notificationsPanel, this._viewContainerRef)
         );
+
+        // Update panel state
+        this.isPanelOpen = true;
+        this._changeDetectorRef.markForCheck();
+
+        // Update ARIA attributes
+        this._updateAriaAttributes();
     }
 
     /**
      * Close the notifications panel
      */
     closePanel(): void {
-        this._overlayRef.detach();
+        if (this._overlayRef) {
+            this._overlayRef.detach();
+        }
+
+        // Update panel state
+        this.isPanelOpen = false;
+        this._changeDetectorRef.markForCheck();
+
+        // Update ARIA attributes
+        this._updateAriaAttributes();
     }
 
     /**
@@ -130,7 +148,11 @@ export class NotificationsComponent implements OnInit, OnDestroy {
      */
     markAllAsRead(): void {
         // Mark all as read
-        this._notificationsService.markAllAsRead().subscribe();
+        this._notificationsService.markAllAsRead().subscribe(() => {
+            // Recalculate unread count
+            this._calculateUnreadCount();
+            this._changeDetectorRef.markForCheck();
+        });
     }
 
     /**
@@ -143,7 +165,11 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         // Update the notification
         this._notificationsService
             .update(notification.id, notification)
-            .subscribe();
+            .subscribe(() => {
+                // Recalculate unread count
+                this._calculateUnreadCount();
+                this._changeDetectorRef.markForCheck();
+            });
     }
 
     /**
@@ -151,7 +177,11 @@ export class NotificationsComponent implements OnInit, OnDestroy {
      */
     delete(notification: Notification): void {
         // Delete the notification
-        this._notificationsService.delete(notification.id).subscribe();
+        this._notificationsService.delete(notification.id).subscribe(() => {
+            // Recalculate unread count
+            this._calculateUnreadCount();
+            this._changeDetectorRef.markForCheck();
+        });
     }
 
     /**
@@ -162,6 +192,28 @@ export class NotificationsComponent implements OnInit, OnDestroy {
      */
     trackByFn(index: number, item: any): any {
         return item.id || index;
+    }
+
+    /**
+     * Get notification type for styling
+     */
+    getNotificationType(notification: Notification): string {
+        // This can be extended based on your notification types
+        return notification.title || 'general';
+    }
+
+    /**
+     * Get time ago for notification
+     */
+    getTimeAgo(time: string): string {
+        const now = new Date();
+        const notificationTime = new Date(time);
+        const diffInMinutes = Math.floor((now.getTime() - notificationTime.getTime()) / (1000 * 60));
+        
+        if (diffInMinutes < 1) return 'Just now';
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+        return `${Math.floor(diffInMinutes / 1440)}d ago`;
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -214,7 +266,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
         // Detach the overlay from the portal on backdrop click
         this._overlayRef.backdropClick().subscribe(() => {
-            this._overlayRef.detach();
+            this.closePanel();
+        });
+
+        // Handle escape key
+        this._overlayRef.keydownEvents().subscribe((event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                this.closePanel();
+            }
         });
     }
 
@@ -233,5 +292,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         }
 
         this.unreadCount = count;
+    }
+
+    /**
+     * Update ARIA attributes for accessibility
+     */
+    private _updateAriaAttributes(): void {
+        if (this._notificationsOrigin) {
+            const button = this._notificationsOrigin._elementRef.nativeElement;
+            button.setAttribute('aria-expanded', this.isPanelOpen.toString());
+            button.setAttribute('aria-label', `Notifications${this.unreadCount > 0 ? ` (${this.unreadCount} unread)` : ''}`);
+        }
     }
 }

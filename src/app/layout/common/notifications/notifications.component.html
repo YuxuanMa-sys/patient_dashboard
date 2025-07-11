@@ -1,204 +1,201 @@
 <!-- Notifications toggle -->
-<button mat-icon-button (click)="openPanel()" #notificationsOrigin>
+<button 
+    mat-icon-button 
+    (click)="openPanel()" 
+    #notificationsOrigin
+    class="notifications-toggle relative transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#0056FB] focus:ring-offset-2 rounded-full"
+    [attr.aria-label]="'Notifications'"
+    [attr.aria-expanded]="isPanelOpen"
+>
     @if (unreadCount > 0) {
-        <span
-            class="absolute left-0 right-0 top-0 flex h-3 items-center justify-center"
-        >
-            <span
-                class="ml-4 mt-2.5 flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-teal-600 px-1 text-xs font-medium text-indigo-50"
-            >
-                {{ unreadCount }}
+        <span class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center">
+            <span class="notification-badge flex h-5 w-5 items-center justify-center rounded-full bg-[#FFB91D] px-1.5 text-xs font-bold text-white shadow-lg animate-pulse">
+                {{ unreadCount > 99 ? '99+' : unreadCount }}
             </span>
         </span>
     }
-    <mat-icon [svgIcon]="'heroicons_outline:bell'"></mat-icon>
+    <mat-icon 
+        [svgIcon]="'heroicons_solid:bell'" 
+        class="text-gray-700 hover:text-[#0056FB] transition-colors duration-200"
+    ></mat-icon>
 </button>
 
 <!-- Notifications panel -->
 <ng-template #notificationsPanel>
-    <div
-        class="fixed inset-0 flex flex-col overflow-hidden shadow-lg sm:static sm:inset-auto sm:w-90 sm:min-w-90 sm:rounded-2xl"
-    >
+    <div class="notifications-panel fixed inset-0 flex flex-col overflow-hidden bg-white/95 backdrop-blur-sm shadow-2xl sm:static sm:inset-auto sm:w-96 sm:min-w-96 sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-xl">
         <!-- Header -->
-        <div
-            class="flex shrink-0 items-center bg-primary py-4 pl-6 pr-4 text-on-primary"
-        >
-            <div class="-ml-1 mr-3 sm:hidden">
-                <button mat-icon-button (click)="closePanel()">
-                    <mat-icon
-                        class="text-current icon-size-5"
-                        [svgIcon]="'heroicons_solid:x-mark'"
-                    ></mat-icon>
-                </button>
+        <div class="notifications-header flex shrink-0 items-center justify-between bg-gradient-to-r from-[#0056FB] to-[#0056FB]/90 py-4 px-6 text-white shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
+                    <mat-icon class="text-white icon-size-5" [svgIcon]="'heroicons_solid:bell'"></mat-icon>
+                </div>
+                <div>
+                    <div class="text-lg font-semibold leading-tight">Notifications</div>
+                    @if (unreadCount > 0) {
+                        <div class="text-xs text-white/80">{{ unreadCount }} unread</div>
+                    }
+                </div>
             </div>
-            <div class="text-lg font-medium leading-10">Notifications</div>
-            <div class="ml-auto">
-                <button
-                    class="dark:text-white"
-                    mat-icon-button
-                    [matTooltip]="'Mark all as read'"
-                    [disabled]="unreadCount === 0"
-                    (click)="markAllAsRead()"
+            <div class="flex items-center gap-2">
+                @if (unreadCount > 0) {
+                    <button
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        [matTooltip]="'Mark all as read'"
+                        [disabled]="unreadCount === 0"
+                        (click)="markAllAsRead()"
+                        aria-label="Mark all notifications as read"
+                    >
+                        <mat-icon class="icon-size-4" [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                    </button>
+                }
+                <button 
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 sm:hidden"
+                    (click)="closePanel()"
+                    aria-label="Close notifications"
                 >
-                    <mat-icon
-                        class="text-current icon-size-5"
-                        [svgIcon]="'heroicons_solid:envelope-open'"
-                    ></mat-icon>
+                    <mat-icon class="icon-size-4" [svgIcon]="'heroicons_solid:x-mark'"></mat-icon>
                 </button>
             </div>
         </div>
 
         <!-- Content -->
-        <div
-            class="bg-card relative flex flex-auto flex-col divide-y overflow-y-auto sm:max-h-120"
-        >
+        <div class="notifications-content bg-white relative flex flex-auto flex-col overflow-y-auto sm:max-h-120">
             <!-- Notifications -->
             @for (
                 notification of notifications;
                 track trackByFn($index, notification)
             ) {
                 <div
-                    class="group flex hover:bg-gray-50 dark:hover:bg-black dark:hover:bg-opacity-5"
-                    [ngClass]="{ unread: !notification.read }"
+                    class="notification-item group relative flex transition-all duration-200 hover:bg-gray-50/80 border-b border-gray-100 last:border-b-0"
+                    [ngClass]="{ 
+                        'unread bg-blue-50/50 border-l-4 border-l-[#0056FB]': !notification.read,
+                        'bg-white': notification.read 
+                    }"
                 >
                     <!-- Notification with a link -->
                     @if (notification.link) {
                         <!-- Normal links -->
                         @if (!notification.useRouter) {
                             <a
-                                class="flex flex-auto cursor-pointer py-5 pl-6"
+                                class="notification-link flex flex-auto cursor-pointer py-4 px-6 transition-colors duration-200 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-[#0056FB] focus:ring-inset"
                                 [href]="notification.link"
+                                [attr.aria-label]="'View notification: ' + (notification.title || notification.userName || 'Notification')"
                             >
-                                <ng-container
-                                    *ngTemplateOutlet="notificationContent"
-                                ></ng-container>
+                                <ng-container *ngTemplateOutlet="notificationContent"></ng-container>
                             </a>
                         }
                         <!-- Router links -->
                         @if (notification.useRouter) {
                             <a
-                                class="flex flex-auto cursor-pointer py-5 pl-6"
+                                class="notification-link flex flex-auto cursor-pointer py-4 px-6 transition-colors duration-200 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-[#0056FB] focus:ring-inset"
                                 [routerLink]="notification.link"
+                                [attr.aria-label]="'View notification: ' + (notification.title || notification.userName || 'Notification')"
                             >
-                                <ng-container
-                                    *ngTemplateOutlet="notificationContent"
-                                ></ng-container>
+                                <ng-container *ngTemplateOutlet="notificationContent"></ng-container>
                             </a>
                         }
                     }
 
                     <!-- Notification without a link -->
                     @if (!notification.link) {
-                        <div class="flex flex-auto py-5 pl-6">
-                            <ng-container
-                                *ngTemplateOutlet="notificationContent"
-                            ></ng-container>
+                        <div class="notification-link flex flex-auto py-4 px-6">
+                            <ng-container *ngTemplateOutlet="notificationContent"></ng-container>
                         </div>
                     }
 
                     <!-- Actions -->
-                    <div class="relative my-5 ml-2 mr-6 flex flex-col">
-                        <!-- Indicator -->
+                    <div class="flex items-center gap-1 py-4 pr-4">
+                        <!-- Read/Unread Toggle -->
                         <button
-                            class="h-6 min-h-6 w-6"
-                            mat-icon-button
+                            class="action-button read-indicator flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0056FB] focus:ring-offset-1"
                             (click)="toggleRead(notification)"
-                            [matTooltip]="
-                                notification.read
-                                    ? 'Mark as unread'
-                                    : 'Mark as read'
-                            "
+                            [matTooltip]="notification.read ? 'Mark as unread' : 'Mark as read'"
+                            [attr.aria-label]="notification.read ? 'Mark as unread' : 'Mark as read'"
+                            [ngClass]="{ 'unread': !notification.read, 'read': notification.read }"
                         >
                             <span
-                                class="h-2 w-2 rounded-full"
+                                class="h-2.5 w-2.5 rounded-full transition-all duration-200"
                                 [ngClass]="{
-                                    'bg-gray-400 dark:bg-gray-500 sm:opacity-0 sm:group-hover:opacity-100':
-                                        notification.read,
-                                    'bg-primary': !notification.read,
+                                    'bg-gray-300 group-hover:bg-gray-400': notification.read,
+                                    'bg-[#0056FB] shadow-sm': !notification.read,
                                 }"
                             ></span>
                         </button>
-                        <!-- Remove -->
+                        
+                        <!-- Delete -->
                         <button
-                            class="h-6 min-h-6 w-6 sm:opacity-0 sm:group-hover:opacity-100"
-                            mat-icon-button
+                            class="action-button delete-button flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 opacity-0 group-hover:opacity-100"
                             (click)="delete(notification)"
-                            [matTooltip]="'Remove'"
+                            [matTooltip]="'Delete notification'"
+                            aria-label="Delete notification"
                         >
-                            <mat-icon
-                                class="icon-size-4"
-                                [svgIcon]="'heroicons_solid:x-mark'"
-                            ></mat-icon>
+                            <mat-icon class="icon-size-4" [svgIcon]="'heroicons_solid:trash'"></mat-icon>
                         </button>
                     </div>
                 </div>
 
                 <!-- Notification content template -->
                 <ng-template #notificationContent>
-                    <!-- Icon -->
-                    @if (notification.icon && !notification.image) {
-                        <div
-                            class="mr-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700"
-                        >
-                            <mat-icon
-                                class="icon-size-5"
-                                [svgIcon]="notification.icon"
-                            >
-                            </mat-icon>
-                        </div>
-                    }
-                    <!-- Image -->
-                    @if (notification.image || notification.userAvatar) {
-                        <img
-                            class="mr-4 h-8 w-8 shrink-0 overflow-hidden rounded-full object-cover object-center"
-                            [src]="notification.image || notification.userAvatar"
-                            [alt]="'Notification image'"
-                        />
-                    }
-                    <!-- Title & time -->
-                    <div class="flex flex-auto flex-col">
-                        <!-- Title/Name on first line -->
-                        <div class="line-clamp-1 font-semibold">
-                            {{ notification.title || notification.userName || 'Notification' }}
-                            @if (notification.message && !notification.title) {
-                                <span class="font-normal">{{ ' ' + notification.message }}</span>
-                            }
-                        </div>
-                        <!-- Time on second line -->
-                        <div class="text-secondary mt-1 text-sm leading-none">
-                            {{ notification.time | date: 'MMM dd, h:mm a' }}
-                        </div>
-                        <!-- Description if exists and different from message -->
-                        @if (notification.description && notification.description !== notification.message) {
-                            <div
-                                class="line-clamp-2 mt-1 text-sm"
-                                [innerHTML]="notification.description"
-                            ></div>
+                    <!-- Icon/Image Container -->
+                    <div class="notification-icon flex-shrink-0 mr-4">
+                        @if (notification.icon && !notification.image) {
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 shadow-sm">
+                                <mat-icon class="icon-size-5 text-gray-600" [svgIcon]="notification.icon"></mat-icon>
+                            </div>
                         }
+                        @if (notification.image || notification.userAvatar) {
+                            <img
+                                class="h-10 w-10 rounded-full object-cover object-center shadow-sm ring-2 ring-white"
+                                [src]="notification.image || notification.userAvatar"
+                                [alt]="'Notification image'"
+                            />
+                        }
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="notification-content flex flex-auto flex-col min-w-0">
+                        <!-- Title/Name -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="title font-semibold text-gray-900 line-clamp-1">
+                                    {{ notification.title || notification.userName || 'Notification' }}
+                                    @if (!notification.read) {
+                                        <span class="new-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-[#0056FB] text-white ml-2">New</span>
+                                    }
+                                </div>
+                                
+                                <!-- Message/Description -->
+                                @if (notification.message && !notification.title) {
+                                    <div class="message text-gray-600 text-sm line-clamp-2 mt-1">{{ notification.message }}</div>
+                                }
+                                @if (notification.description && notification.description !== notification.message) {
+                                    <div class="message text-gray-600 text-sm line-clamp-2 mt-1" [innerHTML]="notification.description"></div>
+                                }
+                                
+                                <!-- Time -->
+                                <div class="flex items-center gap-2 mt-2">
+                                    <span class="time text-xs text-gray-400 font-medium">
+                                        {{ getTimeAgo(notification.time) }}
+                                    </span>
+                                    @if (!notification.read) {
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[#0056FB] animate-pulse"></span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </ng-template>
             }
 
             <!-- No notifications -->
             @if (!notifications || !notifications.length) {
-                <div
-                    class="flex flex-auto flex-col items-center justify-center px-8 py-12 sm:justify-start"
-                >
-                    <div
-                        class="flex h-14 w-14 flex-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-600"
-                    >
-                        <mat-icon
-                            class="text-primary-700 dark:text-primary-50"
-                            [svgIcon]="'heroicons_outline:bell'"
-                        ></mat-icon>
+                <div class="empty-state flex flex-auto flex-col items-center justify-center px-8 py-16 text-center">
+                    <div class="empty-icon flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mb-4">
+                        <mat-icon class="text-gray-400 icon-size-8" [svgIcon]="'heroicons_outline:bell'"></mat-icon>
                     </div>
-                    <div class="mt-5 text-2xl font-semibold tracking-tight">
-                        No notifications
-                    </div>
-                    <div
-                        class="text-secondary mt-1 w-full max-w-60 text-center text-md"
-                    >
-                        When you have notifications, they will appear here.
+                    <div class="text-xl font-semibold text-gray-900 mb-2">No notifications</div>
+                    <div class="text-gray-500 text-sm max-w-64">
+                        When you have notifications, they will appear here with a beautiful design.
                     </div>
                 </div>
             }
