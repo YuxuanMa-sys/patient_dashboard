@@ -4,7 +4,7 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px) scale(0.95);
+    transform: translateY(-8px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -21,68 +21,35 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0, 0, 0);
-  }
-  40%, 43% {
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -2px, 0);
-  }
-}
-
 // Notification panel animations
 .notifications-panel {
-  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: slideIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
 }
 
 // Toggle button enhancements
 .notifications-toggle {
   position: relative;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 86, 251, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 86, 251, 0.10);
+    transform: none;
   }
-  
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 86, 251, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 86, 251, 0.10);
   }
-  
   &:active {
-    transform: scale(0.95);
+    transform: none;
   }
 }
 
 // Badge styling
 .notification-badge {
-  animation: bounce 1s infinite;
-  box-shadow: 0 4px 8px rgba(255, 185, 29, 0.3);
-  
-  &.pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+  box-shadow: 0 2px 4px rgba(255, 185, 29, 0.18);
+  animation: none;
 }
 
 // Header enhancements
@@ -90,162 +57,101 @@
   background: linear-gradient(135deg, #0056FB 0%, rgba(0, 86, 251, 0.9) 100%);
   position: relative;
   overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-    animation: shimmer 3s infinite;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  &::before { display: none; }
 }
 
 // Notification items
 .notification-item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.18s, box-shadow 0.18s;
   position: relative;
-  
+  box-shadow: none;
   &:hover {
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: #f6f8fa;
+    box-shadow: none;
+    transform: none;
   }
-  
   &.unread {
-    background: linear-gradient(90deg, rgba(0, 86, 251, 0.05) 0%, rgba(0, 86, 251, 0.02) 100%);
-    border-left: 4px solid #0056FB;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, #0056FB 0%, rgba(0, 86, 251, 0.8) 100%);
-      border-radius: 0 2px 2px 0;
-    }
+    background: #eaf2fd;
+    border-left: 3px solid #0056FB;
+    &::before { display: none; }
   }
-  
-  // Hover effects for action buttons
-  .action-button {
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    &:hover {
-      transform: scale(1.1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-  }
-  
-  &:hover .action-button {
-    opacity: 1;
-    transform: scale(1);
-  }
+}
+
+// Action buttons
+.notification-item .action-button {
+  opacity: 0;
+  transform: none;
+  transition: opacity 0.18s;
+}
+.notification-item:hover .action-button {
+  opacity: 1;
 }
 
 // Icon container enhancements
 .notification-icon {
   position: relative;
-  transition: all 0.2s ease;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-  
-  &:hover::after {
-    opacity: 1;
-  }
+  transition: none;
+  &::after { display: none; }
 }
 
 // Content enhancements
-.notification-content {
-  .title {
-    font-weight: 600;
-    color: #1f2937;
-    line-height: 1.4;
-  }
-  
-  .message {
-    color: #6b7280;
-    line-height: 1.5;
-  }
-  
-  .time {
-    color: #9ca3af;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
+.notification-content .title {
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+}
+.notification-content .message {
+  color: #6b7280;
+  line-height: 1.5;
+}
+.notification-content .time {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 // New badge styling
 .new-badge {
-  background: linear-gradient(135deg, #0056FB 0%, rgba(0, 86, 251, 0.9) 100%);
-  box-shadow: 0 2px 4px rgba(0, 86, 251, 0.2);
-  animation: pulse 2s infinite;
+  background: #0056FB;
+  box-shadow: none;
+  animation: none;
 }
 
 // Read indicator
 .read-indicator {
-  transition: all 0.2s ease;
-  
+  transition: background 0.18s;
   &.unread {
     background: #0056FB;
-    box-shadow: 0 0 0 2px rgba(0, 86, 251, 0.2);
-    animation: pulse 2s infinite;
+    box-shadow: none;
+    animation: none;
   }
-  
   &.read {
     background: #d1d5db;
-    
-    &:hover {
-      background: #9ca3af;
-    }
+    &:hover { background: #9ca3af; }
   }
 }
 
 // Delete button styling
 .delete-button {
   color: #6b7280;
-  transition: all 0.2s ease;
-  
+  transition: background 0.18s, color 0.18s;
   &:hover {
     background: #fef2f2;
     color: #dc2626;
-    transform: scale(1.1);
+    transform: none;
   }
-  
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.12);
   }
 }
 
 // Empty state enhancements
 .empty-state {
-  animation: fadeIn 0.5s ease-out;
-  
+  animation: fadeIn 0.3s ease-out;
   .empty-icon {
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 }
 
