@@ -188,10 +188,16 @@ export class ProvidersComponent implements OnInit {
      * Get provider ID for display
      */
     getProviderId(provider: any): string {
-        if (provider.id) {
-            return `DEX${provider.id.substring(0, 4).toUpperCase()}`;
+        // If provider.id is a number or string, always format as DEX + 4-digit number
+        let num = 1;
+        if (provider.id && !isNaN(Number(provider.id))) {
+            num = Number(provider.id);
+        } else if (provider.id && typeof provider.id === 'string') {
+            // Try to extract trailing digits
+            const match = provider.id.match(/(\d+)$/);
+            if (match) num = Number(match[1]);
         }
-        return `DEX${Math.floor(Math.random() * 9999).toString().padStart(4, '0')}`;
+        return `DEX${num.toString().padStart(4, '0')}`;
     }
 
     /**
