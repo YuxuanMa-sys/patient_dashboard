@@ -44,3 +44,7 @@ input.filter-active ~ .absolute mat-icon {
 .filter-active-parent .absolute img {
     filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
 }
+.rounded-input {
+  background: #fff !important;
+  border-radius: 9999px;
+}

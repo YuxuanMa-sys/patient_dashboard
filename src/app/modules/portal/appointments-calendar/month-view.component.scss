@@ -1,0 +1,111 @@
+$primary: #0056FB;
+$inperson: #FFB91D;
+
+.calendar-month-view {
+  width: 100%;
+  background: #f8fafc;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,86,251,0.06);
+  overflow-x: auto;
+  padding: 1.5rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-day-header {
+  flex: 1 1 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #334155;
+  padding: 0.5rem 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.calendar-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.calendar-week-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 80px;
+}
+
+.calendar-cell {
+  flex: 1 1 0;
+  min-width: 110px;
+  background: #fff;
+  border-radius: 1rem;
+  margin: 0.1rem;
+  padding: 0.5rem 0.5rem 0.3rem 0.5rem;
+  box-shadow: 0 1px 4px rgba(0,86,251,0.04);
+  position: relative;
+  transition: box-shadow 0.15s;
+  &.today {
+    border: 2px solid $primary;
+    box-shadow: 0 2px 8px rgba(0,86,251,0.10);
+  }
+  &.outside {
+    background: #f1f5f9;
+    color: #b6bbc7;
+    opacity: 0.7;
+  }
+}
+
+.calendar-date {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.3rem;
+}
+
+.calendar-appts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.calendar-dot {
+  display: inline-block;
+  font-size: 1.5rem;
+  line-height: 1;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  text-align: center;
+  vertical-align: middle;
+  &.virtual {
+    color: $primary;
+  }
+  &.inperson {
+    color: $inperson;
+  }
+}
+
+.calendar-more {
+  display: inline-block;
+  background: #e0e7ff;
+  color: $primary;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 9999px;
+  padding: 0.15em 0.9em;
+  margin-left: 0.2em;
+  box-shadow: 0 1px 4px rgba(0,86,251,0.08);
+}
+
+@media (max-width: 900px) {
+  .calendar-day-header, .calendar-cell { min-width: 80px; }
+}
+@media (max-width: 600px) {
+  .calendar-month-view { padding: 0.5rem; }
+  .calendar-day-header, .calendar-cell { min-width: 60px; font-size: 0.95rem; }
+} 

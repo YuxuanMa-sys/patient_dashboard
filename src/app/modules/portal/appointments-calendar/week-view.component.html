@@ -1,0 +1,32 @@
+<div class="calendar-week-view">
+  <div class="calendar-header">
+    <div class="calendar-time-col"></div>
+    <div *ngFor="let day of weekDays" class="calendar-day-header" [class.today]="isToday(day)">
+      {{ day | date:'EEE d' }}
+    </div>
+  </div>
+  <div class="calendar-body">
+    <div *ngFor="let time of timeSlots" class="calendar-row">
+      <div class="calendar-time-col">{{ time }}</div>
+      <div *ngFor="let day of weekDays" class="calendar-cell">
+        <ng-container *ngFor="let appt of getAppointments(day, time); let i = index">
+          <ng-container *ngIf="i < maxCards">
+            <div class="appointment-card" [ngClass]="appt.type">
+              <div class="card-title">{{ appt.patientName }}</div>
+              <div class="card-meta">
+                <span class="card-type">{{ appt.appointmentType }}</span>
+                <span class="card-doctor">{{ appt.doctorName }}</span>
+                <span class="card-badge" [ngClass]="appt.isVirtual ? 'virtual' : 'inperson'">
+                  {{ appt.isVirtual ? 'Virtual' : 'In-Person' }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="getAppointments(day, time).length > maxCards">
+          <span class="calendar-more">+{{ getAppointments(day, time).length - maxCards }} more</span>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div> 

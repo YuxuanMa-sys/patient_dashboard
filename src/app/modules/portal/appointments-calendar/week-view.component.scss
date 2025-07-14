@@ -1,0 +1,133 @@
+$primary: #0056FB;
+$inperson: #FFB91D;
+
+.calendar-week-view {
+  width: 100%;
+  background: #f8fafc;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px rgba(0,86,251,0.06);
+  overflow-x: auto;
+  padding: 1.5rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-time-col {
+  width: 60px;
+  min-width: 60px;
+  text-align: right;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding-right: 1rem;
+}
+
+.calendar-day-header {
+  flex: 1 1 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #334155;
+  padding: 0.5rem 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+  &.today {
+    background: $primary;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,86,251,0.10);
+  }
+}
+
+.calendar-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 64px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.calendar-cell {
+  flex: 1 1 0;
+  min-width: 120px;
+  padding: 0.25rem 0.25rem 0.25rem 0;
+  position: relative;
+}
+
+.appointment-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0,86,251,0.08);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-left: 4px solid $primary;
+  font-size: 0.98rem;
+  .card-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+    color: #64748b;
+    .card-type {
+      font-weight: 600;
+      color: $primary;
+    }
+    .card-doctor {
+      color: #334155;
+      font-weight: 500;
+    }
+    .card-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 0.1em 0.8em;
+      margin-left: 0.25em;
+      &.virtual {
+        background: $primary;
+        color: #fff;
+      }
+      &.inperson {
+        background: $inperson;
+        color: #111;
+      }
+    }
+  }
+}
+
+.calendar-more {
+  display: inline-block;
+  background: #e0e7ff;
+  color: $primary;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 9999px;
+  padding: 0.15em 0.9em;
+  margin-top: 0.2em;
+  box-shadow: 0 1px 4px rgba(0,86,251,0.08);
+}
+
+@media (max-width: 900px) {
+  .calendar-day-header, .calendar-cell { min-width: 90px; }
+}
+@media (max-width: 600px) {
+  .calendar-week-view { padding: 0.5rem; }
+  .calendar-day-header, .calendar-cell { min-width: 70px; font-size: 0.95rem; }
+  .appointment-card { padding: 0.5rem 0.5rem; font-size: 0.92rem; }
+} 

@@ -193,3 +193,21 @@ table {
     grid-template-columns: 1fr;
   }
 }
+
+.primary-blue-btn {
+  background-color: #0056FB !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, box-shadow 0.2s;
+
+  &:hover,
+  &:focus {
+    background-color: #0046c7 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 8px rgba(0, 86, 251, 0.15);
+  }
+}

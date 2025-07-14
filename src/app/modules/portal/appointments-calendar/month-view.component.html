@@ -1,0 +1,24 @@
+<div class="calendar-month-view">
+  <div class="calendar-header">
+    <div *ngFor="let day of weekDays" class="calendar-day-header">{{ day }}</div>
+  </div>
+  <div class="calendar-body">
+    <div *ngFor="let week of monthWeeks" class="calendar-week-row">
+      <div *ngFor="let day of week" class="calendar-cell" [class.today]="isToday(day)" [class.outside]="!isCurrentMonth(day)">
+        <div class="calendar-date">{{ day.getDate() }}</div>
+        <div class="calendar-appts">
+          <ng-container *ngFor="let appt of getAppointments(day); let i = index">
+            <ng-container *ngIf="i < 3">
+              <span class="calendar-dot" [ngClass]="appt.isVirtual ? 'virtual' : 'inperson'" [title]="appt.patientName + ' - ' + appt.appointmentType">
+                •
+              </span>
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="getAppointments(day).length > 3">
+            <span class="calendar-more">+{{ getAppointments(day).length - 3 }}</span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
